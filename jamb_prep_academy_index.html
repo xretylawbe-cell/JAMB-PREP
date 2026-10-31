@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#102b55" />
+  <title>JAMB Prep Academy</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{--navy:#102b55;--blue:#2463eb;--pale:#edf4ff;--ink:#17243a;--muted:#6b7890;--line:#e4eaf2;--white:#fff;--bg:#f5f7fb;--green:#13845b;--red:#b42318}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif}
+    button,input{font:inherit}button{cursor:pointer}.hidden{display:none!important}
+    .top{background:linear-gradient(135deg,#102b55,#1d4f9a);color:white;padding:22px 18px 26px;border-radius:0 0 25px 25px}
+    .toprow{display:flex;justify-content:space-between;align-items:center;gap:12px}.brand{font-weight:850;letter-spacing:.2px;font-size:18px}.tag{font-size:11px;opacity:.8;margin-top:3px}
+    .avatar{width:40px;height:40px;border-radius:50%;background:#ffffff25;display:grid;place-items:center;font-weight:800}
+    .welcome{margin-top:25px}.welcome h1{font-size:25px;line-height:1.15;margin:0 0 7px}.welcome p{margin:0;color:#dce8ff;font-size:13px}
+    .wrap{max-width:850px;margin:auto;padding:16px 15px 95px}.card{background:white;border:1px solid var(--line);border-radius:17px;padding:16px;margin-bottom:13px;box-shadow:0 4px 15px #142b4b08}
+    .sectionhead{display:flex;justify-content:space-between;align-items:center;margin:20px 2px 11px}.sectionhead h2{font-size:17px;margin:0}.muted{color:var(--muted);font-size:13px}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.tile{background:#fff;border:1px solid var(--line);border-radius:15px;padding:15px;text-align:left;min-height:112px}
+    .tile .emoji{font-size:24px}.tile b{display:block;margin:9px 0 3px;font-size:14px}.tile small{color:var(--muted);font-size:11px}
+    .btn{border:0;border-radius:12px;padding:12px 15px;background:var(--blue);color:#fff;font-weight:700}.btn.secondary{background:var(--pale);color:var(--navy)}.btn.ghost{background:#f1f3f7;color:var(--ink)}.btn.danger{background:#fff0ef;color:var(--red)}
+    .btn.full{width:100%}.btn:disabled{opacity:.5;cursor:not-allowed}
+    .field{margin:12px 0}.field label{display:block;font-size:12px;font-weight:700;margin-bottom:6px}.field input{width:100%;border:1px solid #d8e0eb;border-radius:11px;padding:13px;background:white;outline:none}.field input:focus{border-color:var(--blue);box-shadow:0 0 0 3px #2463eb16}
+    .authbox{max-width:440px;margin:45px auto;padding:20px}.authbox h2{margin:0 0 5px}.authswitch{text-align:center;font-size:13px;color:var(--muted);margin-top:15px}
+    .link{color:var(--blue);font-weight:700;border:0;background:none;padding:0}
+    .nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:9px 4px calc(9px + env(safe-area-inset-bottom));z-index:5}
+    .nav button{background:none;border:0;color:var(--muted);font-size:10px;display:grid;gap:4px;justify-items:center;min-width:55px}.nav button span{font-size:19px}.nav button.active{color:var(--blue);font-weight:800}
+    .row{display:flex;justify-content:space-between;align-items:center;gap:12px}.item{padding:13px 0;border-bottom:1px solid var(--line)}.item:last-child{border-bottom:0}
+    .item h3{font-size:14px;margin:0 0 5px}.item p{font-size:12px;color:var(--muted);margin:0;line-height:1.5}
+    .pill{display:inline-block;background:var(--pale);color:#2453a0;border-radius:30px;padding:5px 9px;font-size:10px;font-weight:750}
+    .notice{padding:12px;border-radius:12px;background:#fff8e8;color:#805500;font-size:12px;line-height:1.5;margin:10px 0}
+    .success{background:#eaf8f1;color:#126744}.error{background:#fff0ef;color:#a12b23}
+    .empty{text-align:center;padding:28px 12px;color:var(--muted);font-size:13px}
+    .back{border:0;background:none;color:var(--blue);font-weight:750;padding:0;margin:2px 0 14px}
+    .lessonbody{font-size:14px;line-height:1.75;white-space:pre-wrap}.media{width:100%;border-radius:12px;margin-top:10px}
+    .statrow{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.stat{background:#f4f7fc;border-radius:13px;padding:13px}.stat strong{font-size:22px;display:block}.stat small{color:var(--muted)}
+    @media(min-width:650px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.wrap{padding-top:22px}.top{padding-left:max(22px,calc((100% - 820px)/2));padding-right:max(22px,calc((100% - 820px)/2))}}
+  </style>
+</head>
+<body>
+  <section id="authScreen">
+    <header class="top"><div class="toprow"><div><div class="brand">JAMB PREP ACADEMY</div><div class="tag">Learn. Practise. Prepare. Succeed.</div></div><div class="avatar">J</div></div>
+      <div class="welcome"><h1>Your JAMB preparation<br>starts here.</h1><p>Learn at your pace and prepare with confidence.</p></div>
+    </header>
+    <div class="card authbox">
+      <div id="loginForm">
+        <h2>Welcome back</h2><p class="muted">Sign in to continue learning.</p>
+        <div class="field"><label>Email address</label><input id="loginEmail" type="email" autocomplete="email" placeholder="you@example.com"></div>
+        <div class="field"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Your password"></div>
+        <button class="btn full" id="loginBtn">Sign in</button>
+        <div class="authswitch">New student? <button class="link" id="showSignup">Create an account</button></div>
+      </div>
+      <div id="signupForm" class="hidden">
+        <h2>Create your account</h2><p class="muted">Register to access lessons and classes.</p>
+        <div class="field"><label>Full name</label><input id="signupName" autocomplete="name" placeholder="Your full name"></div>
+        <div class="field"><label>Email address</label><input id="signupEmail" type="email" autocomplete="email" placeholder="you@example.com"></div>
+        <div class="field"><label>Phone number (optional)</label><input id="signupPhone" type="tel" placeholder="080..."></div>
+        <div class="field"><label>Create password</label><input id="signupPassword" type="password" autocomplete="new-password" placeholder="At least 6 characters"></div>
+        <button class="btn full" id="signupBtn">Create account</button>
+        <div class="authswitch">Already registered? <button class="link" id="showLogin">Sign in</button></div>
+      </div>
+      <div id="authMessage" class="notice hidden"></div>
+    </div>
+  </section>
+
+  <section id="appScreen" class="hidden">
+    <header class="top">
+      <div class="toprow"><div><div class="brand">JAMB PREP ACADEMY</div><div class="tag">Your learning space</div></div><div class="avatar" id="avatarLetter">S</div></div>
+      <div class="welcome"><h1 id="greeting">Hello, student!</h1><p>Keep learning. Every topic brings you closer to your goal.</p></div>
+    </header>
+    <main class="wrap">
+      <section id="homePage">
+        <div class="card">
+          <div class="row"><div><b>My learning</b><div class="muted">Your preparation at a glance</div></div><span class="pill">STUDENT</span></div>
+          <div class="statrow" style="margin-top:14px"><div class="stat"><strong id="subjectCount">0</strong><small>Available subjects</small></div><div class="stat"><strong id="lessonCount">0</strong><small>Published lessons</small></div></div>
+        </div>
+        <div class="sectionhead"><h2>Continue your preparation</h2></div>
+        <div class="grid">
+          <button class="tile" data-go="subjects"><span class="emoji">📚</span><b>My Subjects</b><small>Explore subjects and topics</small></button>
+          <button class="tile" data-go="classes"><span class="emoji">🎥</span><b>Classes</b><small>Live and recorded classes</small></button>
+          <button class="tile" data-go="practice"><span class="emoji">✍️</span><b>CBT Practice</b><small>Practise exam questions</small></button>
+          <button class="tile" data-go="progress"><span class="emoji">📈</span><b>My Progress</b><small>Track your learning</small></button>
+        </div>
+        <div class="sectionhead"><h2>Latest lessons</h2><button class="link" data-go="subjects">View all</button></div>
+        <div class="card" id="latestLessons"><div class="empty">Loading lessons...</div></div>
+      </section>
+      <section id="subjectsPage" class="hidden"><div class="sectionhead"><h2>JAMB Subjects</h2></div><div class="card" id="subjectsList"><div class="empty">Loading subjects...</div></div></section>
+      <section id="topicsPage" class="hidden"><button class="back" data-back="subjects">← Subjects</button><div class="sectionhead"><h2 id="topicsTitle">Topics</h2></div><div class="card" id="topicsList"></div></section>
+      <section id="lessonsPage" class="hidden"><button class="back" data-back="topics">← Topics</button><div class="sectionhead"><h2 id="lessonsTitle">Lessons</h2></div><div class="card" id="lessonsList"></div></section>
+      <section id="lessonPage" class="hidden"><button class="back" data-back="lessons">← Lessons</button><div class="card" id="lessonDetail"></div></section>
+      <section id="classesPage" class="hidden"><div class="sectionhead"><h2>Classes</h2></div><div class="card" id="classesList"><div class="empty">Loading classes...</div></div></section>
+      <section id="practicePage" class="hidden"><div class="sectionhead"><h2>CBT Practice</h2></div><div class="card"><div class="notice">The CBT examination module is the next build stage. It will include timed tests, answer submission, automatic marking and explanations.</div><p class="muted">Your practice area will appear here when the question bank and secure marking service are connected.</p></div></section>
+      <section id="progressPage" class="hidden"><div class="sectionhead"><h2>My Progress</h2></div><div class="card" id="progressContent"><div class="empty">Loading progress...</div></div></section>
+      <section id="profilePage" class="hidden"><div class="sectionhead"><h2>My Account</h2></div><div class="card"><p id="profileName"></p><p class="muted" id="profileEmail"></p><button class="btn secondary full" id="logoutBtn">Sign out</button></div></section>
+    </main>
+    <nav class="nav" id="bottomNav">
+      <button class="active" data-page="home"><span>⌂</span>Home</button>
+      <button data-page="subjects"><span>▤</span>Subjects</button>
+      <button data-page="classes"><span>▶</span>Classes</button>
+      <button data-page="practice"><span>✎</span>CBT</button>
+      <button data-page="profile"><span>◉</span>Account</button>
+    </nav>
+  </section>
+
+<script>
+(() => {
+  const SUPABASE_URL = "https://hgaywdgygjagtypnryfs.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_5ggvkl1i7IlezKsVK1AfUw_ewxOOauv";
+  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const tg = window.Telegram?.WebApp;
+  if (tg) { tg.ready(); tg.expand(); }
+
+  const $ = id => document.getElementById(id);
+  let currentUser = null, profile = null, activeSubject = null, activeTopic = null, activeLesson = null;
+  let subjectsCache = [], lessonsCache = [];
+  const pages = ["home","subjects","topics","lessons","lesson","classes","practice","progress","profile"];
+
+  function message(text, type="") {
+    const box = $("authMessage"); box.textContent = text; box.className = "notice " + type;
+    box.classList.remove("hidden");
+  }
+  function clearMessage(){ $("authMessage").classList.add("hidden"); }
+  function showAuth(which) {
+    $("loginForm").classList.toggle("hidden", which !== "login");
+    $("signupForm").classList.toggle("hidden", which !== "signup"); clearMessage();
+  }
+  function showPage(page) {
+    pages.forEach(p => { const el = $(p+"Page"); if(el) el.classList.toggle("hidden", p !== page); });
+    $("bottomNav").querySelectorAll("button").forEach(b => b.classList.toggle("active", b.dataset.page === page));
+    window.scrollTo({top:0,behavior:"smooth"});
+    if(page==="subjects") loadSubjects();
+    if(page==="classes") loadClasses();
+    if(page==="progress") loadProgress();
+  }
+  function safeText(value) {
+    return String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  }
+  function empty(text){ return `<div class="empty">${safeText(text)}</div>`; }
+
+  $("showSignup").onclick = () => showAuth("signup");
+  $("showLogin").onclick = () => showAuth("login");
+
+  $("signupBtn").onclick = async () => {
+    clearMessage();
+    const name=$("signupName").value.trim(), email=$("signupEmail").value.trim(), phone=$("signupPhone").value.trim(), password=$("signupPassword").value;
+    if(!name || !email || password.length<6){ message("Enter your name, a valid email and a password of at least 6 characters.","error"); return; }
+    $("signupBtn").disabled=true; $("signupBtn").textContent="Creating account...";
+    const {data,error}=await db.auth.signUp({email,password,options:{data:{full_name:name,phone}}});
+    $("signupBtn").disabled=false; $("signupBtn").textContent="Create account";
+    if(error){message(error.message,"error");return;}
+    if(data.session){ await ensureProfile(data.user,name,phone); await enterApp(data.user); }
+    else { message("Account created. Check your email for the confirmation link, then return here and sign in.","success"); showAuth("login"); }
+  };
+
+  $("loginBtn").onclick = async () => {
+    clearMessage(); const email=$("loginEmail").value.trim(), password=$("loginPassword").value;
+    if(!email || !password){message("Enter your email and password.","error");return;}
+    $("loginBtn").disabled=true; $("loginBtn").textContent="Signing in...";
+    const {data,error}=await db.auth.signInWithPassword({email,password});
+    $("loginBtn").disabled=false; $("loginBtn").textContent="Sign in";
+    if(error){message(error.message,"error");return;}
+    await enterApp(data.user);
+  };
+
+  async function ensureProfile(user,name="",phone="") {
+    const row={id:user.id,full_name:name || user.user_metadata?.full_name || "",email:user.email || "",phone:phone || user.user_metadata?.phone || ""};
+    const {error}=await db.from("profiles").upsert(row,{onConflict:"id"});
+    if(error) console.warn("Profile sync:",error.message);
+  }
+
+  async function enterApp(user) {
+    currentUser=user;
+    await ensureProfile(user);
+    const {data}=await db.from("profiles").select("*").eq("id",user.id).maybeSingle();
+    profile=data || {full_name:user.user_metadata?.full_name || "Student",email:user.email};
+    $("authScreen").classList.add("hidden"); $("appScreen").classList.remove("hidden");
+    const first=(profile.full_name || "S").trim().charAt(0).toUpperCase();
+    $("avatarLetter").textContent=first;
+    $("greeting").textContent="Hello, "+((profile.full_name||"Student").split(" ")[0])+"!";
+    $("profileName").textContent=profile.full_name || "Student";
+    $("profileEmail").textContent=profile.email || user.email || "";
+    await loadHome(); showPage("home");
+  }
+
+  async function loadHome() {
+    const [s,l]=await Promise.all([
+      db.from("subjects").select("id",{count:"exact",head:true}).eq("is_published",true),
+      db.from("lessons").select("id",{count:"exact",head:true}).eq("is_published",true)
+    ]);
+    $("subjectCount").textContent=s.count ?? 0; $("lessonCount").textContent=l.count ?? 0;
+    const {data,error}=await db.from("lessons").select("id,title,summary,lesson_type,topic_id,created_at").eq("is_published",true).order("created_at",{ascending:false}).limit(4);
+    if(error){$("latestLessons").innerHTML=empty("Could not load lessons yet.");return;}
+    lessonsCache=data||[];
+    $("latestLessons").innerHTML=lessonsCache.length ? lessonsCache.map(x=>`<div class="item"><div class="row"><div><h3>${safeText(x.title)}</h3><p>${safeText(x.summary||"Open this lesson from its subject topic.")}</p></div><span class="pill">${safeText(x.lesson_type)}</span></div></div>`).join("") : empty("No lessons have been published yet.");
+  }
+
+  async function loadSubjects() {
+    $("subjectsList").innerHTML=empty("Loading subjects...");
+    const {data,error}=await db.from("subjects").select("*").eq("is_published",true).order("sort_order");
+    if(error){$("subjectsList").innerHTML=empty("Unable to load subjects. Check your Supabase policies.");return;}
+    subjectsCache=data||[];
+    $("subjectsList").innerHTML=subjectsCache.length ? subjectsCache.map(s=>`<div class="item row"><div><h3>${safeText(s.name)}</h3><p>${safeText(s.description||"Explore lessons and topics")}</p></div><button class="btn secondary" data-subject="${s.id}">Open</button></div>`).join("") : empty("Subjects will appear here when the academy publishes them.");
+    $("subjectsList").querySelectorAll("[data-subject]").forEach(b=>b.onclick=()=>openSubject(Number(b.dataset.subject)));
+  }
+
+  async function openSubject(id) {
+    activeSubject=subjectsCache.find(s=>s.id===id); if(!activeSubject)return;
+    $("topicsTitle").textContent=activeSubject.name+" topics"; $("topicsList").innerHTML=empty("Loading topics...");
+    showPage("topics");
+    const {data,error}=await db.from("topics").select("*").eq("subject_id",id).eq("is_published",true).order("sort_order");
+    if(error){$("topicsList").innerHTML=empty("Unable to load topics.");return;}
+    $("topicsList").innerHTML=data?.length ? data.map(t=>`<div class="item row"><div><h3>${safeText(t.name)}</h3><p>${safeText(t.description||"Open topic lessons")}</p></div><button class="btn secondary" data-topic="${t.id}">Open</button></div>`).join("") : empty("No topics have been published for this subject yet.");
+    $("topicsList").querySelectorAll("[data-topic]").forEach(b=>b.onclick=()=>openTopic(Number(b.dataset.topic),data));
+  }
+
+  async function openTopic(id,topics) {
+    activeTopic=topics.find(t=>t.id===id); if(!activeTopic)return;
+    $("lessonsTitle").textContent=activeTopic.name; $("lessonsList").innerHTML=empty("Loading lessons...");
+    showPage("lessons");
+    const {data,error}=await db.from("lessons").select("*").eq("topic_id",id).eq("is_published",true).order("sort_order");
+    if(error){$("lessonsList").innerHTML=empty("Unable to load lessons.");return;}
+    $("lessonsList").innerHTML=data?.length ? data.map(l=>`<div class="item row"><div><h3>${safeText(l.title)}</h3><p>${safeText(l.summary||"Learning material")} · ${safeText(l.lesson_type)}</p></div><button class="btn secondary" data-lesson="${l.id}">Study</button></div>`).join("") : empty("No lessons have been added to this topic yet.");
+    $("lessonsList").querySelectorAll("[data-lesson]").forEach(b=>b.onclick=()=>openLesson(Number(b.dataset.lesson),data));
+  }
+
+  async function openLesson(id,lessons) {
+    activeLesson=lessons.find(l=>l.id===id); if(!activeLesson)return;
+    const l=activeLesson;
+    let media="";
+    if(l.video_url) media+=`<video class="media" controls playsinline src="${safeText(l.video_url)}"></video>`;
+    if(l.audio_url) media+=`<audio class="media" controls src="${safeText(l.audio_url)}"></audio>`;
+    $("lessonDetail").innerHTML=`<span class="pill">${safeText(l.lesson_type)}</span><h2>${safeText(l.title)}</h2><p class="muted">${safeText(l.summary||"")}</p>${media}<div class="lessonbody">${safeText(l.written_content||"Written notes have not been added to this lesson yet.")}</div><button class="btn full" id="completeLesson" style="margin-top:18px">Mark lesson as completed</button><div id="lessonFeedback"></div>`;
+    $("completeLesson").onclick=async()=>{
+      const {error}=await db.from("lesson_progress").upsert({student_id:currentUser.id,lesson_id:l.id,completed:true,updated_at:new Date().toISOString()},{onConflict:"student_id,lesson_id"});
+      $("lessonFeedback").innerHTML=error?`<div class="notice error">${safeText(error.message)}</div>`:`<div class="notice success">Lesson marked as completed.</div>`;
+    };
+    showPage("lesson");
+  }
+
+  async function loadClasses() {
+    $("classesList").innerHTML=empty("Loading classes...");
+    const {data,error}=await db.from("class_sessions").select("*").eq("is_published",true).order("starts_at",{ascending:true});
+    if(error){$("classesList").innerHTML=empty("Unable to load classes.");return;}
+    $("classesList").innerHTML=data?.length ? data.map(c=>{
+      const date=c.starts_at?new Date(c.starts_at).toLocaleString():"Date to be announced";
+      const link=c.class_type==="live"?c.meeting_url:c.recording_url;
+      return `<div class="item"><div class="row"><div><span class="pill">${safeText(c.class_type)}</span><h3 style="margin-top:7px">${safeText(c.title)}</h3><p>${safeText(c.description||"")}</p><p style="margin-top:5px">${safeText(date)}</p></div></div>${link?`<a class="btn secondary" style="display:inline-block;text-decoration:none;margin-top:10px" href="${safeText(link)}" target="_blank" rel="noopener">${c.class_type==="live"?"Join class":"Watch recording"}</a>`:""}</div>`;
+    }).join(""):empty("No classes have been announced yet.");
+  }
+
+  async function loadProgress() {
+    $("progressContent").innerHTML=empty("Loading progress...");
+    const {data,error}=await db.from("lesson_progress").select("id,completed").eq("student_id",currentUser.id);
+    if(error){$("progressContent").innerHTML=empty("Unable to load your progress.");return;}
+    const completed=(data||[]).filter(x=>x.completed).length;
+    $("progressContent").innerHTML=`<div class="statrow"><div class="stat"><strong>${completed}</strong><small>Lessons completed</small></div><div class="stat"><strong>${(data||[]).length}</strong><small>Lessons started</small></div></div><p class="muted" style="margin-top:14px">Your completed lessons will be recorded here as you study.</p>`;
+  }
+
+  $("logoutBtn").onclick=async()=>{await db.auth.signOut();currentUser=null;profile=null;$("appScreen").classList.add("hidden");$("authScreen").classList.remove("hidden");showAuth("login");};
+  document.addEventListener("click",e=>{
+    const go=e.target.closest("[data-go]"); if(go)showPage(go.dataset.go);
+    const nav=e.target.closest("[data-page]"); if(nav)showPage(nav.dataset.page);
+    const back=e.target.closest("[data-back]"); if(back)showPage(back.dataset.back);
+  });
+
+  db.auth.getSession().then(async({data})=>{
+    if(data.session) await enterApp(data.session.user);
+  });
+  db.auth.onAuthStateChange(async(event,session)=>{
+    if(event==="SIGNED_OUT"){ $("appScreen").classList.add("hidden"); $("authScreen").classList.remove("hidden"); }
+  });
+})();
+</script>
+</body>
+</html>
