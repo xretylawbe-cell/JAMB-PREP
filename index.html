@@ -1,276 +1,245 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#102b55" />
-  <title>JAMB Prep Academy</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    :root{--navy:#102b55;--blue:#2463eb;--pale:#edf4ff;--ink:#17243a;--muted:#6b7890;--line:#e4eaf2;--white:#fff;--bg:#f5f7fb;--green:#13845b;--red:#b42318}
-    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif}
-    button,input{font:inherit}button{cursor:pointer}.hidden{display:none!important}
-    .top{background:linear-gradient(135deg,#102b55,#1d4f9a);color:white;padding:22px 18px 26px;border-radius:0 0 25px 25px}
-    .toprow{display:flex;justify-content:space-between;align-items:center;gap:12px}.brand{font-weight:850;letter-spacing:.2px;font-size:18px}.tag{font-size:11px;opacity:.8;margin-top:3px}
-    .avatar{width:40px;height:40px;border-radius:50%;background:#ffffff25;display:grid;place-items:center;font-weight:800}
-    .welcome{margin-top:25px}.welcome h1{font-size:25px;line-height:1.15;margin:0 0 7px}.welcome p{margin:0;color:#dce8ff;font-size:13px}
-    .wrap{max-width:850px;margin:auto;padding:16px 15px 95px}.card{background:white;border:1px solid var(--line);border-radius:17px;padding:16px;margin-bottom:13px;box-shadow:0 4px 15px #142b4b08}
-    .sectionhead{display:flex;justify-content:space-between;align-items:center;margin:20px 2px 11px}.sectionhead h2{font-size:17px;margin:0}.muted{color:var(--muted);font-size:13px}
-    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.tile{background:#fff;border:1px solid var(--line);border-radius:15px;padding:15px;text-align:left;min-height:112px}
-    .tile .emoji{font-size:24px}.tile b{display:block;margin:9px 0 3px;font-size:14px}.tile small{color:var(--muted);font-size:11px}
-    .btn{border:0;border-radius:12px;padding:12px 15px;background:var(--blue);color:#fff;font-weight:700}.btn.secondary{background:var(--pale);color:var(--navy)}.btn.ghost{background:#f1f3f7;color:var(--ink)}.btn.danger{background:#fff0ef;color:var(--red)}
-    .btn.full{width:100%}.btn:disabled{opacity:.5;cursor:not-allowed}
-    .field{margin:12px 0}.field label{display:block;font-size:12px;font-weight:700;margin-bottom:6px}.field input{width:100%;border:1px solid #d8e0eb;border-radius:11px;padding:13px;background:white;outline:none}.field input:focus{border-color:var(--blue);box-shadow:0 0 0 3px #2463eb16}
-    .authbox{max-width:440px;margin:45px auto;padding:20px}.authbox h2{margin:0 0 5px}.authswitch{text-align:center;font-size:13px;color:var(--muted);margin-top:15px}
-    .link{color:var(--blue);font-weight:700;border:0;background:none;padding:0}
-    .nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:9px 4px calc(9px + env(safe-area-inset-bottom));z-index:5}
-    .nav button{background:none;border:0;color:var(--muted);font-size:10px;display:grid;gap:4px;justify-items:center;min-width:55px}.nav button span{font-size:19px}.nav button.active{color:var(--blue);font-weight:800}
-    .row{display:flex;justify-content:space-between;align-items:center;gap:12px}.item{padding:13px 0;border-bottom:1px solid var(--line)}.item:last-child{border-bottom:0}
-    .item h3{font-size:14px;margin:0 0 5px}.item p{font-size:12px;color:var(--muted);margin:0;line-height:1.5}
-    .pill{display:inline-block;background:var(--pale);color:#2453a0;border-radius:30px;padding:5px 9px;font-size:10px;font-weight:750}
-    .notice{padding:12px;border-radius:12px;background:#fff8e8;color:#805500;font-size:12px;line-height:1.5;margin:10px 0}
-    .success{background:#eaf8f1;color:#126744}.error{background:#fff0ef;color:#a12b23}
-    .empty{text-align:center;padding:28px 12px;color:var(--muted);font-size:13px}
-    .back{border:0;background:none;color:var(--blue);font-weight:750;padding:0;margin:2px 0 14px}
-    .lessonbody{font-size:14px;line-height:1.75;white-space:pre-wrap}.media{width:100%;border-radius:12px;margin-top:10px}
-    .statrow{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.stat{background:#f4f7fc;border-radius:13px;padding:13px}.stat strong{font-size:22px;display:block}.stat small{color:var(--muted)}
-    @media(min-width:650px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.wrap{padding-top:22px}.top{padding-left:max(22px,calc((100% - 820px)/2));padding-right:max(22px,calc((100% - 820px)/2))}}
-  </style>
-</head>
-<body>
-  <section id="authScreen">
-    <header class="top"><div class="toprow"><div><div class="brand">JAMB PREP ACADEMY</div><div class="tag">Learn. Practise. Prepare. Succeed.</div></div><div class="avatar">J</div></div>
-      <div class="welcome"><h1>Your JAMB preparation<br>starts here.</h1><p>Learn at your pace and prepare with confidence.</p></div>
-    </header>
-    <div class="card authbox">
-      <div id="loginForm">
-        <h2>Welcome back</h2><p class="muted">Sign in to continue learning.</p>
-        <div class="field"><label>Email address</label><input id="loginEmail" type="email" autocomplete="email" placeholder="you@example.com"></div>
-        <div class="field"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Your password"></div>
-        <button class="btn full" id="loginBtn">Sign in</button>
-        <div class="authswitch">New student? <button class="link" id="showSignup">Create an account</button></div>
-      </div>
-      <div id="signupForm" class="hidden">
-        <h2>Create your account</h2><p class="muted">Register to access lessons and classes.</p>
-        <div class="field"><label>Full name</label><input id="signupName" autocomplete="name" placeholder="Your full name"></div>
-        <div class="field"><label>Email address</label><input id="signupEmail" type="email" autocomplete="email" placeholder="you@example.com"></div>
-        <div class="field"><label>Phone number (optional)</label><input id="signupPhone" type="tel" placeholder="080..."></div>
-        <div class="field"><label>Create password</label><input id="signupPassword" type="password" autocomplete="new-password" placeholder="At least 6 characters"></div>
-        <button class="btn full" id="signupBtn">Create account</button>
-        <div class="authswitch">Already registered? <button class="link" id="showLogin">Sign in</button></div>
-      </div>
-      <div id="authMessage" class="notice hidden"></div>
-    </div>
-  </section>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0f1f4b"><title>JAMB Prep Academy</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0f1f4b;--paper:#f5f6fb;--hi:#ffd23f;--ok:#0f9d6b;--bad:#e5484d;--mut:#5d6989;--line:#dfe3f0}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:#16213f;font:15px/1.5 Figtree,system-ui,sans-serif}
+h1,h2,h3,.big,.tm{font-family:'Bricolage Grotesque',system-ui,sans-serif;margin:0;letter-spacing:-.01em}
+button,input,select{font:inherit}button{cursor:pointer;border:0}:focus-visible{outline:3px solid var(--hi);outline-offset:2px}
+.hid{display:none!important}.muted{color:var(--mut);font-size:13px}
+.top{background:var(--ink);color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
+.top b{font:800 17px 'Bricolage Grotesque'}.av{width:34px;height:34px;border-radius:50%;background:var(--hi);color:var(--ink);display:grid;place-items:center;font-weight:800}
+.wrap{max-width:720px;margin:auto;padding:16px 14px 100px}.pt{margin:6px 0 14px;font-size:24px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px;display:block;width:100%;text-align:left;color:inherit}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.item{cursor:pointer}.item h3{font-size:16px}
+.slip{background:#fff8d6;border:2px dashed var(--ink);border-radius:14px;padding:16px 18px;position:relative}
+.slip:before{content:"";position:absolute;left:-2px;top:-2px;bottom:-2px;width:10px;background:var(--hi);border-radius:14px 0 0 14px}
+.slip h2{font-size:26px;margin:2px 0}.tag{display:inline-block;border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700;background:#e8ecf8;color:var(--ink)}.tag.g{background:#dff5ec;color:#08704c}.tag.r{background:#fde8e8;color:#a3262b}
+.btn{background:var(--ink);color:#fff;border-radius:12px;padding:12px 16px;font-weight:700}.btn.hi{background:var(--hi);color:var(--ink)}.btn.sec{background:#e8ecf8;color:var(--ink)}.btn.w{width:100%}.btn:disabled{opacity:.5}
+.field{margin:10px 0}.field label{display:block;font-size:13px;font-weight:700;margin-bottom:5px}.field input,.field select{width:100%;padding:12px;border:1.5px solid var(--line);border-radius:11px;background:#fff}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.tile{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;text-align:left;min-height:104px}.tile b{display:block;font:800 17px 'Bricolage Grotesque';margin-top:8px}.tile span{font-size:26px}
+.note{padding:11px 13px;border-radius:11px;background:#eef2ff;font-size:14px;margin:10px 0}.note.err{background:#fde8e8;color:#8f1d22}.note.ok{background:#dff5ec;color:#08704c}
+.empty{text-align:center;color:var(--mut);padding:26px 10px}
+.chk{display:flex;gap:10px;align-items:center;padding:10px 12px;border:1.5px solid var(--line);border-radius:11px;margin-bottom:7px;background:#fff}.chk input{width:18px;height:18px}
+.nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:8px 4px calc(8px + env(safe-area-inset-bottom))}
+.nav button{background:none;color:var(--mut);font-size:11px;display:grid;justify-items:center;gap:2px;min-width:56px}.nav button i{font-style:normal;font-size:20px}.nav .on{color:var(--ink);font-weight:800}
+.auth{max-width:420px;margin:0 auto;padding:30px 16px}.auth h1{font-size:34px;line-height:1.05;margin-bottom:6px}
+.link{background:none;color:var(--ink);font-weight:700;text-decoration:underline;padding:0}
+.lbody{white-space:pre-wrap;line-height:1.75}.media{width:100%;border-radius:12px;margin:10px 0}
+.bar{height:10px;background:#e8ecf8;border-radius:9px;overflow:hidden;margin-top:5px}.bar i{display:block;height:100%;background:var(--ok)}.mb{margin-bottom:14px}
+/* CBT */
+.cbt{position:sticky;top:0;background:var(--ink);color:#fff;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;z-index:3}
+.tm{font-size:24px;font-variant-numeric:tabular-nums;background:#ffffff1a;padding:2px 12px;border-radius:10px}.tm.low{background:var(--bad)}
+.tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px}.tabs button{white-space:nowrap;padding:8px 13px;border-radius:20px;background:#e8ecf8;color:var(--ink);font-weight:700}.tabs .on{background:var(--ink);color:#fff}
+.opt{display:flex;gap:12px;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:14px;padding:12px;margin-bottom:9px;color:inherit}
+.opt b{flex:none;width:30px;height:30px;border-radius:50%;background:#e8ecf8;display:grid;place-items:center}.opt.sel{border-color:var(--ink);background:#eef2ff}.opt.sel b{background:var(--ink);color:#fff}
+.opt.right{border-color:var(--ok);background:#e9f8f1}.opt.wrong{border-color:var(--bad);background:#fdeeee}
+.pal{display:grid;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:6px}.pal button{height:38px;border-radius:9px;background:#e8ecf8;font-weight:700;color:var(--ink)}.pal .done{background:var(--ink);color:#fff}.pal .cur{outline:3px solid var(--hi)}
+.score{font-size:56px;font-weight:800;line-height:1}.why{background:#fff8d6;border-radius:10px;padding:10px;font-size:14px}
+@media(prefers-reduced-motion:no-preference){.pg{animation:in .25s ease}@keyframes in{from{opacity:0}to{opacity:1}}}
+</style></head><body>
+<section id="auth"><div class="auth">
+<h1>JAMB Prep Academy</h1><p class="muted">Lessons, live classes and timed practice tests in one place.</p>
+<div class="card" style="margin-top:18px">
+<div id="fLogin"><h2>Sign in</h2>
+<div class="field"><label>Email</label><input id="le" type="email" autocomplete="email"></div>
+<div class="field"><label>Password</label><input id="lp" type="password" autocomplete="current-password"></div>
+<button class="btn w" id="bLogin">Sign in</button><p class="muted">New here? <button class="link" id="toSign">Create an account</button></p></div>
+<div id="fSign" class="hid"><h2>Create account</h2>
+<div class="field"><label>Full name</label><input id="sn" autocomplete="name"></div>
+<div class="field"><label>Email</label><input id="se" type="email" autocomplete="email"></div>
+<div class="field"><label>Phone (optional)</label><input id="sph" type="tel"></div>
+<div class="field"><label>Password (6+ characters)</label><input id="sp" type="password" autocomplete="new-password"></div>
+<button class="btn w" id="bSign">Create account</button><p class="muted">Have an account? <button class="link" id="toLog">Sign in</button></p></div>
+<div id="amsg" class="note hid"></div></div></div></section>
 
-  <section id="appScreen" class="hidden">
-    <header class="top">
-      <div class="toprow"><div><div class="brand">JAMB PREP ACADEMY</div><div class="tag">Your learning space</div></div><div class="avatar" id="avatarLetter">S</div></div>
-      <div class="welcome"><h1 id="greeting">Hello, student!</h1><p>Keep learning. Every topic brings you closer to your goal.</p></div>
-    </header>
-    <main class="wrap">
-      <section id="homePage">
-        <div class="card">
-          <div class="row"><div><b>My learning</b><div class="muted">Your preparation at a glance</div></div><span class="pill">STUDENT</span></div>
-          <div class="statrow" style="margin-top:14px"><div class="stat"><strong id="subjectCount">0</strong><small>Available subjects</small></div><div class="stat"><strong id="lessonCount">0</strong><small>Published lessons</small></div></div>
-        </div>
-        <div class="sectionhead"><h2>Continue your preparation</h2></div>
-        <div class="grid">
-          <button class="tile" data-go="subjects"><span class="emoji">📚</span><b>My Subjects</b><small>Explore subjects and topics</small></button>
-          <button class="tile" data-go="classes"><span class="emoji">🎥</span><b>Classes</b><small>Live and recorded classes</small></button>
-          <button class="tile" data-go="practice"><span class="emoji">✍️</span><b>CBT Practice</b><small>Practise exam questions</small></button>
-          <button class="tile" data-go="progress"><span class="emoji">📈</span><b>My Progress</b><small>Track your learning</small></button>
-        </div>
-        <div class="sectionhead"><h2>Latest lessons</h2><button class="link" data-go="subjects">View all</button></div>
-        <div class="card" id="latestLessons"><div class="empty">Loading lessons...</div></div>
-      </section>
-      <section id="subjectsPage" class="hidden"><div class="sectionhead"><h2>JAMB Subjects</h2></div><div class="card" id="subjectsList"><div class="empty">Loading subjects...</div></div></section>
-      <section id="topicsPage" class="hidden"><button class="back" data-back="subjects">← Subjects</button><div class="sectionhead"><h2 id="topicsTitle">Topics</h2></div><div class="card" id="topicsList"></div></section>
-      <section id="lessonsPage" class="hidden"><button class="back" data-back="topics">← Topics</button><div class="sectionhead"><h2 id="lessonsTitle">Lessons</h2></div><div class="card" id="lessonsList"></div></section>
-      <section id="lessonPage" class="hidden"><button class="back" data-back="lessons">← Lessons</button><div class="card" id="lessonDetail"></div></section>
-      <section id="classesPage" class="hidden"><div class="sectionhead"><h2>Classes</h2></div><div class="card" id="classesList"><div class="empty">Loading classes...</div></div></section>
-      <section id="practicePage" class="hidden"><div class="sectionhead"><h2>CBT Practice</h2></div><div class="card"><div class="notice">The CBT examination module is the next build stage. It will include timed tests, answer submission, automatic marking and explanations.</div><p class="muted">Your practice area will appear here when the question bank and secure marking service are connected.</p></div></section>
-      <section id="progressPage" class="hidden"><div class="sectionhead"><h2>My Progress</h2></div><div class="card" id="progressContent"><div class="empty">Loading progress...</div></div></section>
-      <section id="profilePage" class="hidden"><div class="sectionhead"><h2>My Account</h2></div><div class="card"><p id="profileName"></p><p class="muted" id="profileEmail"></p><button class="btn secondary full" id="logoutBtn">Sign out</button></div></section>
-    </main>
-    <nav class="nav" id="bottomNav">
-      <button class="active" data-page="home"><span>⌂</span>Home</button>
-      <button data-page="subjects"><span>▤</span>Subjects</button>
-      <button data-page="classes"><span>▶</span>Classes</button>
-      <button data-page="practice"><span>✎</span>CBT</button>
-      <button data-page="profile"><span>◉</span>Account</button>
-    </nav>
-  </section>
+<section id="app" class="hid">
+<div class="top" id="topbar"><b>JAMB Prep Academy</b><div class="av" id="av">S</div></div>
+<main class="wrap">
+<div class="pg hid" id="p_pick"><h2 class="pt">Choose your course</h2><p class="muted">You will only see subjects under the course you pick. Extra courses can be added later.</p><div id="courses"></div></div>
 
+<div class="pg hid" id="p_home">
+<div class="slip" id="slip"></div>
+<div class="note err hid" id="lockmsg">Your course is locked. <button class="link" data-go="pay">Subscribe now</button> or earn free days.</div>
+<div class="grid" style="margin-top:12px">
+<button class="tile" data-go="study"><span>📚</span><b>Learn</b><div class="muted">Subjects and lessons</div></button>
+<button class="tile" data-go="test"><span>⏱️</span><b>Write test</b><div class="muted">JAMB mock or one subject</div></button>
+<button class="tile" data-go="classes"><span>🎥</span><b>Classes</b><div class="muted">Live and recorded</div></button>
+<button class="tile" data-go="me"><span>📈</span><b>My results</b><div class="muted">Scores and progress</div></button>
+<button class="tile" data-go="pay"><span>💳</span><b>Subscribe</b><div class="muted">Pay or add a course</div></button>
+<button class="tile" data-go="earn"><span>🎁</span><b>Free days</b><div class="muted">Invite friends, do tasks</div></button></div></div>
+<div class="pg hid" id="p_pay"><h2 class="pt">Subscribe</h2><p class="muted">Pick the courses to pay for. Each course is billed monthly, and adding a course tops up the fee.</p>
+<div id="paylist" style="margin-top:12px"></div>
+<div class="field"><label>Months</label><select id="pmonths"><option value="1">1 month</option><option value="2">2 months</option><option value="3">3 months</option><option value="6">6 months</option></select></div>
+<div class="card row"><span>Total</span><b class="big" id="ptotal" style="font-size:22px">₦0</b></div>
+<button class="btn hi w" id="payGo">Pay with Paystack</button><div id="pmsg" class="note hid"></div></div>
+<div class="pg hid" id="p_earn"><h2 class="pt">Free days</h2><div id="emsg" class="note hid"></div>
+<div class="card" id="refbox"></div>
+<div class="card hid" id="tform"><h3>Send your proof</h3><p class="muted">Add your phone number or handle, and a screenshot if the task asks for one.</p>
+<div class="field"><label>Phone number, handle or link</label><input id="ttext"></div><div class="field"><label>Screenshot (under 5 MB)</label><input id="tfile" type="file" accept="image/*"></div>
+<button class="btn w" id="tsend">Send for review</button></div>
+<h3 style="margin:16px 0 10px">Tasks</h3><div id="tasks"></div></div>
+
+<div class="pg hid" id="p_study"><div id="study"></div></div>
+
+<div class="pg hid" id="p_test"><h2 class="pt">Write test</h2>
+<div class="card"><h3>JAMB mock</h3><p class="muted">Use of English (60 questions) plus 3 subjects (40 each). 2 hours. Scored out of 400.</p><div id="jambsubs" style="margin-top:10px"></div><button class="btn hi w" id="jambGo">Start JAMB mock</button></div>
+<div class="card"><h3>One subject</h3><div class="field"><label>Subject</label><select id="onesub"></select></div>
+<div class="grid"><div class="field"><label>Questions</label><input id="cnt" type="number" value="20" min="5" max="60"></div><div class="field"><label>Minutes</label><input id="mins" type="number" value="20" min="5" max="120"></div></div>
+<button class="btn w" id="oneGo">Start test</button></div><div id="tmsg" class="note hid"></div></div>
+
+<div class="pg hid" id="p_classes"><h2 class="pt">Classes</h2><div id="clist"></div></div>
+<div class="pg hid" id="p_me"><h2 class="pt">My results</h2><div id="mebox"></div><button class="btn sec w" id="out">Sign out</button></div>
+
+<div class="pg hid" id="p_cbt" style="margin:-16px -14px 0">
+<div class="cbt"><div><b id="ctitle"></b><div class="muted" style="color:#c9d3f5" id="qlab"></div></div><div class="tm" id="tm">00:00</div></div>
+<div style="padding:14px"><div class="tabs" id="ctabs"></div>
+<div class="card"><span class="tag" id="qsub"></span><p id="qtext" style="font-size:17px;margin:10px 0 0"></p></div>
+<div id="opts"></div>
+<div class="row" style="margin:6px 0 14px"><button class="btn sec" id="prev">Previous</button><button class="btn" id="next">Next</button></div>
+<div class="card"><div class="muted" style="margin-bottom:8px">Jump to a question</div><div class="pal" id="pal"></div></div>
+<button class="btn hi w" id="sub">Submit test</button></div></div>
+
+<div class="pg hid" id="p_res"><h2 class="pt">Your result</h2>
+<div class="card"><div class="muted" id="rtitle"></div><div class="score" id="rscore"></div><div style="margin-top:16px" id="rsub"></div></div>
+<h3 style="margin:16px 0 10px">Review your answers</h3><div id="rrev"></div><button class="btn w" id="rhome">Back to home</button></div>
+</main>
+<nav class="nav" id="nav"><button data-p="home"><i>⌂</i>Home</button><button data-p="study"><i>📚</i>Learn</button><button data-p="test"><i>⏱️</i>Test</button><button data-p="classes"><i>🎥</i>Classes</button><button data-p="me"><i>◉</i>Me</button></nav>
+</section>
 <script>
-(() => {
-  const SUPABASE_URL = "https://hsjaopfkyltvjpsxhdii.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_UXN0budPmcKVEIcUKepfqA___bLRhpK";
-  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  const tg = window.Telegram?.WebApp;
-  if (tg) { tg.ready(); tg.expand(); }
-
-  const $ = id => document.getElementById(id);
-  let currentUser = null, profile = null, activeSubject = null, activeTopic = null, activeLesson = null;
-  let subjectsCache = [], lessonsCache = [];
-  const pages = ["home","subjects","topics","lessons","lesson","classes","practice","progress","profile"];
-
-  function message(text, type="") {
-    const box = $("authMessage"); box.textContent = text; box.className = "notice " + type;
-    box.classList.remove("hidden");
-  }
-  function clearMessage(){ $("authMessage").classList.add("hidden"); }
-  function showAuth(which) {
-    $("loginForm").classList.toggle("hidden", which !== "login");
-    $("signupForm").classList.toggle("hidden", which !== "signup"); clearMessage();
-  }
-  function showPage(page) {
-    pages.forEach(p => { const el = $(p+"Page"); if(el) el.classList.toggle("hidden", p !== page); });
-    $("bottomNav").querySelectorAll("button").forEach(b => b.classList.toggle("active", b.dataset.page === page));
-    window.scrollTo({top:0,behavior:"smooth"});
-    if(page==="subjects") loadSubjects();
-    if(page==="classes") loadClasses();
-    if(page==="progress") loadProgress();
-  }
-  function safeText(value) {
-    return String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-  }
-  function empty(text){ return `<div class="empty">${safeText(text)}</div>`; }
-
-  $("showSignup").onclick = () => showAuth("signup");
-  $("showLogin").onclick = () => showAuth("login");
-
-  $("signupBtn").onclick = async () => {
-    clearMessage();
-    const name=$("signupName").value.trim(), email=$("signupEmail").value.trim(), phone=$("signupPhone").value.trim(), password=$("signupPassword").value;
-    if(!name || !email || password.length<6){ message("Enter your name, a valid email and a password of at least 6 characters.","error"); return; }
-    $("signupBtn").disabled=true; $("signupBtn").textContent="Creating account...";
-    const {data,error}=await db.auth.signUp({email,password,options:{data:{full_name:name,phone}}});
-    $("signupBtn").disabled=false; $("signupBtn").textContent="Create account";
-    if(error){message(error.message,"error");return;}
-    if(data.session){ await ensureProfile(data.user,name,phone); await enterApp(data.user); }
-    else { message("Account created. Check your email for the confirmation link, then return here and sign in.","success"); showAuth("login"); }
-  };
-
-  $("loginBtn").onclick = async () => {
-    clearMessage(); const email=$("loginEmail").value.trim(), password=$("loginPassword").value;
-    if(!email || !password){message("Enter your email and password.","error");return;}
-    $("loginBtn").disabled=true; $("loginBtn").textContent="Signing in...";
-    const {data,error}=await db.auth.signInWithPassword({email,password});
-    $("loginBtn").disabled=false; $("loginBtn").textContent="Sign in";
-    if(error){message(error.message,"error");return;}
-    await enterApp(data.user);
-  };
-
-  async function ensureProfile(user,name="",phone="") {
-    const row={id:user.id,full_name:name || user.user_metadata?.full_name || "",email:user.email || "",phone:phone || user.user_metadata?.phone || ""};
-    const {error}=await db.from("profiles").upsert(row,{onConflict:"id"});
-    if(error) console.warn("Profile sync:",error.message);
-  }
-
-  async function enterApp(user) {
-    currentUser=user;
-    await ensureProfile(user);
-    const {data}=await db.from("profiles").select("*").eq("id",user.id).maybeSingle();
-    profile=data || {full_name:user.user_metadata?.full_name || "Student",email:user.email};
-    $("authScreen").classList.add("hidden"); $("appScreen").classList.remove("hidden");
-    const first=(profile.full_name || "S").trim().charAt(0).toUpperCase();
-    $("avatarLetter").textContent=first;
-    $("greeting").textContent="Hello, "+((profile.full_name||"Student").split(" ")[0])+"!";
-    $("profileName").textContent=profile.full_name || "Student";
-    $("profileEmail").textContent=profile.email || user.email || "";
-    await loadHome(); showPage("home");
-  }
-
-  async function loadHome() {
-    const [s,l]=await Promise.all([
-      db.from("subjects").select("id",{count:"exact",head:true}).eq("is_published",true),
-      db.from("lessons").select("id",{count:"exact",head:true}).eq("is_published",true)
-    ]);
-    $("subjectCount").textContent=s.count ?? 0; $("lessonCount").textContent=l.count ?? 0;
-    const {data,error}=await db.from("lessons").select("id,title,summary,lesson_type,topic_id,created_at").eq("is_published",true).order("created_at",{ascending:false}).limit(4);
-    if(error){$("latestLessons").innerHTML=empty("Could not load lessons yet.");return;}
-    lessonsCache=data||[];
-    $("latestLessons").innerHTML=lessonsCache.length ? lessonsCache.map(x=>`<div class="item"><div class="row"><div><h3>${safeText(x.title)}</h3><p>${safeText(x.summary||"Open this lesson from its subject topic.")}</p></div><span class="pill">${safeText(x.lesson_type)}</span></div></div>`).join("") : empty("No lessons have been published yet.");
-  }
-
-  async function loadSubjects() {
-    $("subjectsList").innerHTML=empty("Loading subjects...");
-    const {data,error}=await db.from("subjects").select("*").eq("is_published",true).order("sort_order");
-    if(error){$("subjectsList").innerHTML=empty("Unable to load subjects. Check your Supabase policies.");return;}
-    subjectsCache=data||[];
-    $("subjectsList").innerHTML=subjectsCache.length ? subjectsCache.map(s=>`<div class="item row"><div><h3>${safeText(s.name)}</h3><p>${safeText(s.description||"Explore lessons and topics")}</p></div><button class="btn secondary" data-subject="${s.id}">Open</button></div>`).join("") : empty("Subjects will appear here when the academy publishes them.");
-    $("subjectsList").querySelectorAll("[data-subject]").forEach(b=>b.onclick=()=>openSubject(Number(b.dataset.subject)));
-  }
-
-  async function openSubject(id) {
-    activeSubject=subjectsCache.find(s=>s.id===id); if(!activeSubject)return;
-    $("topicsTitle").textContent=activeSubject.name+" topics"; $("topicsList").innerHTML=empty("Loading topics...");
-    showPage("topics");
-    const {data,error}=await db.from("topics").select("*").eq("subject_id",id).eq("is_published",true).order("sort_order");
-    if(error){$("topicsList").innerHTML=empty("Unable to load topics.");return;}
-    $("topicsList").innerHTML=data?.length ? data.map(t=>`<div class="item row"><div><h3>${safeText(t.name)}</h3><p>${safeText(t.description||"Open topic lessons")}</p></div><button class="btn secondary" data-topic="${t.id}">Open</button></div>`).join("") : empty("No topics have been published for this subject yet.");
-    $("topicsList").querySelectorAll("[data-topic]").forEach(b=>b.onclick=()=>openTopic(Number(b.dataset.topic),data));
-  }
-
-  async function openTopic(id,topics) {
-    activeTopic=topics.find(t=>t.id===id); if(!activeTopic)return;
-    $("lessonsTitle").textContent=activeTopic.name; $("lessonsList").innerHTML=empty("Loading lessons...");
-    showPage("lessons");
-    const {data,error}=await db.from("lessons").select("*").eq("topic_id",id).eq("is_published",true).order("sort_order");
-    if(error){$("lessonsList").innerHTML=empty("Unable to load lessons.");return;}
-    $("lessonsList").innerHTML=data?.length ? data.map(l=>`<div class="item row"><div><h3>${safeText(l.title)}</h3><p>${safeText(l.summary||"Learning material")} · ${safeText(l.lesson_type)}</p></div><button class="btn secondary" data-lesson="${l.id}">Study</button></div>`).join("") : empty("No lessons have been added to this topic yet.");
-    $("lessonsList").querySelectorAll("[data-lesson]").forEach(b=>b.onclick=()=>openLesson(Number(b.dataset.lesson),data));
-  }
-
-  async function openLesson(id,lessons) {
-    activeLesson=lessons.find(l=>l.id===id); if(!activeLesson)return;
-    const l=activeLesson;
-    let media="";
-    if(l.video_url) media+=`<video class="media" controls playsinline src="${safeText(l.video_url)}"></video>`;
-    if(l.audio_url) media+=`<audio class="media" controls src="${safeText(l.audio_url)}"></audio>`;
-    $("lessonDetail").innerHTML=`<span class="pill">${safeText(l.lesson_type)}</span><h2>${safeText(l.title)}</h2><p class="muted">${safeText(l.summary||"")}</p>${media}<div class="lessonbody">${safeText(l.written_content||"Written notes have not been added to this lesson yet.")}</div><button class="btn full" id="completeLesson" style="margin-top:18px">Mark lesson as completed</button><div id="lessonFeedback"></div>`;
-    $("completeLesson").onclick=async()=>{
-      const {error}=await db.from("lesson_progress").upsert({student_id:currentUser.id,lesson_id:l.id,completed:true,updated_at:new Date().toISOString()},{onConflict:"student_id,lesson_id"});
-      $("lessonFeedback").innerHTML=error?`<div class="notice error">${safeText(error.message)}</div>`:`<div class="notice success">Lesson marked as completed.</div>`;
-    };
-    showPage("lesson");
-  }
-
-  async function loadClasses() {
-    $("classesList").innerHTML=empty("Loading classes...");
-    const {data,error}=await db.from("class_sessions").select("*").eq("is_published",true).order("starts_at",{ascending:true});
-    if(error){$("classesList").innerHTML=empty("Unable to load classes.");return;}
-    $("classesList").innerHTML=data?.length ? data.map(c=>{
-      const date=c.starts_at?new Date(c.starts_at).toLocaleString():"Date to be announced";
-      const link=c.class_type==="live"?c.meeting_url:c.recording_url;
-      return `<div class="item"><div class="row"><div><span class="pill">${safeText(c.class_type)}</span><h3 style="margin-top:7px">${safeText(c.title)}</h3><p>${safeText(c.description||"")}</p><p style="margin-top:5px">${safeText(date)}</p></div></div>${link?`<a class="btn secondary" style="display:inline-block;text-decoration:none;margin-top:10px" href="${safeText(link)}" target="_blank" rel="noopener">${c.class_type==="live"?"Join class":"Watch recording"}</a>`:""}</div>`;
-    }).join(""):empty("No classes have been announced yet.");
-  }
-
-  async function loadProgress() {
-    $("progressContent").innerHTML=empty("Loading progress...");
-    const {data,error}=await db.from("lesson_progress").select("id,completed").eq("student_id",currentUser.id);
-    if(error){$("progressContent").innerHTML=empty("Unable to load your progress.");return;}
-    const completed=(data||[]).filter(x=>x.completed).length;
-    $("progressContent").innerHTML=`<div class="statrow"><div class="stat"><strong>${completed}</strong><small>Lessons completed</small></div><div class="stat"><strong>${(data||[]).length}</strong><small>Lessons started</small></div></div><p class="muted" style="margin-top:14px">Your completed lessons will be recorded here as you study.</p>`;
-  }
-
-  $("logoutBtn").onclick=async()=>{await db.auth.signOut();currentUser=null;profile=null;$("appScreen").classList.add("hidden");$("authScreen").classList.remove("hidden");showAuth("login");};
-  document.addEventListener("click",e=>{
-    const go=e.target.closest("[data-go]"); if(go)showPage(go.dataset.go);
-    const nav=e.target.closest("[data-page]"); if(nav)showPage(nav.dataset.page);
-    const back=e.target.closest("[data-back]"); if(back)showPage(back.dataset.back);
-  });
-
-  db.auth.getSession().then(async({data})=>{
-    if(data.session) await enterApp(data.session.user);
-  });
-  db.auth.onAuthStateChange(async(event,session)=>{
-    if(event==="SIGNED_OUT"){ $("appScreen").classList.add("hidden"); $("authScreen").classList.remove("hidden"); }
-  });
+(()=>{
+const db=window.supabase.createClient("https://hsjaopfkyltvjpsxhdii.supabase.co","sb_publishable_UXN0budPmcKVEIcUKepfqA___bLRhpK");
+const tg=window.Telegram?.WebApp;if(tg){tg.ready();tg.expand()}
+const $=i=>document.getElementById(i),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const https=u=>/^https:\/\//i.test(u||"")?u:"";
+const ls={get:()=>{try{return localStorage.getItem("jp_attempt")}catch(e){return null}},set:v=>{try{localStorage.setItem("jp_attempt",v)}catch(e){}},del:()=>{try{localStorage.removeItem("jp_attempt")}catch(e){}}};
+let me,prof,mine=[],subs=[],ex,ans={},cur=0,tmr,endAt=0,cs=0,ct=0,lrows=[];
+const note=(id,t,k="")=>{const e=$(id);e.textContent=t||"";e.className="note "+k+(t?"":" hid")};
+const days=()=>Math.ceil(Math.max(0,...mine.map(c=>c.access_until?new Date(c.access_until)-Date.now():0))/864e5);
+function go(p){document.querySelectorAll(".pg").forEach(e=>e.classList.toggle("hid",e.id!=="p_"+p));
+ const full=["cbt","res","pick"].includes(p);$("nav").classList.toggle("hid",full);
+ document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.p===p));scrollTo(0,0);
+ if(p==="study")showSubs();if(p==="classes")loadClasses();if(p==="test")setupTest();if(p==="me")loadMe();if(p==="pay")loadPay();if(p==="earn")loadEarn()}
+document.addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(g)go(g.dataset.go);const n=e.target.closest("#nav [data-p]");if(n){n.dataset.p==="home"?home():go(n.dataset.p)}});
+$("toSign").onclick=()=>{$("fLogin").classList.add("hid");$("fSign").classList.remove("hid")};
+$("toLog").onclick=()=>{$("fSign").classList.add("hid");$("fLogin").classList.remove("hid")};
+$("bSign").onclick=async()=>{const n=$("sn").value.trim(),em=$("se").value.trim(),ph=$("sph").value.trim(),pw=$("sp").value;
+ if(!n||!em||pw.length<6)return note("amsg","Enter your name, email and a password of 6 or more characters.","err");
+ $("bSign").disabled=true;const {data,error}=await db.auth.signUp({email:em,password:pw,options:{data:{full_name:n,phone:ph,ref:getRef()}}});$("bSign").disabled=false;
+ if(error)return note("amsg",error.message,"err");
+ if(data.session)enter(data.user);else{note("amsg","Account created. Confirm your email, then sign in.","ok");$("toLog").click()}};
+$("bLogin").onclick=async()=>{const {data,error}=await db.auth.signInWithPassword({email:$("le").value.trim(),password:$("lp").value});
+ if(error)return note("amsg",error.message,"err");enter(data.user)};
+$("out").onclick=async()=>{await db.auth.signOut();location.reload()};
+async function loadMine(){const {data}=await db.from("student_courses").select("*,courses(name)").eq("student_id",me.id);mine=data||[]}
+async function enter(u){me=u;
+ const {data:p}=await db.from("profiles").select("*").eq("id",u.id).maybeSingle();prof=p||{full_name:u.user_metadata?.full_name||"Student"};
+ $("auth").classList.add("hid");$("app").classList.remove("hid");$("av").textContent=(prof.full_name||"S")[0].toUpperCase();
+ await loadMine();if(!mine.length)return pick();
+ const sv=ls.get();if(sv){const {data:d,error}=await db.rpc("get_exam",{p_attempt:Number(sv)});if(!error&&d)return startCbt(d);ls.del()}
+ home()}
+function home(){const d=days();
+ $("slip").innerHTML=`<div class="muted">Student pass</div><h2>${esc(prof.full_name||"Student")}</h2><p style="margin:0 0 10px">${mine.map(m=>esc(m.courses?.name)).join(" + ")}</p><span class="tag ${d?"g":"r"}">${d?d+" days of access left":"Locked"}</span>`;
+ $("lockmsg").classList.toggle("hid",d>0);go("home")}
+async function pick(){go("pick");const {data}=await db.from("courses").select("*").eq("is_published",true).order("sort_order");
+ $("courses").innerHTML=(data||[]).map(c=>`<div class="card"><h3>${esc(c.name)}</h3><p class="muted">${esc(c.description||"")}</p><div class="row"><b>${c.monthly_price?"₦"+Number(c.monthly_price).toLocaleString()+" a month":"Price coming soon"}</b><button class="btn" data-c="${c.id}">Choose</button></div></div>`).join("")||'<div class="empty">No courses have been published yet.</div>'}
+$("courses").onclick=async e=>{const b=e.target.closest("[data-c]");if(!b||!confirm("Choose this course? Extra courses can be added later with payment."))return;
+ b.disabled=true;const {error}=await db.rpc("enroll_course",{p_course_id:Number(b.dataset.c)});if(error){alert(error.message);b.disabled=false;return}await loadMine();home()};
+/* study */
+async function showSubs(){const el=$("study");el.innerHTML='<h2 class="pt">Subjects</h2><div id="sl"></div>';
+ const {data}=await db.from("subjects").select("*").eq("is_published",true).order("sort_order");subs=data||[];
+ $("sl").innerHTML=subs.map(s=>`<button class="card item row" data-s="${s.id}"><span><h3>${esc(s.name)}</h3><span class="muted">${esc(s.description||"")}</span></span><span>›</span></button>`).join("")||'<div class="empty">No subjects yet for your course.</div>'}
+async function topics(id){cs=id;const el=$("study"),s=subs.find(x=>x.id===id);el.innerHTML=`<button class="link" data-back="subs">‹ Subjects</button><h2 class="pt">${esc(s?.name)}</h2><div id="tl"></div>`;
+ const {data}=await db.from("topics").select("*").eq("subject_id",id).eq("is_published",true).order("sort_order");
+ $("tl").innerHTML=(data||[]).map(t=>`<button class="card item row" data-t="${t.id}"><span><h3>${esc(t.name)}</h3><span class="muted">${esc(t.description||"")}</span></span><span>›</span></button>`).join("")||'<div class="empty">No topics yet.</div>'}
+async function lessons(id){ct=id;const el=$("study");el.innerHTML='<button class="link" data-back="topics">‹ Topics</button><h2 class="pt">Lessons</h2><div id="ll"></div>';
+ const {data}=await db.from("lessons").select("*").eq("topic_id",id).eq("is_published",true).order("sort_order");lrows=data||[];
+ $("ll").innerHTML=lrows.map(l=>`<button class="card item row" data-l="${l.id}"><span><h3>${esc(l.title)}</h3><span class="muted">${esc(l.summary||l.lesson_type)}</span></span><span>›</span></button>`).join("")||`<div class="empty">${days()?"No lessons yet.":"Lessons unlock when your course access is active."}</div>`}
+function lesson(id){const l=lrows.find(x=>x.id===id);if(!l)return;let m="";
+ if(https(l.video_url))m+=`<video class="media" controls playsinline src="${esc(l.video_url)}"></video>`;if(https(l.audio_url))m+=`<audio class="media" controls src="${esc(l.audio_url)}"></audio>`;
+ $("study").innerHTML=`<button class="link" data-back="lessons">‹ Lessons</button><div class="card" style="margin-top:10px"><h2>${esc(l.title)}</h2><p class="muted">${esc(l.summary||"")}</p>${m}<div class="lbody">${esc(l.written_content||"Notes have not been added yet.")}</div><button class="btn w" id="fin" style="margin-top:16px">Mark as completed</button><div id="fmsg"></div></div>`;
+ $("fin").onclick=async()=>{const {error}=await db.from("lesson_progress").upsert({student_id:me.id,lesson_id:l.id,completed:true,updated_at:new Date().toISOString()},{onConflict:"student_id,lesson_id"});$("fmsg").innerHTML=error?`<div class="note err">${esc(error.message)}</div>`:'<div class="note ok">Lesson completed.</div>'}}
+$("study").onclick=e=>{const b=e.target.closest("button");if(!b)return;const d=b.dataset;
+ if(d.s)topics(+d.s);else if(d.t)lessons(+d.t);else if(d.l)lesson(+d.l);else if(d.back==="subs")showSubs();else if(d.back==="topics")topics(cs);else if(d.back==="lessons")lessons(ct)};
+/* classes */
+async function loadClasses(){$("clist").innerHTML='<div class="empty">Loading...</div>';
+ const {data}=await db.from("class_sessions").select("*").eq("is_published",true).order("starts_at");
+ $("clist").innerHTML=(data||[]).map(c=>{const u=https(c.class_type==="live"?c.meeting_url:c.recording_url);
+ return `<div class="card"><span class="tag">${c.class_type==="live"?"Live":"Recorded"}</span><h3 style="margin-top:6px">${esc(c.title)}</h3><p class="muted">${esc(c.description||"")}</p><p class="muted">${c.starts_at?esc(new Date(c.starts_at).toLocaleString()):"Date to be announced"}</p>${u?`<a class="btn hi" style="display:inline-block;text-decoration:none" href="${esc(u)}" target="_blank" rel="noopener">${c.class_type==="live"?"Join class":"Watch recording"}</a>`:""}</div>`}).join("")||'<div class="empty">No classes yet, or your course access is not active.</div>'}
+/* me */
+async function loadMe(){const [a,p]=await Promise.all([
+ db.from("exam_attempts").select("exam_title,score,total_questions,mode,submitted_at").eq("student_id",me.id).eq("status","submitted").order("submitted_at",{ascending:false}).limit(8),
+ db.from("lesson_progress").select("id").eq("student_id",me.id).eq("completed",true)]);
+ $("mebox").innerHTML=`<div class="card"><div class="score">${(p.data||[]).length}</div><div class="muted">lessons completed</div></div><h3 style="margin:14px 0 8px">Recent tests</h3>`+((a.data||[]).map(x=>`<div class="card row"><span><b>${esc(x.exam_title)}</b><div class="muted">${esc(new Date(x.submitted_at).toLocaleDateString())}</div></span><b>${x.score}/${x.mode==="jamb"?400:x.total_questions}</b></div>`).join("")||'<div class="empty">You have not written a test yet.</div>')}
+/* test setup */
+async function setupTest(){if(!subs.length){const {data}=await db.from("subjects").select("*").eq("is_published",true).order("sort_order");subs=data||[]}
+ const eng=subs.find(s=>s.slug==="use-of-english"),oth=subs.filter(s=>s!==eng);
+ $("jambsubs").innerHTML=(eng?`<label class="chk"><input type="checkbox" checked disabled>${esc(eng.name)} (compulsory)</label>`:'<div class="note err">Use of English is not in your course yet.</div>')+oth.map(s=>`<label class="chk"><input type="checkbox" value="${s.id}">${esc(s.name)}</label>`).join("");
+ $("onesub").innerHTML=subs.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join("")}
+async function run(fn,args){note("tmsg","Preparing your questions...");const {data,error}=await db.rpc(fn,args);if(error)return note("tmsg",error.message,"err");note("tmsg","");ls.set(data.attempt_id);startCbt(data)}
+$("jambGo").onclick=()=>{const ids=[...document.querySelectorAll("#jambsubs input:checked:not(:disabled)")].map(i=>+i.value);if(ids.length!==3)return note("tmsg","Pick exactly 3 subjects besides Use of English.","err");run("start_jamb_exam",{p_subject_ids:ids})};
+$("oneGo").onclick=()=>run("start_exam",{p_subject_id:+$("onesub").value,p_count:+$("cnt").value||20,p_minutes:+$("mins").value||20});
+/* CBT */
+function startCbt(d){ex=d;ans={};d.questions.forEach(q=>{if(q.selected_option_id)ans[q.id]=q.selected_option_id});cur=0;endAt=Date.now()+d.seconds_left*1000;
+ $("ctitle").textContent=d.title;const sj=[...new Map(d.questions.map(q=>[q.subject_id,q.subject]))];
+ $("ctabs").innerHTML=d.mode==="jamb"?sj.map(([i,n])=>`<button data-sub="${i}">${esc(n)}</button>`).join(""):"";
+ go("cbt");render();clearInterval(tmr);tmr=setInterval(tick,1000);tick()}
+function tick(){const s=Math.max(0,Math.round((endAt-Date.now())/1000)),h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;
+ $("tm").textContent=(h?h+":":"")+String(m).padStart(2,"0")+":"+String(x).padStart(2,"0");$("tm").classList.toggle("low",s<300);if(s<=0){clearInterval(tmr);submit(true)}}
+function render(){const qs=ex.questions,q=qs[cur];$("qlab").textContent=`Question ${cur+1} of ${qs.length}`;$("qsub").textContent=q.subject;$("qtext").textContent=q.text;
+ $("opts").innerHTML=q.options.map(o=>`<button class="opt ${ans[q.id]===o.id?"sel":""}" data-o="${o.id}"><b>${esc(o.label)}</b><span>${esc(o.text)}</span></button>`).join("");
+ $("ctabs").querySelectorAll("button").forEach(b=>b.classList.toggle("on",+b.dataset.sub===q.subject_id));
+ $("pal").innerHTML=qs.map((x,i)=>`<button data-i="${i}" class="${ans[x.id]?"done":""} ${i===cur?"cur":""}">${i+1}</button>`).join("");
+ $("prev").disabled=cur===0;$("next").disabled=cur===qs.length-1}
+$("opts").onclick=e=>{const b=e.target.closest("[data-o]");if(!b)return;const q=ex.questions[cur],o=+b.dataset.o;ans[q.id]=o;db.rpc("save_answer",{p_attempt:ex.attempt_id,p_question:q.id,p_option:o});render()};
+$("pal").onclick=e=>{const b=e.target.closest("[data-i]");if(b){cur=+b.dataset.i;render()}};
+$("ctabs").onclick=e=>{const b=e.target.closest("[data-sub]");if(b){cur=ex.questions.findIndex(q=>q.subject_id===+b.dataset.sub);render()}};
+$("prev").onclick=()=>{cur--;render()};$("next").onclick=()=>{cur++;render()};$("sub").onclick=()=>submit(false);
+async function submit(auto){const un=ex.questions.filter(q=>!ans[q.id]).length;
+ if(!auto&&!confirm(un?`You have ${un} unanswered question(s). Submit now?`:"Submit your test?"))return;
+ clearInterval(tmr);$("sub").disabled=true;const {data,error}=await db.rpc("submit_exam",{p_attempt:ex.attempt_id,p_answers:ans});$("sub").disabled=false;
+ if(error){alert(error.message);if(endAt>Date.now())tmr=setInterval(tick,1000);return}ls.del();result(data)}
+function result(r){go("res");const j=r.mode==="jamb";$("rtitle").textContent=r.title;$("rscore").textContent=r.score+" / "+r.max_score;
+ $("rsub").innerHTML=r.by_subject.map(s=>`<div class="mb"><div class="row"><span>${esc(s.subject)}</span><b>${s.correct} of ${s.total} correct${j?", "+s.score+"/100":""}</b></div><div class="bar"><i style="width:${s.score}%"></i></div></div>`).join("");
+ $("rrev").innerHTML=r.review.map((q,i)=>`<div class="card"><span class="tag">${esc(q.subject)}</span><p><b>${i+1}.</b> ${esc(q.text)}</p>${q.options.map(o=>`<div class="opt ${o.id===q.correct_option_id?"right":o.id===q.selected_option_id?"wrong":""}"><b>${esc(o.label)}</b><span>${esc(o.text)}</span></div>`).join("")}${q.selected_option_id?"":'<p class="muted">You did not answer this one.</p>'}${q.explanation?`<p class="why">${esc(q.explanation)}</p>`:""}</div>`).join("")}
+$("rhome").onclick=home;
+/* ---- SETTINGS: fill these in ---- */
+const PAYSTACK_PK="pk_test_REPLACE_ME";            // your Paystack PUBLIC key (starts pk_)
+const APP_LINK="";                                  // e.g. "https://t.me/YourBot/app?startapp=" (leave "" to share the web link)
+function getRef(){try{return tg?.initDataUnsafe?.start_param||new URLSearchParams(location.search).get("ref")||""}catch(e){return ""}}
+/* payments */
+let pc=[];
+async function loadPay(){const {data}=await db.from("courses").select("*").eq("is_published",true).order("sort_order");pc=data||[];const own=new Set(mine.map(m=>m.course_id));
+ $("paylist").innerHTML=pc.map(c=>{const m=mine.find(x=>x.course_id===c.id),on=m&&m.access_until&&new Date(m.access_until)>new Date();
+ return `<label class="chk"><input type="checkbox" value="${c.id}" ${own.has(c.id)?"checked":""}><span style="flex:1">${esc(c.name)}<div class="muted">${m?(on?"Active until "+esc(new Date(m.access_until).toLocaleDateString()):"Your course, not active"):"Extra course"}</div></span><b>₦${Number(c.monthly_price).toLocaleString()}</b></label>`}).join("")||'<div class="empty">No courses yet.</div>';sumPay()}
+function sumPay(){const ids=[...document.querySelectorAll("#paylist input:checked")].map(i=>+i.value),m=+$("pmonths").value,t=pc.filter(c=>ids.includes(c.id)).reduce((a,c)=>a+c.monthly_price,0)*m;$("ptotal").textContent="₦"+t.toLocaleString();return {ids,m,t}}
+$("paylist").onchange=sumPay;$("pmonths").onchange=sumPay;
+$("payGo").onclick=async()=>{const {ids,m,t}=sumPay();if(!ids.length||!t)return note("pmsg","Choose at least one course that has a price.","err");
+ if(!window.PaystackPop||PAYSTACK_PK.includes("REPLACE"))return note("pmsg","Payments are not switched on yet.","err");
+ const {data,error}=await db.rpc("create_payment",{p_course_ids:ids,p_months:m});if(error)return note("pmsg",error.message,"err");
+ PaystackPop.setup({key:PAYSTACK_PK,email:data.email||me.email,amount:data.amount_kobo,currency:"NGN",ref:data.reference,callback:r=>{confirmPay(r.reference)},onClose:()=>note("pmsg","Payment window closed.")}).openIframe()};
+async function confirmPay(ref){note("pmsg","Confirming your payment...");
+ try{const r=await fetch("https://hsjaopfkyltvjpsxhdii.supabase.co/functions/v1/paystack",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({reference:ref})});const j=await r.json();
+ if(!j.ok)throw new Error(j.message);await loadMine();note("pmsg","Payment confirmed. Your access is active.","ok");loadPay()}
+ catch(e){note("pmsg",(e.message||"We could not confirm the payment yet.")+" If you were charged, your access will activate within a few minutes.","err")}}
+/* free days: referrals + tasks */
+let curTask=0;
+async function loadEarn(){const [p,t,s,r]=await Promise.all([db.from("profiles").select("referral_code").eq("id",me.id).maybeSingle(),db.from("tasks").select("*").eq("is_active",true).order("id"),db.from("task_submissions").select("task_id,status").eq("student_id",me.id).order("id"),db.from("referrals").select("reward_days").eq("referrer_id",me.id)]);
+ const code=p.data?.referral_code||"",link=APP_LINK?APP_LINK+code:location.origin+location.pathname+"?ref="+code,rf=r.data||[];
+ $("refbox").innerHTML=`<h3>Invite friends</h3><p class="muted">When a friend signs up with your link and picks a course, you earn free days.</p><input id="rl" readonly value="${esc(link)}" style="width:100%;padding:11px;border:1.5px solid var(--line);border-radius:10px"><div class="row" style="margin-top:10px"><button class="btn hi" id="rcopy">Copy link</button><span class="muted">${rf.length} joined, ${rf.reduce((a,x)=>a+x.reward_days,0)} days earned</span></div>`;
+ $("rcopy").onclick=()=>{$("rl").select();try{navigator.clipboard.writeText(link)}catch(e){}note("emsg","Link copied.","ok")};
+ const st={};(s.data||[]).forEach(x=>st[x.task_id]=x.status);
+ $("tasks").innerHTML=(t.data||[]).map(k=>`<div class="card"><span class="tag">${esc(k.platform||"Task")}</span> <span class="tag g">${k.reward_days} free days</span><h3 style="margin-top:6px">${esc(k.title)}</h3><p class="muted" style="white-space:pre-wrap">${esc(k.instructions||"")}</p>${st[k.id]?`<span class="tag ${st[k.id]==="approved"?"g":st[k.id]==="rejected"?"r":""}">${st[k.id]==="pending"?"Waiting for review":st[k.id]}</span>`:""}${!st[k.id]||st[k.id]==="rejected"?`<button class="btn w" data-task="${k.id}" style="margin-top:8px">Submit proof</button>`:""}</div>`).join("")||'<div class="empty">No tasks right now. Check back soon.</div>'}
+$("tasks").onclick=e=>{const b=e.target.closest("[data-task]");if(!b)return;curTask=+b.dataset.task;$("ttext").value="";$("tfile").value="";$("tform").classList.remove("hid");$("tform").scrollIntoView({behavior:"smooth"})};
+$("tsend").onclick=async()=>{const f=$("tfile").files[0];let path=null;$("tsend").disabled=true;
+ if(f){if(f.size>5e6){$("tsend").disabled=false;return note("emsg","That image is too large. Use one under 5 MB.","err")}
+ path=me.id+"/"+Date.now()+"-"+f.name.replace(/[^\w.-]/g,"_");const {error}=await db.storage.from("task-proofs").upload(path,f);if(error){$("tsend").disabled=false;return note("emsg",error.message,"err")}}
+ const {error}=await db.rpc("submit_task",{p_task:curTask,p_path:path,p_text:$("ttext").value.trim()});$("tsend").disabled=false;
+ if(error)return note("emsg",error.message,"err");$("tform").classList.add("hid");note("emsg","Sent. You get your free days once the academy approves it.","ok");loadEarn()};
+db.auth.getSession().then(({data})=>{if(data.session)enter(data.session.user)});
 })();
-</script>
-</body>
-</html>
+</script></body></html>
