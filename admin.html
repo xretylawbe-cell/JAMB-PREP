@@ -1,57 +1,105 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>JAMB Prep Academy — Staff Console</title>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Staff: Courses and Questions</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--navy:#102b55;--blue:#2463eb;--bg:#f4f6fa;--ink:#18263b;--muted:#6d7a90;--line:#e1e7f0}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,Arial,sans-serif}header{background:var(--navy);color:#fff;padding:20px}header b{font-size:18px}.wrap{max-width:1000px;margin:auto;padding:18px}.card{background:#fff;border:1px solid var(--line);border-radius:15px;padding:17px;margin:0 0 14px}.login{max-width:430px;margin:55px auto}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}.field{margin:10px 0}.field label{display:block;font-size:12px;font-weight:700;margin-bottom:5px}.field input,.field textarea,.field select{width:100%;padding:11px;border:1px solid #d6deea;border-radius:9px;font:inherit}.field textarea{min-height:95px}.btn{border:0;border-radius:9px;padding:11px 14px;background:var(--blue);color:white;font-weight:700;cursor:pointer}.btn.light{background:#edf3ff;color:var(--navy)}.btn.red{background:#fff0ef;color:#a12b23}.full{width:100%}.muted{color:var(--muted);font-size:13px}.hidden{display:none!important}.tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:15px}.tabs button{border:0;padding:10px 13px;border-radius:9px;background:#e9eef7;color:var(--navy);font-weight:700}.tabs button.active{background:var(--navy);color:white}.row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}.item{padding:12px 0;border-bottom:1px solid var(--line)}.item:last-child{border:0}.notice{padding:11px;border-radius:9px;background:#eef4ff;font-size:13px;margin:10px 0}.error{background:#fff0ef;color:#a12b23}.success{background:#eaf8f1;color:#126744}h2{font-size:18px;margin:0 0 12px}h3{font-size:14px;margin:0 0 4px}
-</style></head>
-<body>
-<header><div class="row"><div><b>JAMB PREP ACADEMY</b><div style="font-size:12px;opacity:.8">Staff content management</div></div><button id="logout" class="btn light hidden">Sign out</button></div></header>
+:root{--ink:#0f1f4b;--hi:#ffd23f;--line:#dfe3f0;--mut:#5d6989}
+*{box-sizing:border-box}body{margin:0;background:#f5f6fb;color:#16213f;font:15px/1.5 Figtree,system-ui,sans-serif}
+h2,h3,b.br{font-family:'Bricolage Grotesque',system-ui,sans-serif;margin:0}
+header{background:var(--ink);color:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center}header a{color:var(--hi);font-weight:700}
+.wrap{max-width:860px;margin:auto;padding:16px}.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+.field{margin:10px 0}.field label{display:block;font-size:13px;font-weight:700;margin-bottom:5px}
+input,select,textarea,button{font:inherit}input,select,textarea{width:100%;padding:11px;border:1.5px solid var(--line);border-radius:10px}textarea{min-height:170px;font-family:ui-monospace,monospace;font-size:13px}
+.btn{background:var(--ink);color:#fff;border:0;border-radius:10px;padding:11px 16px;font-weight:700;cursor:pointer}.btn.hi{background:var(--hi);color:var(--ink)}.btn:disabled{opacity:.5}
+.tabs{display:flex;gap:8px;margin-bottom:14px}.tabs button{border:0;border-radius:20px;padding:9px 16px;background:#e8ecf8;color:var(--ink);font-weight:700;cursor:pointer}.tabs .on{background:var(--ink);color:#fff}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:640px){.grid{grid-template-columns:1fr}}
+.note{padding:10px 12px;border-radius:10px;background:#eef2ff;margin:10px 0;font-size:14px}.err{background:#fde8e8;color:#8f1d22}.ok{background:#dff5ec;color:#08704c}.hid{display:none!important}
+.chk{display:flex;gap:9px;align-items:center;padding:8px 10px;border:1.5px solid var(--line);border-radius:10px;margin-bottom:6px}.chk input{width:18px;height:18px}.muted{color:var(--mut);font-size:13px}
+</style></head><body>
+<header><b class="br">Staff: Courses and Questions</b><a href="admin.html">Lessons and classes ›</a></header>
 <div class="wrap">
-<section id="login" class="card login"><h2>Staff sign in</h2><p class="muted">Use the staff account assigned by the academy administrator.</p><div class="field"><label>Email</label><input id="email" type="email"></div><div class="field"><label>Password</label><input id="password" type="password"></div><button id="loginBtn" class="btn full">Sign in</button><div id="loginMsg" class="notice hidden"></div></section>
-<section id="console" class="hidden">
-<div class="card"><div class="row"><div><h2 id="staffWelcome">Academy content</h2><div class="muted">Add and publish the material students see in the Mini App.</div></div><span class="notice">Staff access</span></div></div>
-<div class="tabs">
-<button class="active" data-tab="subjects">Subjects</button><button data-tab="topics">Topics</button><button data-tab="lessons">Lessons</button><button data-tab="classes">Classes</button>
-</div>
-<section id="subjectsTab" class="tabpane">
-<div class="grid"><div class="card"><h2>Add subject</h2><div class="field"><label>Subject name</label><input id="sName" placeholder="e.g. Use of English"></div><div class="field"><label>Unique slug (lowercase, hyphens)</label><input id="sSlug" placeholder="use-of-english"></div><div class="field"><label>Description</label><textarea id="sDesc"></textarea></div><button class="btn" id="addSubject">Save subject</button><div id="sMsg"></div></div><div class="card"><h2>Existing subjects</h2><div id="subjectRows" class="muted">Loading...</div></div></div>
-</section>
-<section id="topicsTab" class="tabpane hidden">
-<div class="grid"><div class="card"><h2>Add topic</h2><div class="field"><label>Subject</label><select id="topicSubject"></select></div><div class="field"><label>Topic name</label><input id="topicName"></div><div class="field"><label>Description</label><textarea id="topicDesc"></textarea></div><button class="btn" id="addTopic">Save topic</button><div id="tMsg"></div></div><div class="card"><h2>Existing topics</h2><div id="topicRows" class="muted">Select a subject and add topics.</div></div></div>
-</section>
-<section id="lessonsTab" class="tabpane hidden">
-<div class="card"><h2>Add lesson</h2><div class="grid"><div class="field"><label>Subject</label><select id="lessonSubject"></select></div><div class="field"><label>Topic</label><select id="lessonTopic"></select></div></div><div class="field"><label>Lesson title</label><input id="lessonTitle"></div><div class="field"><label>Short summary</label><textarea id="lessonSummary"></textarea></div><div class="field"><label>Written lesson content</label><textarea id="lessonContent" style="min-height:180px" placeholder="Write or paste your lesson notes here..."></textarea></div><div class="grid"><div class="field"><label>Audio URL (optional)</label><input id="lessonAudio" type="url" placeholder="https://..."></div><div class="field"><label>Video URL (optional)</label><input id="lessonVideo" type="url" placeholder="https://..."></div></div><div class="grid"><div class="field"><label>Lesson format</label><select id="lessonType"><option value="mixed">Written + audio + video</option><option value="written">Written</option><option value="audio">Audio</option><option value="video">Video</option></select></div><div class="field"><label>Duration (minutes)</label><input id="lessonDuration" type="number" min="0"></div></div><button class="btn" id="addLesson">Save lesson as published</button><div id="lMsg"></div></div><div class="card"><h2>Recently added lessons</h2><div id="lessonRows" class="muted">Loading...</div></div>
-</section>
-<section id="classesTab" class="tabpane hidden">
-<div class="card"><h2>Add a class</h2><div class="grid"><div class="field"><label>Class title</label><input id="classTitle"></div><div class="field"><label>Class type</label><select id="classType"><option value="live">Live class</option><option value="recorded">Recorded class</option></select></div><div class="field"><label>Subject</label><select id="classSubject"></select></div><div class="field"><label>Topic (optional)</label><select id="classTopic"><option value="">No topic selected</option></select></div><div class="field"><label>Start date/time (for live classes)</label><input id="classStart" type="datetime-local"></div><div class="field"><label>End date/time (optional)</label><input id="classEnd" type="datetime-local"></div></div><div class="field"><label>Description</label><textarea id="classDesc"></textarea></div><div class="grid"><div class="field"><label>Live meeting link</label><input id="meetingUrl" type="url" placeholder="https://..."></div><div class="field"><label>Recording link</label><input id="recordingUrl" type="url" placeholder="https://..."></div></div><button class="btn" id="addClass">Publish class</button><div id="cMsg"></div></div><div class="card"><h2>Published classes</h2><div id="classRows" class="muted">Loading...</div></div>
-</section>
-<div id="globalMsg" class="notice hidden"></div>
+<section id="login" class="card" style="max-width:420px;margin:40px auto"><h2>Staff sign in</h2>
+<div class="field"><label>Email</label><input id="em" type="email"></div><div class="field"><label>Password</label><input id="pw" type="password"></div>
+<button class="btn" id="go">Sign in</button><div id="lm" class="note hid"></div></section>
+
+<section id="main" class="hid">
+<div class="tabs"><button class="on" data-t="c">Courses and access</button><button data-t="q">Questions</button><button data-t="t">Tasks and payments</button></div>
+
+<div id="t_c">
+<div class="grid"><div class="card"><h3>New course</h3>
+<div class="field"><label>Name</label><input id="cn" placeholder="Science"></div><div class="field"><label>Slug</label><input id="cslug" placeholder="science"></div>
+<div class="field"><label>Monthly price (₦)</label><input id="cp" type="number" min="0"></div><div class="field"><label>Description</label><input id="cd"></div>
+<button class="btn" id="addC">Save course</button><div id="m1"></div></div>
+<div class="card"><h3>Subjects in a course</h3><div class="field"><label>Course</label><select id="ac"></select></div><div id="sj"></div>
+<button class="btn" id="saveS">Save subjects</button><div id="m2"></div></div></div>
+<div class="card"><h3>Give a student access days</h3><p class="muted">Use this to activate a student until payments are added. Days stack on any time left.</p>
+<div class="grid"><div class="field"><label>Student email</label><input id="ge" type="email"></div><div class="field"><label>Course</label><select id="gc"></select></div></div>
+<div class="field"><label>Days</label><input id="gd" type="number" value="30" min="1"></div><button class="btn hi" id="grant">Grant access</button><div id="m3"></div></div></div>
+
+<div id="t_q" class="hid"><div class="card"><h3>Import questions</h3>
+<p class="muted">Paste rows from Excel or Google Sheets (or CSV). Columns in this order: question, a, b, c, d, correct, explanation, year. The first row can be the headings. <b>correct</b> is A, B, C or D. If one row has a problem, nothing is imported.</p>
+<div class="field"><label>Subject</label><select id="qs"></select></div>
+<div class="field"><label>Questions</label><textarea id="qt" placeholder="question,a,b,c,d,correct,explanation,year&#10;What is 2+2?,3,4,5,6,B,Two plus two is four,2019"></textarea></div>
+<button class="btn hi" id="imp">Import questions</button><div id="m4"></div></div></div>
+
+<div id="t_t" class="hid"><div class="card"><h3>New task</h3>
+<div class="grid"><div class="field"><label>Title</label><input id="kt" placeholder="Post our flyer on your WhatsApp status"></div>
+<div class="field"><label>Platform</label><select id="kp"><option>WhatsApp status</option><option>Facebook</option><option>X (Twitter)</option><option>Instagram</option><option>Other</option></select></div></div>
+<div class="field"><label>Instructions (say what proof to send, and which contact to save)</label><textarea id="ki" style="min-height:90px"></textarea></div>
+<div class="grid"><div class="field"><label>Reward (free days)</label><input id="kr" type="number" value="3" min="1"></div>
+<div class="field"><label>Times each student can do it</label><input id="km" type="number" value="1" min="1"></div></div>
+<button class="btn" id="addK">Publish task</button><div id="m5"></div></div>
+<div class="card"><h3>Waiting for review</h3><div id="subs" class="muted">Loading...</div></div>
+<div class="card"><h3>Recent payments</h3><div id="pays" class="muted">Loading...</div></div></div>
 </section></div>
 <script>
-(()=> {
-const URL="https://hsjaopfkyltvjpsxhdii.supabase.co",KEY="sb_publishable_UXN0budPmcKVEIcUKepfqA___bLRhpK";
-const db=window.supabase.createClient(URL,KEY),$=id=>document.getElementById(id);let user=null,subjects=[];
-const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-function msg(id,text,kind=""){const e=$(id);e.textContent=text;e.className="notice "+kind;e.classList.remove("hidden")}
-function setTab(tab){document.querySelectorAll(".tabpane").forEach(x=>x.classList.add("hidden"));$(tab+"Tab").classList.remove("hidden");document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("active",x.dataset.tab===tab));if(tab==="topics")loadTopics();if(tab==="lessons")loadLessons();if(tab==="classes")loadClasses()}
-document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
-async function checkStaff(u){const {data,error}=await db.from("profiles").select("full_name,role").eq("id",u.id).maybeSingle();if(error||!data||!["admin","teacher"].includes(data.role)){await db.auth.signOut();msg("loginMsg","This account has not been granted Academy staff access. Ask the owner to assign the admin or teacher role.","error");return false}user=u;$("login").classList.add("hidden");$("console").classList.remove("hidden");$("logout").classList.remove("hidden");$("staffWelcome").textContent="Welcome, "+(data.full_name||data.role);await loadSubjects();await loadTopics();await loadLessons();await loadClasses();return true}
-$("loginBtn").onclick=async()=>{const {data,error}=await db.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});if(error){msg("loginMsg",error.message,"error");return}await checkStaff(data.user)};
-$("logout").onclick=async()=>{await db.auth.signOut();location.reload()};
-async function loadSubjects(){const {data,error}=await db.from("subjects").select("*").order("sort_order");if(error)return;subjects=data||[];const opts=subjects.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join("");["topicSubject","lessonSubject","classSubject"].forEach(id=>$(id).innerHTML=opts);$("subjectRows").innerHTML=subjects.map(s=>`<div class="item row"><div><h3>${esc(s.name)}</h3><small>${esc(s.slug)}</small></div><span>${s.is_published?"Published":"Draft"}</span></div>`).join("")||"No subjects yet."}
-$("addSubject").onclick=async()=>{const row={name:$("sName").value.trim(),slug:$("sSlug").value.trim(),description:$("sDesc").value.trim(),is_published:true};if(!row.name||!row.slug){msg("sMsg","Enter a subject name and slug.","error");return}const {error}=await db.from("subjects").insert(row);if(error){msg("sMsg",error.message,"error");return}msg("sMsg","Subject saved and published.","success");$("sName").value=$("sSlug").value=$("sDesc").value="";await loadSubjects()};
-async function loadTopics(){if(!subjects.length)await loadSubjects();const {data,error}=await db.from("topics").select("*,subjects(name)").order("sort_order");if(error){$("topicRows").textContent=error.message;return} $("topicRows").innerHTML=(data||[]).map(t=>`<div class="item"><h3>${esc(t.name)}</h3><small>${esc(t.subjects?.name||"Subject")}</small></div>`).join("")||"No topics yet."}
-$("addTopic").onclick=async()=>{const row={subject_id:Number($("topicSubject").value),name:$("topicName").value.trim(),description:$("topicDesc").value.trim(),is_published:true};if(!row.subject_id||!row.name){msg("tMsg","Choose a subject and enter a topic name.","error");return}const {error}=await db.from("topics").insert(row);if(error){msg("tMsg",error.message,"error");return}msg("tMsg","Topic saved and published.","success");$("topicName").value=$("topicDesc").value="";await loadTopics();await updateTopicChoices()};
-async function updateTopicChoices(){const sid=Number($("lessonSubject").value||$("classSubject").value);const {data}=await db.from("topics").select("id,name").eq("subject_id",sid).order("sort_order");const opts=(data||[]).map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join("");$("lessonTopic").innerHTML=opts;$("classTopic").innerHTML='<option value="">No topic selected</option>'+opts}
-$("lessonSubject").onchange=updateTopicChoices;$("classSubject").onchange=updateTopicChoices;
-$("addLesson").onclick=async()=>{const row={topic_id:Number($("lessonTopic").value),title:$("lessonTitle").value.trim(),summary:$("lessonSummary").value.trim(),written_content:$("lessonContent").value,audio_url:$("lessonAudio").value.trim()||null,video_url:$("lessonVideo").value.trim()||null,lesson_type:$("lessonType").value,duration_minutes:Number($("lessonDuration").value)||null,is_published:true};if(!row.topic_id||!row.title){msg("lMsg","Choose a topic and enter a lesson title.","error");return}const {error}=await db.from("lessons").insert(row);if(error){msg("lMsg",error.message,"error");return}msg("lMsg","Lesson saved and published to students.","success");["lessonTitle","lessonSummary","lessonContent","lessonAudio","lessonVideo","lessonDuration"].forEach(id=>$(id).value="");await loadLessons()};
-async function loadLessons(){const {data,error}=await db.from("lessons").select("id,title,lesson_type,is_published,topics(name)").order("created_at",{ascending:false}).limit(30);if(error){$("lessonRows").textContent=error.message;return}$("lessonRows").innerHTML=(data||[]).map(l=>`<div class="item"><h3>${esc(l.title)}</h3><small>${esc(l.topics?.name||"Topic")} · ${esc(l.lesson_type)} · ${l.is_published?"Published":"Draft"}</small></div>`).join("")||"No lessons yet."}
-$("addClass").onclick=async()=>{const type=$("classType").value;const row={title:$("classTitle").value.trim(),class_type:type,subject_id:Number($("classSubject").value)||null,topic_id:Number($("classTopic").value)||null,description:$("classDesc").value.trim(),starts_at:$("classStart").value?new Date($("classStart").value).toISOString():null,ends_at:$("classEnd").value?new Date($("classEnd").value).toISOString():null,meeting_url:$("meetingUrl").value.trim()||null,recording_url:$("recordingUrl").value.trim()||null,teacher_id:user.id,is_published:true};if(!row.title){msg("cMsg","Enter a class title.","error");return}if(type==="live"&&!row.meeting_url){msg("cMsg","Add the live meeting link before publishing.","error");return}if(type==="recorded"&&!row.recording_url){msg("cMsg","Add the recording link before publishing.","error");return}const {error}=await db.from("class_sessions").insert(row);if(error){msg("cMsg",error.message,"error");return}msg("cMsg","Class published.","success");["classTitle","classDesc","classStart","classEnd","meetingUrl","recordingUrl"].forEach(id=>$(id).value="");await loadClasses()};
-async function loadClasses(){const {data,error}=await db.from("class_sessions").select("*").order("created_at",{ascending:false}).limit(30);if(error){$("classRows").textContent=error.message;return}$("classRows").innerHTML=(data||[]).map(c=>`<div class="item"><h3>${esc(c.title)}</h3><small>${esc(c.class_type)} · ${c.is_published?"Published":"Draft"}</small></div>`).join("")||"No classes yet."}
-db.auth.getSession().then(({data})=>{if(data.session)checkStaff(data.session.user)});
+(()=>{
+const db=window.supabase.createClient("https://hsjaopfkyltvjpsxhdii.supabase.co","sb_publishable_UXN0budPmcKVEIcUKepfqA___bLRhpK");
+const $=i=>document.getElementById(i),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const msg=(id,t,k="")=>{$(id).innerHTML=t?`<div class="note ${k}">${esc(t)}</div>`:""};
+let courses=[],subjects=[];
+document.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-t]").forEach(x=>x.classList.toggle("on",x===b));["c","q","t"].forEach(k=>$("t_"+k).classList.toggle("hid",b.dataset.t!==k));if(b.dataset.t==="t")loadT()});
+$("addK").onclick=async()=>{const r={title:$("kt").value.trim(),platform:$("kp").value,instructions:$("ki").value.trim(),reward_days:+$("kr").value||3,max_per_student:+$("km").value||1};
+ if(!r.title)return msg("m5","Enter a task title.","err");const {error}=await db.from("tasks").insert(r);if(error)return msg("m5",error.message,"err");msg("m5","Task published to students.","ok");$("kt").value=$("ki").value=""};
+async function loadT(){const {data:s}=await db.from("task_submissions").select("*,tasks(title,reward_days),profiles(full_name,email)").eq("status","pending").order("created_at").limit(40);
+ const rows=await Promise.all((s||[]).map(async x=>{let u="";if(x.proof_url){const {data}=await db.storage.from("task-proofs").createSignedUrl(x.proof_url,600);u=data?.signedUrl||""}
+ return `<div class="chk" style="display:block"><b>${esc(x.profiles?.full_name||"Student")}</b> <span class="muted">${esc(x.profiles?.email||"")}</span><div>${esc(x.tasks?.title)} (${x.tasks?.reward_days} days)</div><div class="muted">${esc(x.proof_text||"No text")}</div>${u?`<a href="${esc(u)}" target="_blank" rel="noopener">View screenshot</a>`:""}<div style="margin-top:8px"><button class="btn" data-r="${x.id}" data-a="1">Approve</button> <button class="btn hi" data-r="${x.id}" data-a="0">Reject</button></div></div>`}));
+ $("subs").innerHTML=rows.join("")||"Nothing waiting for review.";
+ const {data:p}=await db.from("payments").select("reference,amount_kobo,status,created_at,profiles(full_name)").order("created_at",{ascending:false}).limit(15);
+ $("pays").innerHTML=(p||[]).map(x=>`<div class="chk"><span style="flex:1">${esc(x.profiles?.full_name||"Student")}<div class="muted">${esc(new Date(x.created_at).toLocaleString())}</div></span><b>₦${(x.amount_kobo/100).toLocaleString()}</b><span class="muted">${esc(x.status)}</span></div>`).join("")||"No payments yet."}
+$("subs").onclick=async e=>{const b=e.target.closest("[data-r]");if(!b)return;const ok=b.dataset.a==="1",note=ok?null:prompt("Reason for rejecting (the student can try again):")||null;
+ b.disabled=true;const {error}=await db.rpc("review_task",{p_submission:+b.dataset.r,p_approve:ok,p_note:note});if(error){alert(error.message);b.disabled=false;return}loadT()};
+async function staff(u){const {data}=await db.from("profiles").select("role").eq("id",u.id).maybeSingle();
+ if(!data||!["admin","teacher"].includes(data.role)){await db.auth.signOut();$("lm").textContent="This account does not have staff access.";$("lm").className="note err";return}
+ $("login").classList.add("hid");$("main").classList.remove("hid");await load()}
+$("go").onclick=async()=>{const {data,error}=await db.auth.signInWithPassword({email:$("em").value.trim(),password:$("pw").value});if(error){$("lm").textContent=error.message;$("lm").className="note err";return}staff(data.user)};
+async function load(){const [c,s]=await Promise.all([db.from("courses").select("*").order("sort_order"),db.from("subjects").select("id,name").order("sort_order")]);
+ courses=c.data||[];subjects=s.data||[];const o=courses.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join("");$("ac").innerHTML=o;$("gc").innerHTML=o;
+ $("qs").innerHTML=subjects.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join("");showSubs()}
+async function showSubs(){const id=+$("ac").value;if(!id){$("sj").innerHTML='<p class="muted">Create a course first.</p>';return}
+ const {data}=await db.from("course_subjects").select("subject_id").eq("course_id",id);const on=new Set((data||[]).map(x=>x.subject_id));
+ $("sj").innerHTML=subjects.map(s=>`<label class="chk"><input type="checkbox" value="${s.id}" ${on.has(s.id)?"checked":""}>${esc(s.name)}</label>`).join("")}
+$("ac").onchange=showSubs;
+$("addC").onclick=async()=>{const r={name:$("cn").value.trim(),slug:$("cslug").value.trim(),monthly_price:+$("cp").value||0,description:$("cd").value.trim()};
+ if(!r.name||!r.slug)return msg("m1","Enter a name and slug.","err");const {error}=await db.from("courses").insert(r);if(error)return msg("m1",error.message,"err");msg("m1","Course saved.","ok");await load()};
+$("saveS").onclick=async()=>{const id=+$("ac").value,ids=[...document.querySelectorAll("#sj input:checked")].map(i=>+i.value);
+ let e=(await db.from("course_subjects").delete().eq("course_id",id)).error;if(!e&&ids.length)e=(await db.from("course_subjects").insert(ids.map(s=>({course_id:id,subject_id:s})))).error;
+ msg("m2",e?e.message:"Subjects saved for this course.",e?"err":"ok")};
+$("grant").onclick=async()=>{const em=$("ge").value.trim().toLowerCase();const {data:p}=await db.from("profiles").select("id").ilike("email",em).maybeSingle();
+ if(!p)return msg("m3","No student found with that email.","err");
+ const {data,error}=await db.rpc("admin_grant_days",{p_student:p.id,p_course:+$("gc").value,p_days:+$("gd").value||30});
+ msg("m3",error?error.message:"Access now runs until "+new Date(data).toLocaleDateString()+".",error?"err":"ok")};
+function csv(t){const d=(t.split("\n")[0]||"").includes("\t")?"\t":",";const rows=[];let r=[],f="",q=false;
+ for(let i=0;i<t.length;i++){const c=t[i];if(q){if(c=='"'){if(t[i+1]=='"'){f+='"';i++}else q=false}else f+=c}
+ else if(c=='"')q=true;else if(c==d){r.push(f);f=""}else if(c=="\n"||c=="\r"){if(c=="\r"&&t[i+1]=="\n")i++;r.push(f);f="";if(r.some(x=>x.trim()))rows.push(r);r=[]}else f+=c}
+ r.push(f);if(r.some(x=>x.trim()))rows.push(r);return rows}
+$("imp").onclick=async()=>{let rows=csv($("qt").value);if(!rows.length)return msg("m4","Paste your questions first.","err");
+ if(/^question$/i.test(rows[0][0].trim()))rows=rows.slice(1);
+ const k=["question","a","b","c","d","correct","explanation","year"];const objs=rows.map(r=>Object.fromEntries(k.map((n,i)=>[n,(r[i]||"").trim()])));
+ $("imp").disabled=true;let n=0;msg("m4","Importing...");
+ for(let i=0;i<objs.length;i+=50){const {data,error}=await db.rpc("import_questions",{p_subject_id:+$("qs").value,p_rows:objs.slice(i,i+50)});
+ if(error){$("imp").disabled=false;return msg("m4",`${n} imported before an error: ${error.message}`,"err")}n+=data}
+ $("imp").disabled=false;msg("m4",`${n} questions imported and published.`,"ok");$("qt").value=""};
+db.auth.getSession().then(({data})=>{if(data.session)staff(data.session.user)});
 })();
 </script></body></html>
