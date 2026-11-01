@@ -23,7 +23,15 @@ button,input,select{font:inherit}button{cursor:pointer;border:0}:focus-visible{o
 .field{margin:10px 0}.field label{display:block;font-size:13px;font-weight:700;margin-bottom:5px}.field input,.field select{width:100%;padding:12px;border:1.5px solid var(--line);border-radius:11px;background:#fff}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.tile{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;text-align:left;min-height:104px}.tile b{display:block;font:800 17px 'Bricolage Grotesque';margin-top:8px}.tile span{font-size:26px}
 .note{padding:11px 13px;border-radius:11px;background:#eef2ff;font-size:14px;margin:10px 0}.note.err{background:#fde8e8;color:#8f1d22}.note.ok{background:#dff5ec;color:#08704c}
-.empty{text-align:center;color:var(--mut);padding:26px 10px}
+.empty{text-align:center;color:var(--mut);padding:26px 10px}.nochk input{display:none}
+.rm{margin:-16px -14px 0}.rbar{background:var(--ink);color:#fff;padding:10px 14px;display:flex;gap:10px;align-items:center}.rbar button{background:none;color:#fff;font-size:24px;padding:0 6px}
+.rvid{width:100%;aspect-ratio:16/9;border:0;background:#000;display:block}.rbn{padding:8px 14px;font-size:13px;background:#eef2ff}.rbn.live{background:#fde8e8;color:#8f1d22;font-weight:700}
+.rmsgs{padding:12px 14px 150px;display:grid;gap:8px}.bub{background:#fff;border:1px solid var(--line);border-radius:14px;padding:9px 12px}.bub.st{background:#fff8d6;border-color:#f0d56b}.bub small{color:var(--mut);font-weight:700}
+.lk{background:none;color:var(--mut);padding:2px 0;font-size:13px;display:block}.lk.on{color:var(--bad);font-weight:700}
+.rsend{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);padding:8px 12px calc(8px + env(safe-area-inset-bottom))}
+.emo{display:flex;gap:6px;margin-bottom:8px;align-items:center}.emo button{background:#eef2ff;border-radius:20px;padding:6px 10px;font-size:18px}
+.rfl{position:fixed;left:0;right:0;bottom:130px;height:0;pointer-events:none;z-index:5}.rfl span{position:absolute;bottom:0;font-size:28px;animation:fl 2.4s ease-out forwards}
+@keyframes fl{to{transform:translateY(-240px);opacity:0}}@media(prefers-reduced-motion:reduce){.rfl span{animation-duration:.01s}}
 .chk{display:flex;gap:10px;align-items:center;padding:10px 12px;border:1.5px solid var(--line);border-radius:11px;margin-bottom:7px;background:#fff}.chk input{width:18px;height:18px}
 .nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:8px 4px calc(8px + env(safe-area-inset-bottom))}
 .nav button{background:none;color:var(--mut);font-size:11px;display:grid;justify-items:center;gap:2px;min-width:56px}.nav button i{font-style:normal;font-size:20px}.nav .on{color:var(--ink);font-weight:800}
@@ -60,7 +68,7 @@ button,input,select{font:inherit}button{cursor:pointer;border:0}:focus-visible{o
 <section id="app" class="hid">
 <div class="top" id="topbar"><b>JAMB Prep Academy</b><div class="av" id="av">S</div></div>
 <main class="wrap">
-<div class="pg hid" id="p_pick"><h2 class="pt">Choose your course</h2><p class="muted">You will only see subjects under the course you pick. Extra courses can be added later.</p><div id="courses"></div></div>
+<div class="pg hid" id="p_pick"><h2 class="pt">Choose your course</h2><p class="muted">You will see the subjects that belong to the course you pick.</p><div id="courses"></div></div>
 
 <div class="pg hid" id="p_home">
 <div class="slip" id="slip"></div>
@@ -72,12 +80,13 @@ button,input,select{font:inherit}button{cursor:pointer;border:0}:focus-visible{o
 <button class="tile" data-go="me"><span>📈</span><b>My results</b><div class="muted">Scores and progress</div></button>
 <button class="tile" data-go="pay"><span>💳</span><b>Subscribe</b><div class="muted">Pay or add a course</div></button>
 <button class="tile" data-go="earn"><span>🎁</span><b>Free days</b><div class="muted">Invite friends, do tasks</div></button></div></div>
-<div class="pg hid" id="p_pay"><h2 class="pt">Subscribe</h2><p class="muted">Pick the courses to pay for. Each course is billed monthly, and adding a course tops up the fee.</p>
+<div class="pg hid" id="p_pay"><h2 class="pt">Subscribe</h2><p class="muted">Your courses and subscription.</p>
 <div id="paylist" style="margin-top:12px"></div>
-<div class="field"><label>Months</label><select id="pmonths"><option value="1">1 month</option><option value="2">2 months</option><option value="3">3 months</option><option value="6">6 months</option></select></div>
+<div id="paysoon" class="note hid">Subscriptions are not open yet. Enjoy your free access for now.</div><div id="payarea"><div class="field"><label>Months</label><select id="pmonths"><option value="1">1 month</option><option value="2">2 months</option><option value="3">3 months</option><option value="6">6 months</option></select></div>
 <div class="card row"><span>Total</span><b class="big" id="ptotal" style="font-size:22px">₦0</b></div>
-<button class="btn hi w" id="payGo">Pay with Paystack</button><div id="pmsg" class="note hid"></div></div>
+<button class="btn hi w" id="payGo">Pay with Paystack</button></div><div id="pmsg" class="note hid"></div></div>
 <div class="pg hid" id="p_earn"><h2 class="pt">Free days</h2><div id="emsg" class="note hid"></div>
+<div class="card"><h3>Have a code?</h3><div class="row" style="margin-top:8px"><input id="codein" placeholder="Enter code" autocapitalize="characters" style="flex:1;padding:11px;border:1.5px solid var(--line);border-radius:10px"><button class="btn hi" id="redeem">Redeem</button></div></div>
 <div class="card" id="refbox"></div>
 <div class="card hid" id="tform"><h3>Send your proof</h3><p class="muted">Add your phone number or handle, and a screenshot if the task asks for one.</p>
 <div class="field"><label>Phone number, handle or link</label><input id="ttext"></div><div class="field"><label>Screenshot (under 5 MB)</label><input id="tfile" type="file" accept="image/*"></div>
@@ -93,6 +102,11 @@ button,input,select{font:inherit}button{cursor:pointer;border:0}:focus-visible{o
 <button class="btn w" id="oneGo">Start test</button></div><div id="tmsg" class="note hid"></div></div>
 
 <div class="pg hid" id="p_classes"><h2 class="pt">Classes</h2><div id="clist"></div></div>
+<div class="pg hid rm" id="p_room"><div class="rbar"><button id="rback" aria-label="Back to classes">‹</button><b id="rtitle2" style="flex:1"></b><span class="tag" id="rlive"></span></div>
+<div id="rvid"></div><div class="rbn" id="rbn"></div><div class="rmsgs" id="rmsgs"></div>
+<div class="rsend"><div class="emo" id="remo"><button id="rhand" class="btn sec hid" style="margin-left:auto;font-size:13px;padding:6px 10px">Raise hand</button></div>
+<div class="row"><input id="rin" maxlength="500" placeholder="Type a message" style="flex:1;padding:11px;border:1.5px solid var(--line);border-radius:10px"><button class="btn" id="rsend">Send</button></div><div id="rnote" class="note hid"></div></div>
+<div class="rfl" id="rfl"></div></div>
 <div class="pg hid" id="p_me"><h2 class="pt">My results</h2><div id="mebox"></div><button class="btn sec w" id="out">Sign out</button></div>
 
 <div class="pg hid" id="p_cbt" style="margin:-16px -14px 0">
@@ -121,7 +135,7 @@ let me,prof,mine=[],subs=[],ex,ans={},cur=0,tmr,endAt=0,cs=0,ct=0,lrows=[];
 const note=(id,t,k="")=>{const e=$(id);e.textContent=t||"";e.className="note "+k+(t?"":" hid")};
 const days=()=>Math.ceil(Math.max(0,...mine.map(c=>c.access_until?new Date(c.access_until)-Date.now():0))/864e5);
 function go(p){document.querySelectorAll(".pg").forEach(e=>e.classList.toggle("hid",e.id!=="p_"+p));
- const full=["cbt","res","pick"].includes(p);$("nav").classList.toggle("hid",full);
+ const full=["cbt","res","pick","room"].includes(p);$("nav").classList.toggle("hid",full);
  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.p===p));scrollTo(0,0);
  if(p==="study")showSubs();if(p==="classes")loadClasses();if(p==="test")setupTest();if(p==="me")loadMe();if(p==="pay")loadPay();if(p==="earn")loadEarn()}
 document.addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(g)go(g.dataset.go);const n=e.target.closest("#nav [data-p]");if(n){n.dataset.p==="home"?home():go(n.dataset.p)}});
@@ -139,15 +153,16 @@ async function loadMine(){const {data}=await db.from("student_courses").select("
 async function enter(u){me=u;
  const {data:p}=await db.from("profiles").select("*").eq("id",u.id).maybeSingle();prof=p||{full_name:u.user_metadata?.full_name||"Student"};
  $("auth").classList.add("hid");$("app").classList.remove("hid");$("av").textContent=(prof.full_name||"S")[0].toUpperCase();
- await loadMine();if(!mine.length)return pick();
+ await loadMine();await loadCfg();if(!mine.length)return pick();
  const sv=ls.get();if(sv){const {data:d,error}=await db.rpc("get_exam",{p_attempt:Number(sv)});if(!error&&d)return startCbt(d);ls.del()}
  home()}
-function home(){const d=days();
- $("slip").innerHTML=`<div class="muted">Student pass</div><h2>${esc(prof.full_name||"Student")}</h2><p style="margin:0 0 10px">${mine.map(m=>esc(m.courses?.name)).join(" + ")}</p><span class="tag ${d?"g":"r"}">${d?d+" days of access left":"Locked"}</span>`;
- $("lockmsg").classList.toggle("hid",d>0);go("home")}
+async function home(){const d=days(),{data:fe}=await db.rpc("my_free_events"),f=(fe||[])[0];
+ $("slip").innerHTML=`<div class="muted">Student pass</div><h2>${esc(prof.full_name||"Student")}</h2><p style="margin:0 0 10px">${mine.map(m=>esc(m.courses?.name)).join(" + ")}</p><span class="tag ${d||f?"g":"r"}">${d?d+" days of access left":f?"Free until "+esc(new Date(f.ends_at).toLocaleDateString()):"Access ended"}</span>${f?` <span class="tag">${esc(f.name)}</span>`:""}`;
+ $("lockmsg").innerHTML=cfg.payments_enabled==="true"?'Your access has ended. <button class="link" data-go="pay">Subscribe</button> or earn free days.':'Your access has ended. <button class="link" data-go="earn">Earn free days</button> or enter a code.';
+ $("lockmsg").classList.toggle("hid",d>0||!!f);go("home")}
 async function pick(){go("pick");const {data}=await db.from("courses").select("*").eq("is_published",true).order("sort_order");
- $("courses").innerHTML=(data||[]).map(c=>`<div class="card"><h3>${esc(c.name)}</h3><p class="muted">${esc(c.description||"")}</p><div class="row"><b>${c.monthly_price?"₦"+Number(c.monthly_price).toLocaleString()+" a month":"Price coming soon"}</b><button class="btn" data-c="${c.id}">Choose</button></div></div>`).join("")||'<div class="empty">No courses have been published yet.</div>'}
-$("courses").onclick=async e=>{const b=e.target.closest("[data-c]");if(!b||!confirm("Choose this course? Extra courses can be added later with payment."))return;
+ $("courses").innerHTML=(data||[]).map(c=>`<div class="card"><h3>${esc(c.name)}</h3><p class="muted">${esc(c.description||"")}</p><button class="btn w" data-c="${c.id}" style="margin-top:6px">Choose</button></div>`).join("")||'<div class="empty">No courses have been published yet.</div>'}
+$("courses").onclick=async e=>{const b=e.target.closest("[data-c]");if(!b||!confirm("Choose this course?"))return;
  b.disabled=true;const {error}=await db.rpc("enroll_course",{p_course_id:Number(b.dataset.c)});if(error){alert(error.message);b.disabled=false;return}await loadMine();home()};
 /* study */
 async function showSubs(){const el=$("study");el.innerHTML='<h2 class="pt">Subjects</h2><div id="sl"></div>';
@@ -169,7 +184,7 @@ $("study").onclick=e=>{const b=e.target.closest("button");if(!b)return;const d=b
 async function loadClasses(){$("clist").innerHTML='<div class="empty">Loading...</div>';
  const {data}=await db.from("class_sessions").select("*").eq("is_published",true).order("starts_at");
  $("clist").innerHTML=(data||[]).map(c=>{const u=https(c.class_type==="live"?c.meeting_url:c.recording_url);
- return `<div class="card"><span class="tag">${c.class_type==="live"?"Live":"Recorded"}</span><h3 style="margin-top:6px">${esc(c.title)}</h3><p class="muted">${esc(c.description||"")}</p><p class="muted">${c.starts_at?esc(new Date(c.starts_at).toLocaleString()):"Date to be announced"}</p>${u?`<a class="btn hi" style="display:inline-block;text-decoration:none" href="${esc(u)}" target="_blank" rel="noopener">${c.class_type==="live"?"Join class":"Watch recording"}</a>`:""}</div>`}).join("")||'<div class="empty">No classes yet, or your course access is not active.</div>'}
+ return `<div class="card"><span class="tag">${c.class_type==="live"?"Live":"Recorded"}</span><h3 style="margin-top:6px">${esc(c.title)}</h3><p class="muted">${esc(c.description||"")}</p><p class="muted">${c.starts_at?esc(new Date(c.starts_at).toLocaleString()):"Date to be announced"}</p>${c.delivery&&c.delivery!=="link"?`<button class="btn hi" data-room="${c.id}">${c.is_live?"Enter live classroom":"Open classroom"}</button>`:u?`<a class="btn hi" style="display:inline-block;text-decoration:none" href="${esc(u)}" target="_blank" rel="noopener">${c.class_type==="live"?"Join class":"Watch recording"}</a>`:""}</div>`}).join("")||'<div class="empty">No classes yet, or your course access is not active.</div>'}
 /* me */
 async function loadMe(){const [a,p]=await Promise.all([
  db.from("exam_attempts").select("exam_title,score,total_questions,mode,submitted_at").eq("student_id",me.id).eq("status","submitted").order("submitted_at",{ascending:false}).limit(8),
@@ -208,14 +223,14 @@ function result(r){go("res");const j=r.mode==="jamb";$("rtitle").textContent=r.t
  $("rrev").innerHTML=r.review.map((q,i)=>`<div class="card"><span class="tag">${esc(q.subject)}</span><p><b>${i+1}.</b> ${esc(q.text)}</p>${q.options.map(o=>`<div class="opt ${o.id===q.correct_option_id?"right":o.id===q.selected_option_id?"wrong":""}"><b>${esc(o.label)}</b><span>${esc(o.text)}</span></div>`).join("")}${q.selected_option_id?"":'<p class="muted">You did not answer this one.</p>'}${q.explanation?`<p class="why">${esc(q.explanation)}</p>`:""}</div>`).join("")}
 $("rhome").onclick=home;
 /* ---- SETTINGS: fill these in ---- */
-const PAYSTACK_PK="pk_live_03dfbc17400911457d7ef1aedd5a18982925b91d";            // your Paystack PUBLIC key (starts pk_)
-const APP_LINK="https://t.me/JA_MB_bot/app?startapp=";                                  // e.g. "https://t.me/YourBot/app?startapp=" (leave "" to share the web link)
+const PAYSTACK_PK="pk_test_REPLACE_ME";            // your Paystack PUBLIC key (starts pk_)
+const APP_LINK="";                                  // e.g. "https://t.me/YourBot/app?startapp=" (leave "" to share the web link)
 function getRef(){try{return tg?.initDataUnsafe?.start_param||new URLSearchParams(location.search).get("ref")||""}catch(e){return ""}}
 /* payments */
 let pc=[];
-async function loadPay(){const {data}=await db.from("courses").select("*").eq("is_published",true).order("sort_order");pc=data||[];const own=new Set(mine.map(m=>m.course_id));
+async function loadPay(){const pay=cfg.payments_enabled==="true";$("payarea").classList.toggle("hid",!pay);$("paysoon").classList.toggle("hid",pay);$("paylist").classList.toggle("nochk",!pay);const {data}=await db.from("courses").select("*").eq("is_published",true).order("sort_order");pc=data||[];const own=new Set(mine.map(m=>m.course_id));
  $("paylist").innerHTML=pc.map(c=>{const m=mine.find(x=>x.course_id===c.id),on=m&&m.access_until&&new Date(m.access_until)>new Date();
- return `<label class="chk"><input type="checkbox" value="${c.id}" ${own.has(c.id)?"checked":""}><span style="flex:1">${esc(c.name)}<div class="muted">${m?(on?"Active until "+esc(new Date(m.access_until).toLocaleDateString()):"Your course, not active"):"Extra course"}</div></span><b>₦${Number(c.monthly_price).toLocaleString()}</b></label>`}).join("")||'<div class="empty">No courses yet.</div>';sumPay()}
+ return `<label class="chk"><input type="checkbox" value="${c.id}" ${own.has(c.id)?"checked":""}><span style="flex:1">${esc(c.name)}<div class="muted">${m?(on?"Active until "+esc(new Date(m.access_until).toLocaleDateString()):"Your course, not active"):"Extra course"}</div></span>${pay?`<b>₦${Number(c.monthly_price).toLocaleString()}</b>`:(own.has(c.id)||cfg.allow_multi_course!=="true"?"":`<button class="btn" data-add="${c.id}">Add</button>`)}</label>`}).join("")||'<div class="empty">No courses yet.</div>';sumPay()}
 function sumPay(){const ids=[...document.querySelectorAll("#paylist input:checked")].map(i=>+i.value),m=+$("pmonths").value,t=pc.filter(c=>ids.includes(c.id)).reduce((a,c)=>a+c.monthly_price,0)*m;$("ptotal").textContent="₦"+t.toLocaleString();return {ids,m,t}}
 $("paylist").onchange=sumPay;$("pmonths").onchange=sumPay;
 $("payGo").onclick=async()=>{const {ids,m,t}=sumPay();if(!ids.length||!t)return note("pmsg","Choose at least one course that has a price.","err");
@@ -240,6 +255,52 @@ $("tsend").onclick=async()=>{const f=$("tfile").files[0];let path=null;$("tsend"
  path=me.id+"/"+Date.now()+"-"+f.name.replace(/[^\w.-]/g,"_");const {error}=await db.storage.from("task-proofs").upload(path,f);if(error){$("tsend").disabled=false;return note("emsg",error.message,"err")}}
  const {error}=await db.rpc("submit_task",{p_task:curTask,p_path:path,p_text:$("ttext").value.trim()});$("tsend").disabled=false;
  if(error)return note("emsg",error.message,"err");$("tform").classList.add("hid");note("emsg","Sent. You get your free days once the academy approves it.","ok");loadEarn()};
+/* live classroom */
+let room=0,rch=null,rpoll=null,feed=null,pk={},vidSrc="";
+const EMO=["❤️","👏","🔥","😂","👍","🙏"];
+$("remo").insertAdjacentHTML("afterbegin",EMO.map(e=>`<button data-e="${e}" aria-label="React ${e}">${e}</button>`).join(""));
+const embed=u=>{u=https(u);const m=u.match(/(?:youtu\.be\/|[?&]v=|embed\/|live\/)([\w-]{11})/);return m?"https://www.youtube.com/embed/"+m[1]:u};
+function floatE(e){const s=document.createElement("span");s.textContent=e;s.style.left=(10+Math.random()*80)+"%";$("rfl").appendChild(s);setTimeout(()=>s.remove(),2500)}
+$("clist").onclick=e=>{const b=e.target.closest("[data-room]");if(b)openRoom(+b.dataset.room)};
+async function openRoom(id){room=id;feed=null;pk={};vidSrc="";$("rmsgs").innerHTML="";$("rvid").innerHTML="";note("rnote","");go("room");await refresh();
+ clearInterval(rpoll);rpoll=setInterval(refresh,4000);if(rch)db.removeChannel(rch);
+ rch=db.channel("room"+id).on("postgres_changes",{event:"*",schema:"public",table:"class_messages",filter:"session_id=eq."+id},()=>refresh())
+ .on("postgres_changes",{event:"UPDATE",schema:"public",table:"class_sessions",filter:"id=eq."+id},()=>refresh())
+ .on("postgres_changes",{event:"INSERT",schema:"public",table:"class_reactions",filter:"session_id=eq."+id},p=>{if(p.new.student_id!==feed?.me)floatE(p.new.emoji)}).subscribe()}
+$("rback").onclick=()=>{clearInterval(rpoll);room=0;if(rch){db.removeChannel(rch);rch=null}go("classes")};
+async function refresh(){if(!room)return;await db.rpc("release_due",{p_session:room});const {data,error}=await db.rpc("class_feed",{p_session:room});
+ if(error){$("rbn").textContent=error.message;return}feed=data;draw()}
+function pollH(x){const p=x.poll,v=p.voted,pc=pk[p.id];
+ const opts=p.options.map(o=>{let c="opt";if(v){if(o.id===p.correct_option_id)c+=" right";else if(o.id===v)c+=" wrong"}else if(pc===o.id)c+=" sel";
+ return `<button class="${c}" data-po="${o.id}" data-pp="${p.id}" ${v?"disabled":""}><span style="flex:1">${esc(o.label)}</span>${v?`<b style="width:auto;height:auto;background:none">${o.count}</b>`:""}</button>`}).join("");
+ const ans=p.options.find(o=>o.id===p.correct_option_id);
+ const r=v&&ans?(v===ans.id?'<p class="note ok">Correct!</p>':`<p class="note err">Not quite. The answer is ${esc(ans.label)}.</p>`):"";
+ return `<div class="bub st"><small>Poll from ${esc(x.sender)}</small><p style="margin:4px 0"><b>${esc(p.question)}</b></p>${opts}${!v&&pc?`<button class="btn w" data-pc="${p.id}">Confirm my answer</button>`:""}${r}${v?`<small>${p.total} answered</small>`:""}<button class="lk ${x.liked?"on":""}" data-like="${x.id}">♥ ${x.likes||""}</button></div>`}
+function draw(){const s=feed.session,me=feed.me,m=s.chat_mode,mine=m==="speaker"&&s.speaker_id===me,can=s.is_live&&(m==="open"||mine);
+ $("rtitle2").textContent=s.title;$("rlive").textContent=s.is_live?"Live":"Not live";$("rlive").className="tag "+(s.is_live?"r":"");
+ const src=s.delivery==="stream"?embed(s.stream_url):"";if(src!==vidSrc){vidSrc=src;$("rvid").innerHTML=src?`<iframe class="rvid" src="${esc(src)}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`:""}
+ $("rbn").className="rbn"+(mine?" live":"");$("rbn").textContent=!s.is_live?"This class is not live yet.":m==="open"?"Chat is open.":mine?"It is your turn. Send your message now.":m==="speaker"?"A student was chosen to speak. Chat is locked.":"Chat is locked. Raise your hand to ask a question.";
+ $("rin").disabled=!can;$("rsend").disabled=!can;$("rin").placeholder=can?"Type a message":"Chat is locked";
+ $("rhand").classList.toggle("hid",!s.is_live||m==="open");$("rhand").textContent=feed.hand?"Lower hand":"Raise hand";
+ const near=innerHeight+scrollY>=document.body.scrollHeight-200;
+ $("rmsgs").innerHTML=feed.messages.map(x=>x.kind==="poll"&&x.poll?pollH(x):`<div class="bub ${x.staff?"st":""}"><small>${esc(x.sender)}${x.staff?" (teacher)":""}</small><div>${esc(x.body)}</div><button class="lk ${x.liked?"on":""}" data-like="${x.id}">♥ ${x.likes||""}</button></div>`).join("")||'<div class="empty">No messages yet.</div>';
+ if(near)scrollTo(0,document.body.scrollHeight)}
+$("rmsgs").onclick=async e=>{const b=e.target.closest("button");if(!b)return;const d=b.dataset;
+ if(d.like){const {error}=await db.rpc("toggle_like",{p_message:+d.like});if(error)note("rnote",error.message,"err");refresh()}
+ else if(d.po){pk[+d.pp]=+d.po;draw()}
+ else if(d.pc){const o=pk[+d.pc];if(!o)return;b.disabled=true;const {error}=await db.rpc("vote_poll",{p_poll:+d.pc,p_option:o});if(error)note("rnote",error.message,"err");refresh()}};
+async function sendMsg(){const t=$("rin").value.trim();if(!t)return;$("rsend").disabled=true;const {error}=await db.rpc("send_message",{p_session:room,p_body:t});
+ if(error)note("rnote",error.message,"err");else{$("rin").value="";note("rnote","")}await refresh()}
+$("rsend").onclick=sendMsg;$("rin").onkeydown=e=>{if(e.key==="Enter")sendMsg()};
+$("rhand").onclick=async()=>{const {error}=await db.rpc("toggle_hand",{p_session:room});if(error)note("rnote",error.message,"err");refresh()};
+$("remo").onclick=e=>{const b=e.target.closest("[data-e]");if(!b)return;floatE(b.dataset.e);db.rpc("react",{p_session:room,p_emoji:b.dataset.e})};
+let cfg={};
+async function loadCfg(){const {data}=await db.from("settings").select("*");cfg={};(data||[]).forEach(x=>cfg[x.key]=x.value)}
+$("redeem").onclick=async()=>{const c=$("codein").value.trim();if(!c)return note("emsg","Enter your code first.","err");
+ const {data,error}=await db.rpc("redeem_code",{p_code:c});if(error)return note("emsg",error.message,"err");
+ $("codein").value="";await loadMine();note("emsg",data+" days added to your access.","ok")};
+$("paylist").onclick=async e=>{const b=e.target.closest("[data-add]");if(!b)return;e.preventDefault();
+ const {error}=await db.rpc("enroll_course",{p_course_id:+b.dataset.add});if(error)return alert(error.message);await loadMine();loadPay()};
 db.auth.getSession().then(({data})=>{if(data.session)enter(data.session.user)});
 })();
 </script></body></html>
