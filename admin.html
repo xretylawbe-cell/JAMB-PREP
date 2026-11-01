@@ -23,7 +23,7 @@ input,select,textarea,button{font:inherit}input,select,textarea{width:100%;paddi
 <button class="btn" id="go">Sign in</button><div id="lm" class="note hid"></div></section>
 
 <section id="main" class="hid">
-<div class="tabs"><button class="on" data-t="c">Courses and access</button><button data-t="q">Questions</button><button data-t="t">Tasks and payments</button></div>
+<div class="tabs"><button class="on" data-t="c">Courses and access</button><button data-t="q">Questions</button><button data-t="t">Tasks and payments</button><button data-t="s">Settings and promos</button></div>
 
 <div id="t_c">
 <div class="grid"><div class="card"><h3>New course</h3>
@@ -51,6 +51,29 @@ input,select,textarea,button{font:inherit}input,select,textarea{width:100%;paddi
 <button class="btn" id="addK">Publish task</button><div id="m5"></div></div>
 <div class="card"><h3>Waiting for review</h3><div id="subs" class="muted">Loading...</div></div>
 <div class="card"><h3>Recent payments</h3><div id="pays" class="muted">Loading...</div></div></div>
+
+<div id="t_s" class="hid">
+<div class="card"><h3>App switches</h3>
+<div class="grid"><div class="field"><label>Students can register more than one course</label><select id="sw_multi"><option value="false">Off (one course only)</option><option value="true">On</option></select></div>
+<div class="field"><label>Subscriptions and prices</label><select id="sw_pay"><option value="false">Closed (free launch, no prices shown)</option><option value="true">Open</option></select></div>
+<div class="field"><label>New student bonus (free days)</label><input id="sw_bonus" type="number" min="0"></div>
+<div class="field"><label>Referral reward (free days)</label><input id="sw_ref" type="number" min="0"></div>
+<div class="field"><label>Max rewarded referrals per student, per 30 days</label><input id="sw_cap" type="number" min="0"></div></div>
+<button class="btn" id="saveSw">Save switches</button><div id="m6"></div></div>
+
+<div class="card"><h3>Free events</h3><p class="muted">Choose what is free, for whom, and for how long. Students must still pick a course.</p>
+<div class="grid"><div class="field"><label>Name</label><input id="fe_n" placeholder="Launch week"></div><div class="field"><label>Course</label><select id="fe_c"></select></div>
+<div class="field"><label>Starts</label><input id="fe_s" type="datetime-local"></div><div class="field"><label>Ends</label><input id="fe_e" type="datetime-local"></div></div>
+<div class="field"><label>What is free</label><div id="fe_f"></div></div><button class="btn" id="addFe">Start free event</button><div id="m7"></div><div id="fe_list" style="margin-top:12px"></div></div>
+
+<div class="card"><h3>Code generator</h3><p class="muted">Make one shared code (leave how many at 1 and type your own code) or many single-use codes.</p>
+<div class="grid"><div class="field"><label>Your own code (optional)</label><input id="pc_x" placeholder="FREEMONTH"></div><div class="field"><label>Or prefix for random codes</label><input id="pc_p" placeholder="JAMB"></div>
+<div class="field"><label>How many random codes</label><input id="pc_n" type="number" value="1" min="1" max="200"></div><div class="field"><label>Free days each code gives</label><input id="pc_d" type="number" value="30" min="1"></div>
+<div class="field"><label>Applies to</label><select id="pc_c"></select></div><div class="field"><label>People who can claim each code (empty = unlimited)</label><input id="pc_m" type="number" min="1" value="1"></div>
+<div class="field"><label>Expires (optional)</label><input id="pc_e" type="datetime-local"></div><div class="field"><label>Note for yourself</label><input id="pc_o"></div></div>
+<button class="btn hi" id="genC">Generate</button><div id="m8"></div><textarea id="pc_out" readonly class="hid" style="min-height:90px;margin-top:10px"></textarea><div id="pc_list" style="margin-top:12px"></div></div>
+
+<div class="card"><h3>Courses: prices and visibility</h3><div id="cr_list"></div><div id="m9"></div></div></div>
 </section></div>
 <script>
 (()=>{
@@ -58,7 +81,30 @@ const db=window.supabase.createClient("https://hsjaopfkyltvjpsxhdii.supabase.co"
 const $=i=>document.getElementById(i),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const msg=(id,t,k="")=>{$(id).innerHTML=t?`<div class="note ${k}">${esc(t)}</div>`:""};
 let courses=[],subjects=[];
-document.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-t]").forEach(x=>x.classList.toggle("on",x===b));["c","q","t"].forEach(k=>$("t_"+k).classList.toggle("hid",b.dataset.t!==k));if(b.dataset.t==="t")loadT()});
+document.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-t]").forEach(x=>x.classList.toggle("on",x===b));["c","q","t","s"].forEach(k=>$("t_"+k).classList.toggle("hid",b.dataset.t!==k));if(b.dataset.t==="t")loadT();if(b.dataset.t==="s")loadS()});
+const FE=["lessons","classes","exams","jamb_mock"],FL={lessons:"Lessons",classes:"Classes",exams:"One-subject tests",jamb_mock:"JAMB mock"};
+const iso=v=>v?new Date(v).toISOString():null,fmt=v=>new Date(v).toLocaleString();
+async function loadS(){const [st,cr,fe,pc]=await Promise.all([db.from("settings").select("*"),db.from("courses").select("*").order("sort_order"),db.from("free_events").select("*").order("id",{ascending:false}).limit(20),db.from("promo_codes").select("*,promo_claims(count)").order("id",{ascending:false}).limit(30)]);
+ const c={};(st.data||[]).forEach(x=>c[x.key]=x.value);
+ $("sw_multi").value=c.allow_multi_course||"false";$("sw_pay").value=c.payments_enabled||"false";$("sw_bonus").value=c.signup_bonus_days||0;$("sw_ref").value=c.referral_reward_days||7;$("sw_cap").value=c.referral_monthly_cap||10;
+ const o=(cr.data||[]).map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join("");$("fe_c").innerHTML='<option value="">All courses</option>'+o;$("pc_c").innerHTML='<option value="">The student\'s first course</option>'+o;
+ if(!$("fe_f").children.length)$("fe_f").innerHTML=FE.map(f=>`<label class="chk"><input type="checkbox" value="${f}" checked>${FL[f]}</label>`).join("");
+ $("fe_list").innerHTML=(fe.data||[]).map(x=>`<div class="chk"><span style="flex:1"><b>${esc(x.name)}</b><div class="muted">${esc(fmt(x.starts_at))} to ${esc(fmt(x.ends_at))}. ${x.features.map(f=>FL[f]).join(", ")}</div></span><button class="btn ${x.is_active?"":"hi"}" data-fe="${x.id}" data-on="${x.is_active?0:1}">${x.is_active?"Turn off":"Turn on"}</button><button class="btn" data-fd="${x.id}">Delete</button></div>`).join("")||'<p class="muted">No free events yet.</p>';
+ $("pc_list").innerHTML=(pc.data||[]).map(x=>`<div class="chk"><span style="flex:1"><b>${esc(x.code)}</b> <span class="muted">${x.days} days. ${x.promo_claims?.[0]?.count||0} of ${x.max_claims??"unlimited"} used${x.expires_at?". Expires "+esc(fmt(x.expires_at)):""}</span><div class="muted">${esc(x.note||"")}</div></span><button class="btn ${x.is_active?"":"hi"}" data-cd="${x.id}" data-on="${x.is_active?0:1}">${x.is_active?"Turn off":"Turn on"}</button></div>`).join("");
+ $("cr_list").innerHTML=(cr.data||[]).map(x=>`<div class="chk"><span style="flex:1">${esc(x.name)}</span><input type="number" min="0" style="width:120px;height:auto" data-pr="${x.id}" value="${x.monthly_price}"><label style="display:flex;gap:6px;align-items:center"><input type="checkbox" data-pb="${x.id}" ${x.is_published?"checked":""}>Published</label><button class="btn" data-sc="${x.id}">Save</button></div>`).join("")}
+$("saveSw").onclick=async()=>{const rows=[["allow_multi_course","sw_multi"],["payments_enabled","sw_pay"],["signup_bonus_days","sw_bonus"],["referral_reward_days","sw_ref"],["referral_monthly_cap","sw_cap"]].map(([key,id])=>({key,value:String($(id).value||0)}));
+ const {error}=await db.from("settings").upsert(rows,{onConflict:"key"});msg("m6",error?error.message:"Switches saved.",error?"err":"ok")};
+$("addFe").onclick=async()=>{const f=[...document.querySelectorAll("#fe_f input:checked")].map(i=>i.value);if(!$("fe_n").value.trim()||!$("fe_e").value||!f.length)return msg("m7","Enter a name, an end time, and tick at least one thing that is free.","err");
+ const {error}=await db.from("free_events").insert({name:$("fe_n").value.trim(),course_id:+$("fe_c").value||null,features:f,starts_at:iso($("fe_s").value)||new Date().toISOString(),ends_at:iso($("fe_e").value)});
+ if(error)return msg("m7",error.message,"err");msg("m7","Free event started.","ok");$("fe_n").value="";loadS()};
+$("genC").onclick=async()=>{const x=$("pc_x").value.trim(),{data,error}=await db.rpc("generate_codes",{p_count:+$("pc_n").value||1,p_custom:x,p_prefix:$("pc_p").value.trim(),p_days:+$("pc_d").value,p_course:+$("pc_c").value||null,p_max:+$("pc_m").value||null,p_expires:iso($("pc_e").value),p_note:$("pc_o").value.trim()});
+ if(error)return msg("m8",error.message,"err");$("pc_out").value=data.join("\n");$("pc_out").classList.remove("hid");msg("m8",data.length+" code(s) created. Copy them from the box.","ok");loadS()};
+$("t_s").onclick=async e=>{const b=e.target.closest("button");if(!b)return;const d=b.dataset;let r;
+ if(d.fe)r=await db.from("free_events").update({is_active:d.on==="1"}).eq("id",+d.fe);
+ else if(d.fd){if(!confirm("Delete this free event?"))return;r=await db.from("free_events").delete().eq("id",+d.fd)}
+ else if(d.cd)r=await db.from("promo_codes").update({is_active:d.on==="1"}).eq("id",+d.cd);
+ else if(d.sc){r=await db.from("courses").update({monthly_price:+document.querySelector(`[data-pr="${d.sc}"]`).value||0,is_published:document.querySelector(`[data-pb="${d.sc}"]`).checked}).eq("id",+d.sc);msg("m9",r.error?r.error.message:"Course saved.",r.error?"err":"ok");return}
+ else return;if(r.error)alert(r.error.message);loadS()};
 $("addK").onclick=async()=>{const r={title:$("kt").value.trim(),platform:$("kp").value,instructions:$("ki").value.trim(),reward_days:+$("kr").value||3,max_per_student:+$("km").value||1};
  if(!r.title)return msg("m5","Enter a task title.","err");const {error}=await db.from("tasks").insert(r);if(error)return msg("m5",error.message,"err");msg("m5","Task published to students.","ok");$("kt").value=$("ki").value=""};
 async function loadT(){const {data:s}=await db.from("task_submissions").select("*,tasks(title,reward_days),profiles(full_name,email)").eq("status","pending").order("created_at").limit(40);
