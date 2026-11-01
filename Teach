@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Teacher console</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0f1f4b;--hi:#ffd23f;--line:#dfe3f0;--mut:#5d6989;--ok:#0f9d6b;--bad:#e5484d}
+*{box-sizing:border-box}body{margin:0;background:#f5f6fb;color:#16213f;font:15px/1.5 Figtree,system-ui,sans-serif}
+h3,b.br{font-family:'Bricolage Grotesque',system-ui,sans-serif;margin:0}
+header{background:var(--ink);color:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center}header a{color:var(--hi);font-weight:700}
+.wrap{max-width:860px;margin:auto;padding:16px}.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+.field{margin:10px 0}.field label{display:block;font-size:13px;font-weight:700;margin-bottom:5px}
+input,select,textarea,button{font:inherit}input,select,textarea{width:100%;padding:11px;border:1.5px solid var(--line);border-radius:10px}textarea{min-height:80px}
+.btn{background:var(--ink);color:#fff;border:0;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}.btn.hi{background:var(--hi);color:var(--ink)}.btn.sec{background:#e8ecf8;color:var(--ink)}.btn.on{outline:3px solid var(--hi)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:640px){.grid{grid-template-columns:1fr}}
+.note{padding:10px 12px;border-radius:10px;background:#eef2ff;margin:10px 0;font-size:14px}.err{background:#fde8e8;color:#8f1d22}.ok{background:#dff5ec;color:#08704c}.hid{display:none!important}.muted{color:var(--mut);font-size:13px}
+.tag{display:inline-block;border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700;background:#e8ecf8;color:var(--ink)}.tag.r{background:#fde8e8;color:#a3262b}
+.chk{display:flex;gap:9px;align-items:center;padding:9px 11px;border:1.5px solid var(--line);border-radius:10px;margin-bottom:6px;background:#fff}.chk.ok{border-color:var(--ok);background:#e9f8f1}
+.bub{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 11px;margin-bottom:7px}.bub.st{background:#fff8d6;border-color:#f0d56b}.bub small{color:var(--mut);font-weight:700}
+.lk{background:none;border:0;color:var(--bad);cursor:pointer;font-size:13px}
+.rfl{position:fixed;right:20px;bottom:30px;width:80px;height:0;pointer-events:none}.rfl span{position:absolute;bottom:0;font-size:30px;animation:fl 2.4s ease-out forwards}
+@keyframes fl{to{transform:translateY(-260px);opacity:0}}
+</style></head><body>
+<header><b class="br">Teacher console</b><a href="admin-exams.html">Courses and promos</a></header>
+<div class="wrap">
+<section id="login" class="card" style="max-width:420px;margin:40px auto"><h3>Staff sign in</h3>
+<div class="field"><label>Email</label><input id="em" type="email"></div><div class="field"><label>Password</label><input id="pw" type="password"></div>
+<button class="btn" id="go">Sign in</button><div id="lm"></div></section>
+
+<section id="main" class="hid">
+<div id="v_list">
+<div class="card"><h3 id="ftitle">New class</h3>
+<div class="grid"><div class="field"><label>Title</label><input id="f_t"></div><div class="field"><label>Subject</label><select id="f_sub"></select></div>
+<div class="field"><label>How is it delivered?</label><select id="f_d"><option value="chat">Text classroom (chat)</option><option value="stream">Video stream with chat</option><option value="link">Meeting link only (Zoom, Meet)</option></select></div>
+<div class="field"><label>Starts</label><input id="f_at" type="datetime-local"></div>
+<div class="field"><label>Meeting link</label><input id="f_m" placeholder="https://"></div><div class="field"><label>Stream link (YouTube live or video)</label><input id="f_s" placeholder="https://"></div></div>
+<label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="f_p" checked style="width:18px;height:18px">Visible to students</label>
+<div class="row" style="margin-top:10px"><button class="btn hi" id="fsave">Save class</button><button class="btn sec hid" id="fcancel">Cancel edit</button></div><div id="fm"></div></div>
+<h3 style="margin:6px 0 10px">Your classes</h3><div id="slist"></div></div>
+
+<div id="v_con" class="hid">
+<button class="btn sec" id="back">‹ All classes</button>
+<div class="card" style="margin-top:12px"><div class="row"><h3 id="ctitle"></h3><span class="tag" id="cstate"></span></div>
+<div class="row" style="margin-top:10px"><button class="btn hi" id="golive">Go live</button>
+<span><button class="btn sec" data-m="locked">Lock chat</button> <button class="btn sec" data-m="open">Open chat to all</button></span></div>
+<p class="muted" id="cmode"></p><h3 style="font-size:16px;margin-top:8px">Raised hands</h3><div id="hands"></div></div>
+
+<div class="card"><h3>Send a message</h3><div class="field"><textarea id="mt" placeholder="Write to the class"></textarea></div>
+<div class="field"><label>Send later at (optional)</label><input id="ms" type="datetime-local"></div><button class="btn" id="msend">Send or prepare</button><div id="mm"></div></div>
+
+<div class="card"><h3>Poll</h3><div class="field"><label>Question</label><input id="pq"></div>
+<div class="field"><label>Options, one per line (2 to 6)</label><textarea id="po"></textarea></div>
+<div class="grid"><div class="field"><label>Right option number (empty for an opinion poll)</label><input id="pc" type="number" min="1"></div><div class="field"><label>Send later at (optional)</label><input id="ps" type="datetime-local"></div></div>
+<button class="btn" id="psend">Post poll</button><div id="pm"></div></div>
+
+<div class="card"><h3>Prepared messages</h3><div id="queue"></div></div>
+<div class="card"><h3>Class chat</h3><div id="feedbox"></div></div>
+<div class="rfl" id="rfl"></div></div>
+</section></div>
+<script>
+(()=>{
+const db=window.supabase.createClient("https://hsjaopfkyltvjpsxhdii.supabase.co","sb_publishable_UXN0budPmcKVEIcUKepfqA___bLRhpK");
+const $=i=>document.getElementById(i),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const msg=(id,t,k="")=>{$(id).innerHTML=t?`<div class="note ${k}">${esc(t)}</div>`:""};
+const iso=v=>v?new Date(v).toISOString():null;
+let me,rows={},cur=0,feed=null,tm=null,ch=null,edit=0;
+async function staff(u){const {data}=await db.from("profiles").select("role").eq("id",u.id).maybeSingle();
+ if(!data||!["admin","teacher"].includes(data.role)){await db.auth.signOut();return msg("lm","This account does not have staff access.","err")}
+ me=u;$("login").classList.add("hid");$("main").classList.remove("hid");list()}
+$("go").onclick=async()=>{const {data,error}=await db.auth.signInWithPassword({email:$("em").value.trim(),password:$("pw").value});if(error)return msg("lm",error.message,"err");staff(data.user)};
+async function list(){const [a,b]=await Promise.all([db.from("subjects").select("id,name").order("sort_order"),db.from("class_sessions").select("*").order("starts_at",{ascending:false}).limit(30)]);
+ $("f_sub").innerHTML='<option value="">All enrolled students</option>'+(a.data||[]).map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join("");
+ rows={};(b.data||[]).forEach(c=>rows[c.id]=c);
+ $("slist").innerHTML=(b.data||[]).map(c=>`<div class="card row"><span><b>${esc(c.title)}</b> ${c.is_live?'<span class="tag r">Live</span>':""}<div class="muted">${esc(c.delivery)}. ${c.starts_at?esc(new Date(c.starts_at).toLocaleString()):"No date"}</div></span><span><button class="btn" data-open="${c.id}">Open console</button> <button class="btn sec" data-edit="${c.id}">Edit</button></span></div>`).join("")||'<p class="muted">No classes yet. Create your first one above.</p>'}
+$("fsave").onclick=async()=>{const r={title:$("f_t").value.trim(),class_type:"live",subject_id:+$("f_sub").value||null,delivery:$("f_d").value,meeting_url:$("f_m").value.trim()||null,stream_url:$("f_s").value.trim()||null,starts_at:iso($("f_at").value),is_published:$("f_p").checked};
+ if(!r.title)return msg("fm","Enter a class title.","err");if(!edit)r.teacher_id=me.id;
+ const {error}=await(edit?db.from("class_sessions").update(r).eq("id",edit):db.from("class_sessions").insert(r));
+ if(error)return msg("fm",error.message,"err");msg("fm","Class saved.","ok");resetForm();list()};
+function resetForm(){edit=0;$("ftitle").textContent="New class";$("fcancel").classList.add("hid");["f_t","f_m","f_s","f_at"].forEach(i=>$(i).value="")}
+$("fcancel").onclick=resetForm;
+$("slist").onclick=e=>{const b=e.target.closest("button");if(!b)return;const d=b.dataset;
+ if(d.open)openCon(+d.open);
+ if(d.edit){const c=rows[d.edit];edit=c.id;$("ftitle").textContent="Edit class";$("fcancel").classList.remove("hid");$("f_t").value=c.title;$("f_sub").value=c.subject_id||"";$("f_d").value=c.delivery;$("f_m").value=c.meeting_url||"";$("f_s").value=c.stream_url||"";$("f_p").checked=c.is_published;
+ $("f_at").value=c.starts_at?new Date(new Date(c.starts_at)-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,16):"";scrollTo(0,0)}};
+/* console */
+function floatE(e){const s=document.createElement("span");s.textContent=e;s.style.left=Math.random()*60+"px";$("rfl").appendChild(s);setTimeout(()=>s.remove(),2500)}
+async function openCon(id){cur=id;feed=null;$("v_list").classList.add("hid");$("v_con").classList.remove("hid");await refresh();
+ clearInterval(tm);tm=setInterval(refresh,3000);if(ch)db.removeChannel(ch);
+ ch=db.channel("t"+id).on("postgres_changes",{event:"*",schema:"public",table:"class_messages",filter:"session_id=eq."+id},()=>refresh())
+ .on("postgres_changes",{event:"INSERT",schema:"public",table:"class_reactions",filter:"session_id=eq."+id},p=>floatE(p.new.emoji)).subscribe()}
+$("back").onclick=()=>{clearInterval(tm);cur=0;if(ch){db.removeChannel(ch);ch=null}$("v_con").classList.add("hid");$("v_list").classList.remove("hid");list()};
+async function refresh(){if(!cur)return;await db.rpc("release_due",{p_session:cur});const {data,error}=await db.rpc("class_feed",{p_session:cur});if(error)return;feed=data;draw()}
+const pollT=p=>`<p style="margin:4px 0"><b>${esc(p.question)}</b></p>`+p.options.map(o=>`<div class="chk ${o.id===p.correct_option_id?"ok":""}"><span style="flex:1">${esc(o.label)}</span><b>${o.count}</b></div>`).join("")+`<small>${p.total} answered</small>`;
+function draw(){const s=feed.session;$("ctitle").textContent=s.title;$("cstate").textContent=s.is_live?"Live":"Not live";$("cstate").className="tag "+(s.is_live?"r":"");$("golive").textContent=s.is_live?"End class":"Go live";
+ document.querySelectorAll("[data-m]").forEach(b=>b.classList.toggle("on",b.dataset.m===s.chat_mode));
+ $("cmode").textContent=s.chat_mode==="speaker"?"One student is speaking. Chat locks again after their message.":s.chat_mode==="open"?"Chat is open to everyone.":"Chat is locked. Students can raise a hand.";
+ $("hands").innerHTML=feed.hands.map(h=>`<div class="chk"><span style="flex:1">${esc(h.name)}</span><button class="btn hi" data-spk="${h.student_id}">Let speak</button></div>`).join("")||'<p class="muted">No raised hands.</p>';
+ $("queue").innerHTML=feed.messages.filter(m=>!m.released).map(m=>`<div class="bub"><div>${m.kind==="poll"?"Poll: ":""}${esc(m.body)}</div><div class="muted">Goes out ${m.release_at?esc(new Date(m.release_at).toLocaleString()):"when you send it"}</div><button class="btn" data-now="${m.id}">Send now</button> <button class="btn sec" data-del="${m.id}">Delete</button></div>`).join("")||'<p class="muted">Nothing prepared.</p>';
+ $("feedbox").innerHTML=feed.messages.filter(m=>m.released).map(m=>`<div class="bub ${m.staff?"st":""}"><small>${esc(m.sender)}</small>${m.kind==="poll"&&m.poll?pollT(m.poll):`<div>${esc(m.body)}</div>`}<small>♥ ${m.likes}</small> <button class="lk" data-del="${m.id}">Delete</button></div>`).join("")||'<p class="muted">No messages yet.</p>'}
+$("v_con").onclick=async e=>{const b=e.target.closest("button");if(!b)return;const d=b.dataset;let r;
+ if(d.m)r=await db.from("class_sessions").update({chat_mode:d.m,speaker_id:null}).eq("id",cur);
+ else if(d.spk)r=await db.from("class_sessions").update({chat_mode:"speaker",speaker_id:d.spk}).eq("id",cur);
+ else if(d.now)r=await db.from("class_messages").update({is_released:true,created_at:new Date().toISOString()}).eq("id",+d.now);
+ else if(d.del){if(!confirm("Delete this message?"))return;r=await db.from("class_messages").delete().eq("id",+d.del)}
+ else return;if(r.error)alert(r.error.message);refresh()};
+$("golive").onclick=async()=>{const live=!feed.session.is_live;const {error}=await db.from("class_sessions").update(live?{is_live:true}:{is_live:false,chat_mode:"locked",speaker_id:null}).eq("id",cur);if(error)alert(error.message);refresh()};
+$("msend").onclick=async()=>{const t=$("mt").value.trim(),at=iso($("ms").value);if(!t)return msg("mm","Write a message first.","err");
+ const {error}=await db.from("class_messages").insert({session_id:cur,sender_id:me.id,kind:"text",body:t,release_at:at,is_released:!at||new Date(at)<=new Date()});
+ if(error)return msg("mm",error.message,"err");$("mt").value="";$("ms").value="";msg("mm",at?"Message prepared. It goes out at the time you set.":"Sent.","ok");refresh()};
+$("psend").onclick=async()=>{const o=$("po").value.split("\n").map(x=>x.trim()).filter(Boolean);
+ const {error}=await db.rpc("create_poll",{p_session:cur,p_question:$("pq").value.trim(),p_options:o,p_correct:+$("pc").value||null,p_release_at:iso($("ps").value)});
+ if(error)return msg("pm",error.message,"err");$("pq").value=$("po").value=$("pc").value=$("ps").value="";msg("pm","Poll added.","ok");refresh()};
+db.auth.getSession().then(({data})=>{if(data.session)staff(data.session.user)});
+})();
+</script></body></html>
