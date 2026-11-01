@@ -1,151 +1,113 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Staff: Courses and Questions</title>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--ink:#0f1f4b;--hi:#ffd23f;--line:#dfe3f0;--mut:#5d6989}
 *{box-sizing:border-box}body{margin:0;background:#f5f6fb;color:#16213f;font:15px/1.5 Figtree,system-ui,sans-serif}
-h2,h3,b.br{font-family:'Bricolage Grotesque',system-ui,sans-serif;margin:0}
-header{background:var(--ink);color:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center}header a{color:var(--hi);font-weight:700}
-.wrap{max-width:860px;margin:auto;padding:16px}.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+h3,b.br{font-family:'Bricolage Grotesque',system-ui,sans-serif;margin:0}
+header{background:var(--ink);color:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}header a{color:var(--hi);font-weight:700;margin-left:14px}
+.wrap{max-width:900px;margin:auto;padding:16px}.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
 .field{margin:10px 0}.field label{display:block;font-size:13px;font-weight:700;margin-bottom:5px}
-input,select,textarea,button{font:inherit}input,select,textarea{width:100%;padding:11px;border:1.5px solid var(--line);border-radius:10px}textarea{min-height:170px;font-family:ui-monospace,monospace;font-size:13px}
-.btn{background:var(--ink);color:#fff;border:0;border-radius:10px;padding:11px 16px;font-weight:700;cursor:pointer}.btn.hi{background:var(--hi);color:var(--ink)}.btn:disabled{opacity:.5}
-.tabs{display:flex;gap:8px;margin-bottom:14px}.tabs button{border:0;border-radius:20px;padding:9px 16px;background:#e8ecf8;color:var(--ink);font-weight:700;cursor:pointer}.tabs .on{background:var(--ink);color:#fff}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:640px){.grid{grid-template-columns:1fr}}
-.note{padding:10px 12px;border-radius:10px;background:#eef2ff;margin:10px 0;font-size:14px}.err{background:#fde8e8;color:#8f1d22}.ok{background:#dff5ec;color:#08704c}.hid{display:none!important}
-.chk{display:flex;gap:9px;align-items:center;padding:8px 10px;border:1.5px solid var(--line);border-radius:10px;margin-bottom:6px}.chk input{width:18px;height:18px}.muted{color:var(--mut);font-size:13px}
+input,select,textarea,button{font:inherit}input,select,textarea{width:100%;padding:11px;border:1.5px solid var(--line);border-radius:10px;background:#fff}textarea{min-height:90px}
+.btn{background:var(--ink);color:#fff;border:0;border-radius:10px;padding:9px 13px;font-weight:700;cursor:pointer}.btn.hi{background:var(--hi);color:var(--ink)}.btn.sec{background:#e8ecf8;color:var(--ink)}
+.tabs{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto}.tabs button{border:0;border-radius:20px;padding:9px 16px;background:#e8ecf8;color:var(--ink);font-weight:700;cursor:pointer;white-space:nowrap}.tabs .on{background:var(--ink);color:#fff}
+.bar{display:grid;grid-template-columns:auto 1fr 1fr;gap:10px;margin-bottom:12px;align-items:center}@media(max-width:640px){.bar{grid-template-columns:1fr 1fr}.bar .btn{grid-column:1/-1}}
+.item{display:flex;gap:8px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:14px;padding:11px 13px;margin-bottom:8px;flex-wrap:wrap}.grow{flex:1;min-width:180px}
+.note{padding:10px 12px;border-radius:10px;background:#eef2ff;margin:10px 0;font-size:14px}.err{background:#fde8e8;color:#8f1d22}.ok{background:#dff5ec;color:#08704c}.hid{display:none!important}.muted{color:var(--mut);font-size:13px}
+.tag{display:inline-block;border-radius:20px;padding:2px 9px;font-size:12px;font-weight:700;background:#e8ecf8}.tag.r{background:#fde8e8;color:#a3262b}
+.chk{display:flex;gap:9px;align-items:center;padding:9px 11px;border:1.5px solid var(--line);border-radius:10px;margin:8px 0}.chk input[type=checkbox],.chk input[type=radio]{width:18px;height:18px;flex:none}.chk input[type=text]{border:0;padding:4px}
 </style></head><body>
-<header><b class="br">Staff: Courses and Questions</b><a href="admin.html">Lessons and classes ›</a></header>
+<header><b class="br">Admin dashboard</b><span><a href="admin-exams.html">Courses, codes, settings</a><a href="teach.html">Live classes</a></span></header>
 <div class="wrap">
-<section id="login" class="card" style="max-width:420px;margin:40px auto"><h2>Staff sign in</h2>
+<section id="login" class="card" style="max-width:420px;margin:40px auto"><h3>Staff sign in</h3>
 <div class="field"><label>Email</label><input id="em" type="email"></div><div class="field"><label>Password</label><input id="pw" type="password"></div>
-<button class="btn" id="go">Sign in</button><div id="lm" class="note hid"></div></section>
-
+<button class="btn" id="go">Sign in</button><div id="lm"></div></section>
 <section id="main" class="hid">
-<div class="tabs"><button class="on" data-t="c">Courses and access</button><button data-t="q">Questions</button><button data-t="t">Tasks and payments</button><button data-t="s">Settings and promos</button></div>
-
-<div id="t_c">
-<div class="grid"><div class="card"><h3>New course</h3>
-<div class="field"><label>Name</label><input id="cn" placeholder="Science"></div><div class="field"><label>Slug</label><input id="cslug" placeholder="science"></div>
-<div class="field"><label>Monthly price (₦)</label><input id="cp" type="number" min="0"></div><div class="field"><label>Description</label><input id="cd"></div>
-<button class="btn" id="addC">Save course</button><div id="m1"></div></div>
-<div class="card"><h3>Subjects in a course</h3><div class="field"><label>Course</label><select id="ac"></select></div><div id="sj"></div>
-<button class="btn" id="saveS">Save subjects</button><div id="m2"></div></div></div>
-<div class="card"><h3>Give a student access days</h3><p class="muted">Use this to activate a student until payments are added. Days stack on any time left.</p>
-<div class="grid"><div class="field"><label>Student email</label><input id="ge" type="email"></div><div class="field"><label>Course</label><select id="gc"></select></div></div>
-<div class="field"><label>Days</label><input id="gd" type="number" value="30" min="1"></div><button class="btn hi" id="grant">Grant access</button><div id="m3"></div></div></div>
-
-<div id="t_q" class="hid"><div class="card"><h3>Import questions</h3>
-<p class="muted">Paste rows from Excel or Google Sheets (or CSV). Columns in this order: question, a, b, c, d, correct, explanation, year. The first row can be the headings. <b>correct</b> is A, B, C or D. If one row has a problem, nothing is imported.</p>
-<div class="field"><label>Subject</label><select id="qs"></select></div>
-<div class="field"><label>Questions</label><textarea id="qt" placeholder="question,a,b,c,d,correct,explanation,year&#10;What is 2+2?,3,4,5,6,B,Two plus two is four,2019"></textarea></div>
-<button class="btn hi" id="imp">Import questions</button><div id="m4"></div></div></div>
-
-<div id="t_t" class="hid"><div class="card"><h3>New task</h3>
-<div class="grid"><div class="field"><label>Title</label><input id="kt" placeholder="Post our flyer on your WhatsApp status"></div>
-<div class="field"><label>Platform</label><select id="kp"><option>WhatsApp status</option><option>Facebook</option><option>X (Twitter)</option><option>Instagram</option><option>Other</option></select></div></div>
-<div class="field"><label>Instructions (say what proof to send, and which contact to save)</label><textarea id="ki" style="min-height:90px"></textarea></div>
-<div class="grid"><div class="field"><label>Reward (free days)</label><input id="kr" type="number" value="3" min="1"></div>
-<div class="field"><label>Times each student can do it</label><input id="km" type="number" value="1" min="1"></div></div>
-<button class="btn" id="addK">Publish task</button><div id="m5"></div></div>
-<div class="card"><h3>Waiting for review</h3><div id="subs" class="muted">Loading...</div></div>
-<div class="card"><h3>Recent payments</h3><div id="pays" class="muted">Loading...</div></div></div>
-
-<div id="t_s" class="hid">
-<div class="card"><h3>App switches</h3>
-<div class="grid"><div class="field"><label>Students can register more than one course</label><select id="sw_multi"><option value="false">Off (one course only)</option><option value="true">On</option></select></div>
-<div class="field"><label>Subscriptions and prices</label><select id="sw_pay"><option value="false">Closed (free launch, no prices shown)</option><option value="true">Open</option></select></div>
-<div class="field"><label>New student bonus (free days)</label><input id="sw_bonus" type="number" min="0"></div>
-<div class="field"><label>Referral reward (free days)</label><input id="sw_ref" type="number" min="0"></div>
-<div class="field"><label>Max rewarded referrals per student, per 30 days</label><input id="sw_cap" type="number" min="0"></div></div>
-<button class="btn" id="saveSw">Save switches</button><div id="m6"></div></div>
-
-<div class="card"><h3>Free events</h3><p class="muted">Choose what is free, for whom, and for how long. Students must still pick a course.</p>
-<div class="grid"><div class="field"><label>Name</label><input id="fe_n" placeholder="Launch week"></div><div class="field"><label>Course</label><select id="fe_c"></select></div>
-<div class="field"><label>Starts</label><input id="fe_s" type="datetime-local"></div><div class="field"><label>Ends</label><input id="fe_e" type="datetime-local"></div></div>
-<div class="field"><label>What is free</label><div id="fe_f"></div></div><button class="btn" id="addFe">Start free event</button><div id="m7"></div><div id="fe_list" style="margin-top:12px"></div></div>
-
-<div class="card"><h3>Code generator</h3><p class="muted">Make one shared code (leave how many at 1 and type your own code) or many single-use codes.</p>
-<div class="grid"><div class="field"><label>Your own code (optional)</label><input id="pc_x" placeholder="FREEMONTH"></div><div class="field"><label>Or prefix for random codes</label><input id="pc_p" placeholder="JAMB"></div>
-<div class="field"><label>How many random codes</label><input id="pc_n" type="number" value="1" min="1" max="200"></div><div class="field"><label>Free days each code gives</label><input id="pc_d" type="number" value="30" min="1"></div>
-<div class="field"><label>Applies to</label><select id="pc_c"></select></div><div class="field"><label>People who can claim each code (empty = unlimited)</label><input id="pc_m" type="number" min="1" value="1"></div>
-<div class="field"><label>Expires (optional)</label><input id="pc_e" type="datetime-local"></div><div class="field"><label>Note for yourself</label><input id="pc_o"></div></div>
-<button class="btn hi" id="genC">Generate</button><div id="m8"></div><textarea id="pc_out" readonly class="hid" style="min-height:90px;margin-top:10px"></textarea><div id="pc_list" style="margin-top:12px"></div></div>
-
-<div class="card"><h3>Courses: prices and visibility</h3><div id="cr_list"></div><div id="m9"></div></div></div>
-</section></div>
+<div class="tabs" id="tabs"></div>
+<div class="card hid" id="form"></div>
+<div class="bar"><button class="btn hi" id="newb">New</button><select id="flt"></select><input id="srch" placeholder="Search"></div>
+<div id="list"></div></section></div>
 <script>
 (()=>{
 const db=window.supabase.createClient("https://hsjaopfkyltvjpsxhdii.supabase.co","sb_publishable_UXN0budPmcKVEIcUKepfqA___bLRhpK");
 const $=i=>document.getElementById(i),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const msg=(id,t,k="")=>{$(id).innerHTML=t?`<div class="note ${k}">${esc(t)}</div>`:""};
-let courses=[],subjects=[];
-document.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-t]").forEach(x=>x.classList.toggle("on",x===b));["c","q","t","s"].forEach(k=>$("t_"+k).classList.toggle("hid",b.dataset.t!==k));if(b.dataset.t==="t")loadT();if(b.dataset.t==="s")loadS()});
-const FE=["lessons","classes","exams","jamb_mock"],FL={lessons:"Lessons",classes:"Classes",exams:"One-subject tests",jamb_mock:"JAMB mock"};
-const iso=v=>v?new Date(v).toISOString():null,fmt=v=>new Date(v).toLocaleString();
-async function loadS(){const [st,cr,fe,pc]=await Promise.all([db.from("settings").select("*"),db.from("courses").select("*").order("sort_order"),db.from("free_events").select("*").order("id",{ascending:false}).limit(20),db.from("promo_codes").select("*,promo_claims(count)").order("id",{ascending:false}).limit(30)]);
- const c={};(st.data||[]).forEach(x=>c[x.key]=x.value);
- $("sw_multi").value=c.allow_multi_course||"false";$("sw_pay").value=c.payments_enabled||"false";$("sw_bonus").value=c.signup_bonus_days||0;$("sw_ref").value=c.referral_reward_days||7;$("sw_cap").value=c.referral_monthly_cap||10;
- const o=(cr.data||[]).map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join("");$("fe_c").innerHTML='<option value="">All courses</option>'+o;$("pc_c").innerHTML='<option value="">The student\'s first course</option>'+o;
- if(!$("fe_f").children.length)$("fe_f").innerHTML=FE.map(f=>`<label class="chk"><input type="checkbox" value="${f}" checked>${FL[f]}</label>`).join("");
- $("fe_list").innerHTML=(fe.data||[]).map(x=>`<div class="chk"><span style="flex:1"><b>${esc(x.name)}</b><div class="muted">${esc(fmt(x.starts_at))} to ${esc(fmt(x.ends_at))}. ${x.features.map(f=>FL[f]).join(", ")}</div></span><button class="btn ${x.is_active?"":"hi"}" data-fe="${x.id}" data-on="${x.is_active?0:1}">${x.is_active?"Turn off":"Turn on"}</button><button class="btn" data-fd="${x.id}">Delete</button></div>`).join("")||'<p class="muted">No free events yet.</p>';
- $("pc_list").innerHTML=(pc.data||[]).map(x=>`<div class="chk"><span style="flex:1"><b>${esc(x.code)}</b> <span class="muted">${x.days} days. ${x.promo_claims?.[0]?.count||0} of ${x.max_claims??"unlimited"} used${x.expires_at?". Expires "+esc(fmt(x.expires_at)):""}</span><div class="muted">${esc(x.note||"")}</div></span><button class="btn ${x.is_active?"":"hi"}" data-cd="${x.id}" data-on="${x.is_active?0:1}">${x.is_active?"Turn off":"Turn on"}</button></div>`).join("");
- $("cr_list").innerHTML=(cr.data||[]).map(x=>`<div class="chk"><span style="flex:1">${esc(x.name)}</span><input type="number" min="0" style="width:120px;height:auto" data-pr="${x.id}" value="${x.monthly_price}"><label style="display:flex;gap:6px;align-items:center"><input type="checkbox" data-pb="${x.id}" ${x.is_published?"checked":""}>Published</label><button class="btn" data-sc="${x.id}">Save</button></div>`).join("")}
-$("saveSw").onclick=async()=>{const rows=[["allow_multi_course","sw_multi"],["payments_enabled","sw_pay"],["signup_bonus_days","sw_bonus"],["referral_reward_days","sw_ref"],["referral_monthly_cap","sw_cap"]].map(([key,id])=>({key,value:String($(id).value||0)}));
- const {error}=await db.from("settings").upsert(rows,{onConflict:"key"});msg("m6",error?error.message:"Switches saved.",error?"err":"ok")};
-$("addFe").onclick=async()=>{const f=[...document.querySelectorAll("#fe_f input:checked")].map(i=>i.value);if(!$("fe_n").value.trim()||!$("fe_e").value||!f.length)return msg("m7","Enter a name, an end time, and tick at least one thing that is free.","err");
- const {error}=await db.from("free_events").insert({name:$("fe_n").value.trim(),course_id:+$("fe_c").value||null,features:f,starts_at:iso($("fe_s").value)||new Date().toISOString(),ends_at:iso($("fe_e").value)});
- if(error)return msg("m7",error.message,"err");msg("m7","Free event started.","ok");$("fe_n").value="";loadS()};
-$("genC").onclick=async()=>{const x=$("pc_x").value.trim(),{data,error}=await db.rpc("generate_codes",{p_count:+$("pc_n").value||1,p_custom:x,p_prefix:$("pc_p").value.trim(),p_days:+$("pc_d").value,p_course:+$("pc_c").value||null,p_max:+$("pc_m").value||null,p_expires:iso($("pc_e").value),p_note:$("pc_o").value.trim()});
- if(error)return msg("m8",error.message,"err");$("pc_out").value=data.join("\n");$("pc_out").classList.remove("hid");msg("m8",data.length+" code(s) created. Copy them from the box.","ok");loadS()};
-$("t_s").onclick=async e=>{const b=e.target.closest("button");if(!b)return;const d=b.dataset;let r;
- if(d.fe)r=await db.from("free_events").update({is_active:d.on==="1"}).eq("id",+d.fe);
- else if(d.fd){if(!confirm("Delete this free event?"))return;r=await db.from("free_events").delete().eq("id",+d.fd)}
- else if(d.cd)r=await db.from("promo_codes").update({is_active:d.on==="1"}).eq("id",+d.cd);
- else if(d.sc){r=await db.from("courses").update({monthly_price:+document.querySelector(`[data-pr="${d.sc}"]`).value||0,is_published:document.querySelector(`[data-pb="${d.sc}"]`).checked}).eq("id",+d.sc);msg("m9",r.error?r.error.message:"Course saved.",r.error?"err":"ok");return}
- else return;if(r.error)alert(r.error.message);loadS()};
-$("addK").onclick=async()=>{const r={title:$("kt").value.trim(),platform:$("kp").value,instructions:$("ki").value.trim(),reward_days:+$("kr").value||3,max_per_student:+$("km").value||1};
- if(!r.title)return msg("m5","Enter a task title.","err");const {error}=await db.from("tasks").insert(r);if(error)return msg("m5",error.message,"err");msg("m5","Task published to students.","ok");$("kt").value=$("ki").value=""};
-async function loadT(){const {data:s}=await db.from("task_submissions").select("*,tasks(title,reward_days),profiles(full_name,email)").eq("status","pending").order("created_at").limit(40);
- const rows=await Promise.all((s||[]).map(async x=>{let u="";if(x.proof_url){const {data}=await db.storage.from("task-proofs").createSignedUrl(x.proof_url,600);u=data?.signedUrl||""}
- return `<div class="chk" style="display:block"><b>${esc(x.profiles?.full_name||"Student")}</b> <span class="muted">${esc(x.profiles?.email||"")}</span><div>${esc(x.tasks?.title)} (${x.tasks?.reward_days} days)</div><div class="muted">${esc(x.proof_text||"No text")}</div>${u?`<a href="${esc(u)}" target="_blank" rel="noopener">View screenshot</a>`:""}<div style="margin-top:8px"><button class="btn" data-r="${x.id}" data-a="1">Approve</button> <button class="btn hi" data-r="${x.id}" data-a="0">Reject</button></div></div>`}));
- $("subs").innerHTML=rows.join("")||"Nothing waiting for review.";
- const {data:p}=await db.from("payments").select("reference,amount_kobo,status,created_at,profiles(full_name)").order("created_at",{ascending:false}).limit(15);
- $("pays").innerHTML=(p||[]).map(x=>`<div class="chk"><span style="flex:1">${esc(x.profiles?.full_name||"Student")}<div class="muted">${esc(new Date(x.created_at).toLocaleString())}</div></span><b>₦${(x.amount_kobo/100).toLocaleString()}</b><span class="muted">${esc(x.status)}</span></div>`).join("")||"No payments yet."}
-$("subs").onclick=async e=>{const b=e.target.closest("[data-r]");if(!b)return;const ok=b.dataset.a==="1",note=ok?null:prompt("Reason for rejecting (the student can try again):")||null;
- b.disabled=true;const {error}=await db.rpc("review_task",{p_submission:+b.dataset.r,p_approve:ok,p_note:note});if(error){alert(error.message);b.disabled=false;return}loadT()};
+const msg=(t,k="")=>{const e=$("fm");if(e)e.innerHTML=t?`<div class="note ${k}">${esc(t)}</div>`:""};
+let tab="subjects",L={subjects:[],topics:[]},rows={},editRow=null,qe={};
+const nm=(k,id)=>L[k].find(x=>x.id===id)?.name||"?";
+/* field = [column, label, type, required]; types: text, area, num, chk, sel:<lookup>, opt:a,b,c */
+const C={
+ subjects:{t:"subjects",l:"Subject",o:"sort_order",s:"name",f:[["name","Name","text",1],["slug","Short name (use-of-english for English)","text",1],["description","Description","area"],["icon","Icon (one emoji)","text"],["sort_order","Order","num"],["is_published","Visible to students","chk"]],title:r=>r.name,sub:r=>r.slug},
+ topics:{t:"topics",l:"Topic",o:"sort_order",s:"name",flt:["subject_id","subjects"],f:[["subject_id","Subject","sel:subjects",1],["name","Name","text",1],["description","Description","area"],["sort_order","Order","num"],["is_published","Visible to students","chk"]],title:r=>r.name,sub:r=>"Subject: "+nm("subjects",r.subject_id)},
+ lessons:{t:"lessons",l:"Lesson",o:"sort_order",s:"title",flt:["topic_id","topics"],f:[["topic_id","Topic","sel:topics",1],["title","Title","text",1],["summary","Short summary","text"],["lesson_type","Type","opt:written,audio,video"],["written_content","Notes (text)","area"],["audio_url","Audio link (https)","text"],["video_url","Video link (https)","text"],["duration_minutes","Minutes","num"],["sort_order","Order","num"],["is_published","Visible to students","chk"]],title:r=>r.title,sub:r=>"Topic: "+nm("topics",r.topic_id)},
+ questions:{t:"questions",l:"Question",o:"id",s:"question_text",flt:["subject_id","subjects"],title:r=>(r.question_text||"").slice(0,90),sub:r=>nm("subjects",r.subject_id)+(r.question_year?", "+r.question_year:"")}
+};
 async function staff(u){const {data}=await db.from("profiles").select("role").eq("id",u.id).maybeSingle();
- if(!data||!["admin","teacher"].includes(data.role)){await db.auth.signOut();$("lm").textContent="This account does not have staff access.";$("lm").className="note err";return}
- $("login").classList.add("hid");$("main").classList.remove("hid");await load()}
-$("go").onclick=async()=>{const {data,error}=await db.auth.signInWithPassword({email:$("em").value.trim(),password:$("pw").value});if(error){$("lm").textContent=error.message;$("lm").className="note err";return}staff(data.user)};
-async function load(){const [c,s]=await Promise.all([db.from("courses").select("*").order("sort_order"),db.from("subjects").select("id,name").order("sort_order")]);
- courses=c.data||[];subjects=s.data||[];const o=courses.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join("");$("ac").innerHTML=o;$("gc").innerHTML=o;
- $("qs").innerHTML=subjects.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join("");showSubs()}
-async function showSubs(){const id=+$("ac").value;if(!id){$("sj").innerHTML='<p class="muted">Create a course first.</p>';return}
- const {data}=await db.from("course_subjects").select("subject_id").eq("course_id",id);const on=new Set((data||[]).map(x=>x.subject_id));
- $("sj").innerHTML=subjects.map(s=>`<label class="chk"><input type="checkbox" value="${s.id}" ${on.has(s.id)?"checked":""}>${esc(s.name)}</label>`).join("")}
-$("ac").onchange=showSubs;
-$("addC").onclick=async()=>{const r={name:$("cn").value.trim(),slug:$("cslug").value.trim(),monthly_price:+$("cp").value||0,description:$("cd").value.trim()};
- if(!r.name||!r.slug)return msg("m1","Enter a name and slug.","err");const {error}=await db.from("courses").insert(r);if(error)return msg("m1",error.message,"err");msg("m1","Course saved.","ok");await load()};
-$("saveS").onclick=async()=>{const id=+$("ac").value,ids=[...document.querySelectorAll("#sj input:checked")].map(i=>+i.value);
- let e=(await db.from("course_subjects").delete().eq("course_id",id)).error;if(!e&&ids.length)e=(await db.from("course_subjects").insert(ids.map(s=>({course_id:id,subject_id:s})))).error;
- msg("m2",e?e.message:"Subjects saved for this course.",e?"err":"ok")};
-$("grant").onclick=async()=>{const em=$("ge").value.trim().toLowerCase();const {data:p}=await db.from("profiles").select("id").ilike("email",em).maybeSingle();
- if(!p)return msg("m3","No student found with that email.","err");
- const {data,error}=await db.rpc("admin_grant_days",{p_student:p.id,p_course:+$("gc").value,p_days:+$("gd").value||30});
- msg("m3",error?error.message:"Access now runs until "+new Date(data).toLocaleDateString()+".",error?"err":"ok")};
-function csv(t){const d=(t.split("\n")[0]||"").includes("\t")?"\t":",";const rows=[];let r=[],f="",q=false;
- for(let i=0;i<t.length;i++){const c=t[i];if(q){if(c=='"'){if(t[i+1]=='"'){f+='"';i++}else q=false}else f+=c}
- else if(c=='"')q=true;else if(c==d){r.push(f);f=""}else if(c=="\n"||c=="\r"){if(c=="\r"&&t[i+1]=="\n")i++;r.push(f);f="";if(r.some(x=>x.trim()))rows.push(r);r=[]}else f+=c}
- r.push(f);if(r.some(x=>x.trim()))rows.push(r);return rows}
-$("imp").onclick=async()=>{let rows=csv($("qt").value);if(!rows.length)return msg("m4","Paste your questions first.","err");
- if(/^question$/i.test(rows[0][0].trim()))rows=rows.slice(1);
- const k=["question","a","b","c","d","correct","explanation","year"];const objs=rows.map(r=>Object.fromEntries(k.map((n,i)=>[n,(r[i]||"").trim()])));
- $("imp").disabled=true;let n=0;msg("m4","Importing...");
- for(let i=0;i<objs.length;i+=50){const {data,error}=await db.rpc("import_questions",{p_subject_id:+$("qs").value,p_rows:objs.slice(i,i+50)});
- if(error){$("imp").disabled=false;return msg("m4",`${n} imported before an error: ${error.message}`,"err")}n+=data}
- $("imp").disabled=false;msg("m4",`${n} questions imported and published.`,"ok");$("qt").value=""};
+ if(!data||!["admin","teacher"].includes(data.role)){await db.auth.signOut();$("lm").innerHTML='<div class="note err">This account does not have staff access.</div>';return}
+ $("login").classList.add("hid");$("main").classList.remove("hid");
+ $("tabs").innerHTML=Object.keys(C).map(k=>`<button data-tab="${k}">${C[k].l}s</button>`).join("");await lookups();show("subjects")}
+$("go").onclick=async()=>{const {data,error}=await db.auth.signInWithPassword({email:$("em").value.trim(),password:$("pw").value});if(error){$("lm").innerHTML=`<div class="note err">${esc(error.message)}</div>`;return}staff(data.user)};
+async function lookups(){const [a,b]=await Promise.all([db.from("subjects").select("id,name").order("sort_order"),db.from("topics").select("id,name,subject_id").order("sort_order")]);
+ L.subjects=a.data||[];L.topics=(b.data||[]).map(t=>({...t,name:t.name+" ("+nm("subjects",t.subject_id)+")"}))}
+function show(t){tab=t;document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===t));$("form").classList.add("hid");$("srch").value="";
+ const c=C[t];$("flt").classList.toggle("hid",!c.flt);if(c.flt)$("flt").innerHTML='<option value="">All</option>'+L[c.flt[1]].map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join("");load()}
+$("tabs").onclick=e=>{const b=e.target.closest("[data-tab]");if(b)show(b.dataset.tab)};
+$("flt").onchange=load;let st;$("srch").oninput=()=>{clearTimeout(st);st=setTimeout(load,300)};
+async function load(){const c=C[tab];let q=db.from(c.t).select("*").order(c.o,{ascending:tab!=="questions"}).limit(50);
+ if(c.flt&&$("flt").value)q=q.eq(c.flt[0],+$("flt").value);if($("srch").value.trim())q=q.ilike(c.s,"%"+$("srch").value.trim()+"%");
+ const {data,error}=await q;if(error){$("list").innerHTML=`<div class="note err">${esc(error.message)}</div>`;return}
+ rows={};(data||[]).forEach(r=>rows[r.id]=r);
+ $("list").innerHTML=(data||[]).map(r=>`<div class="item"><span class="grow"><b>${esc(c.title(r))}</b> ${r.is_published?"":'<span class="tag r">Hidden</span>'}<div class="muted">${esc(c.sub(r))}</div></span><button class="btn sec" data-e="${r.id}">Edit</button><button class="btn sec" data-p="${r.id}">${r.is_published?"Hide":"Show"}</button><button class="btn sec" data-d="${r.id}">Delete</button></div>`).join("")||'<p class="muted">Nothing here yet. Tap New to add one.</p>'}
+$("list").onclick=async e=>{const b=e.target.closest("button");if(!b)return;const d=b.dataset,c=C[tab];let r;
+ if(d.e)return tab==="questions"?openQ(rows[d.e]):openForm(rows[d.e]);
+ if(d.p)r=await db.from(c.t).update({is_published:!rows[d.p].is_published}).eq("id",+d.p);
+ else if(d.d){if(!confirm("Delete this "+c.l.toLowerCase()+"? This cannot be undone."))return;r=await db.from(c.t).delete().eq("id",+d.d)}
+ if(r?.error)alert(r.error.code==="23503"?"This is linked to other content or to students' past results, so it cannot be deleted. Hide it instead.":r.error.message);
+ await lookups();load()};
+$("newb").onclick=()=>tab==="questions"?openQ(null):openForm(null);
+function fld(k,l,t,v){const id="x_"+k;
+ if(t==="chk")return `<label class="chk"><input type="checkbox" id="${id}" ${v?"checked":""}>${l}</label>`;
+ if(t==="area")return `<div class="field"><label>${l}</label><textarea id="${id}">${esc(v)}</textarea></div>`;
+ if(/^(sel|opt):/.test(t)){const s=t.startsWith("sel:");let o=s?L[t.slice(4)].map(x=>[x.id,x.name]):t.slice(4).split(",").map(x=>[x,x]);
+  if(v&&!o.some(x=>String(x[0])===String(v)))o.unshift([v,v]);
+  return `<div class="field"><label>${l}</label><select id="${id}">${o.map(([a,b])=>`<option value="${esc(a)}" ${String(a)===String(v)?"selected":""}>${esc(b)}</option>`).join("")}</select></div>`}
+ return `<div class="field"><label>${l}</label><input id="${id}" type="${t==="num"?"number":"text"}" value="${esc(v)}"></div>`}
+function openForm(r){editRow=r;const c=C[tab];$("form").classList.remove("hid");
+ $("form").innerHTML=`<h3>${r?"Edit":"New"} ${c.l.toLowerCase()}</h3>`+c.f.map(([k,l,t])=>fld(k,l,t,r?r[k]:(t==="chk"?true:(k==="sort_order"?0:"")))).join("")+`<div class="grid"><button class="btn hi" id="save">Save</button> <button class="btn sec" id="cancel">Cancel</button></div><div id="fm"></div>`;
+ $("save").onclick=save;$("cancel").onclick=()=>$("form").classList.add("hid");scrollTo(0,0)}
+async function save(){const c=C[tab],r={};
+ for(const [k,l,t,req] of c.f){const e=$("x_"+k);let v=t==="chk"?e.checked:e.value.trim();
+  if(t==="num")v=v===""?null:+v;else if(t.startsWith("sel:"))v=+v;else if(v==="")v=null;
+  if(req&&(v===null||v===""))return msg(l+" is required.","err");r[k]=v}
+ for(const k of ["audio_url","video_url"])if(r[k]&&!/^https:\/\//i.test(r[k]))return msg("Links must start with https://","err");
+ const {error}=await(editRow?db.from(c.t).update(r).eq("id",editRow.id):db.from(c.t).insert(r));
+ if(error)return msg(error.message,"err");$("form").classList.add("hid");await lookups();load()}
+/* questions: one editor for the question, its options and the answer key */
+async function openQ(r){let o=[],a=null;
+ if(r){const [x,y]=await Promise.all([db.from("question_options").select("*").eq("question_id",r.id),db.from("question_answers").select("*").eq("question_id",r.id).maybeSingle()]);o=x.data||[];a=y.data}
+ qe={r,opts:Object.fromEntries(o.map(z=>[z.option_label,z]))};
+ const cor=a?o.find(z=>z.id===a.correct_option_id)?.option_label:"";
+ $("form").classList.remove("hid");
+ $("form").innerHTML=`<h3>${r?"Edit":"New"} question</h3>`+fld("subject_id","Subject","sel:subjects",r?.subject_id||$("flt").value||L.subjects[0]?.id)+fld("question_text","Question","area",r?.question_text||"")+
+ `<label style="font-size:13px;font-weight:700">Options (tick the correct one)</label>`+["A","B","C","D"].map(l=>`<label class="chk"><input type="radio" name="corr" value="${l}" ${cor===l?"checked":""}><b>${l}</b><input type="text" id="o_${l}" value="${esc(qe.opts[l]?.option_text||"")}" placeholder="Option ${l}"></label>`).join("")+
+ fld("explanation","Explanation shown after the test","area",a?.explanation||"")+fld("question_year","Year","num",r?.question_year||"")+fld("difficulty","Difficulty","opt:easy,medium,hard",r?.difficulty||"medium")+fld("is_published","Visible in tests","chk",r?r.is_published:true)+
+ `<div class="grid"><button class="btn hi" id="save">Save question</button> <button class="btn sec" id="cancel">Cancel</button></div><div id="fm"></div>`;
+ $("save").onclick=saveQ;$("cancel").onclick=()=>$("form").classList.add("hid");scrollTo(0,0)}
+async function saveQ(){const g=k=>$("x_"+k).value.trim(),lab=["A","B","C","D"],tx=Object.fromEntries(lab.map(l=>[l,$("o_"+l).value.trim()])),cor=document.querySelector("input[name=corr]:checked")?.value;
+ if(!g("question_text"))return msg("Write the question first.","err");
+ if(lab.filter(l=>tx[l]).length<2)return msg("Add at least two options.","err");
+ if(!cor||!tx[cor])return msg("Tick the correct option, and fill it in.","err");
+ const q={subject_id:+g("subject_id"),question_text:g("question_text"),question_year:g("question_year")?+g("question_year"):null,difficulty:g("difficulty"),is_published:$("x_is_published").checked};
+ let id=qe.r?.id,e;if(id)e=(await db.from("questions").update(q).eq("id",id)).error;else{const r=await db.from("questions").insert(q).select("id").single();e=r.error;id=r.data?.id}
+ if(e)return msg(e.message,"err");
+ const ids={};
+ for(const l of lab){if(!tx[l])continue;const ex=qe.opts[l];
+  if(ex){const r=await db.from("question_options").update({option_text:tx[l]}).eq("id",ex.id);if(r.error)return msg(r.error.message,"err");ids[l]=ex.id}
+  else{const r=await db.from("question_options").insert({question_id:id,option_label:l,option_text:tx[l]}).select("id").single();if(r.error)return msg(r.error.message,"err");ids[l]=r.data.id}}
+ const r2=await db.from("question_answers").upsert({question_id:id,correct_option_id:ids[cor],explanation:g("explanation")||null},{onConflict:"question_id"});
+ if(r2.error)return msg(r2.error.message,"err");
+ for(const l of lab){const ex=qe.opts[l];if(ex&&!tx[l])await db.from("question_options").delete().eq("id",ex.id)}
+ $("form").classList.add("hid");load()}
 db.auth.getSession().then(({data})=>{if(data.session)staff(data.session.user)});
 })();
 </script></body></html>
