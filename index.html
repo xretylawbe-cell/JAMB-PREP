@@ -208,8 +208,8 @@ function result(r){go("res");const j=r.mode==="jamb";$("rtitle").textContent=r.t
  $("rrev").innerHTML=r.review.map((q,i)=>`<div class="card"><span class="tag">${esc(q.subject)}</span><p><b>${i+1}.</b> ${esc(q.text)}</p>${q.options.map(o=>`<div class="opt ${o.id===q.correct_option_id?"right":o.id===q.selected_option_id?"wrong":""}"><b>${esc(o.label)}</b><span>${esc(o.text)}</span></div>`).join("")}${q.selected_option_id?"":'<p class="muted">You did not answer this one.</p>'}${q.explanation?`<p class="why">${esc(q.explanation)}</p>`:""}</div>`).join("")}
 $("rhome").onclick=home;
 /* ---- SETTINGS: fill these in ---- */
-const PAYSTACK_PK="pk_test_REPLACE_ME";            // your Paystack PUBLIC key (starts pk_)
-const APP_LINK="";                                  // e.g. "https://t.me/YourBot/app?startapp=" (leave "" to share the web link)
+const PAYSTACK_PK="pk_live_03dfbc17400911457d7ef1aedd5a18982925b91d";            // your Paystack PUBLIC key (starts pk_)
+const APP_LINK="https://t.me/JA_MB_bot/app?startapp=";                                  // e.g. "https://t.me/YourBot/app?startapp=" (leave "" to share the web link)
 function getRef(){try{return tg?.initDataUnsafe?.start_param||new URLSearchParams(location.search).get("ref")||""}catch(e){return ""}}
 /* payments */
 let pc=[];
