@@ -17,6 +17,10 @@ input,select,textarea,button{font:inherit}input,select,textarea{width:100%;paddi
 .chk{display:flex;gap:9px;align-items:center;padding:9px 11px;border:1.5px solid var(--line);border-radius:10px;margin-bottom:6px;background:#fff}.chk.ok{border-color:var(--ok);background:#e9f8f1}
 .bub{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 11px;margin-bottom:7px}.bub.st{background:#fff8d6;border-color:#f0d56b}.bub small{color:var(--mut);font-weight:700}
 .lk{background:none;border:0;color:var(--bad);cursor:pointer;font-size:13px}
+.blocks{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:8px}
+.blk{border:2px dashed #b9c2dd;border-radius:14px;padding:12px;text-align:left;background:#fff;cursor:pointer;color:var(--ink);font-weight:700}.blk:hover{border-color:var(--ink)}.blk small{display:block;color:var(--mut);font-weight:400}
+.stp{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:8px;background:#fff}.stp.cur{outline:3px solid var(--hi)}.stp.dl{background:#f0f3fb;border-style:dashed}
+.stp .t{flex:1;min-width:0;overflow-wrap:anywhere}.stp img{max-height:64px;border-radius:8px;display:block;margin-bottom:4px}.stp .ac{display:flex;gap:4px;flex-wrap:wrap}.stp .ac button{padding:5px 9px;font-size:13px}
 .rfl{position:fixed;right:20px;bottom:30px;width:80px;height:0;pointer-events:none}.rfl span{position:absolute;bottom:0;font-size:30px;animation:fl 2.4s ease-out forwards}
 @keyframes fl{to{transform:translateY(-260px);opacity:0}}
 </style></head><body>
@@ -34,6 +38,7 @@ input,select,textarea,button{font:inherit}input,select,textarea{width:100%;paddi
 <div class="field"><label>Starts</label><input id="f_at" type="datetime-local"></div>
 <div class="field"><label>Meeting link</label><input id="f_m" placeholder="https://"></div><div class="field"><label>Stream link (YouTube live or video)</label><input id="f_s" placeholder="https://"></div></div>
 <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="f_p" checked style="width:18px;height:18px">Visible to students</label>
+<label style="display:flex;gap:8px;align-items:center;margin-top:6px"><input type="checkbox" id="f_a" checked style="width:18px;height:18px">Play the class flow by itself at the start time</label>
 <div class="row" style="margin-top:10px"><button class="btn hi" id="fsave">Save class</button><button class="btn sec hid" id="fcancel">Cancel edit</button></div><div id="fm"></div></div>
 <h3 style="margin:6px 0 10px">Your classes</h3><div id="slist"></div></div>
 
@@ -45,14 +50,29 @@ input,select,textarea,button{font:inherit}input,select,textarea{width:100%;paddi
 <p class="muted" id="cmode"></p><h3 style="font-size:16px;margin-top:8px">Raised hands</h3><div id="hands"></div></div>
 
 <div class="card"><h3>Send a message</h3><div class="field"><textarea id="mt" placeholder="Write to the class"></textarea></div>
-<div class="field"><label>Send later at (optional)</label><input id="ms" type="datetime-local"></div><button class="btn" id="msend">Send or prepare</button><div id="mm"></div></div>
+<input id="ms" type="hidden"><button class="btn" id="msend">Send or prepare</button><div id="mm"></div></div>
 
 <div class="card"><h3>Poll</h3><div class="field"><label>Question</label><input id="pq"></div>
 <div class="field"><label>Options, one per line (2 to 6)</label><textarea id="po"></textarea></div>
-<div class="grid"><div class="field"><label>Right option number (empty for an opinion poll)</label><input id="pc" type="number" min="1"></div><div class="field"><label>Send later at (optional)</label><input id="ps" type="datetime-local"></div></div>
+<div class="grid"><div class="field"><label>Right option number (empty for an opinion poll)</label><input id="pc" type="number" min="1"></div><input id="ps" type="hidden"></div>
 <button class="btn" id="psend">Post poll</button><div id="pm"></div></div>
 
-<div class="card"><h3>Prepared messages</h3><div id="queue"></div></div>
+<div class="card" id="flowcard"><div class="row"><h3>Class flow</h3><span class="tag" id="fstate"></span></div>
+<p class="muted" id="fwhen"></p>
+<div class="row" style="margin:8px 0 12px"><button class="btn hi" data-fc="start">Start now</button><button class="btn sec" data-fc="pause">Pause</button><button class="btn sec" data-fc="resume">Resume</button><button class="btn sec" data-fc="stop">Stop</button><button class="btn sec" data-fc="reset">Reset</button></div>
+<div id="steps"></div>
+<div id="sform" class="card hid" style="border:2px dashed var(--ink)"></div>
+<p class="muted" style="margin-top:14px">Add one of the blocks:</p>
+<div class="blocks" id="blocks">
+<button class="blk" data-k="text">💬 Text<small>A message to the class</small></button>
+<button class="blk" data-k="image">🖼️ Image<small>Picture with a caption</small></button>
+<button class="blk" data-k="delay">⏱️ Pause<small>Wait before the next block</small></button>
+<button class="blk" data-k="file">📎 File<small>PDF, notes, any file</small></button>
+<button class="blk" data-k="poll">📊 Poll<small>Question with a result</small></button>
+<button class="blk" data-k="chat_open">🔓 Open chat<small>Let students type</small></button>
+<button class="blk" data-k="chat_lock">🔒 Lock chat<small>Students only read</small></button>
+<button class="blk" data-k="end">🏁 End class<small>Finish and lock</small></button></div>
+<div id="qm"></div><div id="queue" class="hid"></div></div>
 <div class="card"><h3>Class chat</h3><div id="feedbox"></div></div>
 <div class="rfl" id="rfl"></div></div>
 </section></div>
@@ -71,7 +91,7 @@ async function list(){const [a,b]=await Promise.all([db.from("subjects").select(
  $("f_sub").innerHTML='<option value="">All enrolled students</option>'+(a.data||[]).map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join("");
  rows={};(b.data||[]).forEach(c=>rows[c.id]=c);
  $("slist").innerHTML=(b.data||[]).map(c=>`<div class="card row"><span><b>${esc(c.title)}</b> ${c.is_live?'<span class="tag r">Live</span>':""}<div class="muted">${esc(c.delivery)}. ${c.starts_at?esc(new Date(c.starts_at).toLocaleString()):"No date"}</div></span><span><button class="btn" data-open="${c.id}">Open console</button> <button class="btn sec" data-edit="${c.id}">Edit</button></span></div>`).join("")||'<p class="muted">No classes yet. Create your first one above.</p>'}
-$("fsave").onclick=async()=>{const r={title:$("f_t").value.trim(),class_type:"live",subject_id:+$("f_sub").value||null,delivery:$("f_d").value,meeting_url:$("f_m").value.trim()||null,stream_url:$("f_s").value.trim()||null,starts_at:iso($("f_at").value),is_published:$("f_p").checked};
+$("fsave").onclick=async()=>{const r={title:$("f_t").value.trim(),class_type:"live",subject_id:+$("f_sub").value||null,delivery:$("f_d").value,meeting_url:$("f_m").value.trim()||null,stream_url:$("f_s").value.trim()||null,starts_at:iso($("f_at").value),is_published:$("f_p").checked,auto_run:$("f_a").checked};
  if(!r.title)return msg("fm","Enter a class title.","err");if(!edit)r.teacher_id=me.id;
  const {error}=await(edit?db.from("class_sessions").update(r).eq("id",edit):db.from("class_sessions").insert(r));
  if(error)return msg("fm",error.message,"err");msg("fm","Class saved.","ok");resetForm();list()};
@@ -79,23 +99,23 @@ function resetForm(){edit=0;$("ftitle").textContent="New class";$("fcancel").cla
 $("fcancel").onclick=resetForm;
 $("slist").onclick=e=>{const b=e.target.closest("button");if(!b)return;const d=b.dataset;
  if(d.open)openCon(+d.open);
- if(d.edit){const c=rows[d.edit];edit=c.id;$("ftitle").textContent="Edit class";$("fcancel").classList.remove("hid");$("f_t").value=c.title;$("f_sub").value=c.subject_id||"";$("f_d").value=c.delivery;$("f_m").value=c.meeting_url||"";$("f_s").value=c.stream_url||"";$("f_p").checked=c.is_published;
+ if(d.edit){const c=rows[d.edit];edit=c.id;$("ftitle").textContent="Edit class";$("fcancel").classList.remove("hid");$("f_t").value=c.title;$("f_sub").value=c.subject_id||"";$("f_d").value=c.delivery;$("f_m").value=c.meeting_url||"";$("f_s").value=c.stream_url||"";$("f_p").checked=c.is_published;$("f_a").checked=c.auto_run;
  $("f_at").value=c.starts_at?new Date(new Date(c.starts_at)-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,16):"";scrollTo(0,0)}};
 /* console */
 function floatE(e){const s=document.createElement("span");s.textContent=e;s.style.left=Math.random()*60+"px";$("rfl").appendChild(s);setTimeout(()=>s.remove(),2500)}
-async function openCon(id){cur=id;feed=null;$("v_list").classList.add("hid");$("v_con").classList.remove("hid");await refresh();
+async function openCon(id){cur=id;feed=null;$("v_list").classList.add("hid");$("v_con").classList.remove("hid");$("sform").classList.add("hid");await loadSteps();await refresh();
  clearInterval(tm);tm=setInterval(refresh,3000);if(ch)db.removeChannel(ch);
  ch=db.channel("t"+id).on("postgres_changes",{event:"*",schema:"public",table:"class_messages",filter:"session_id=eq."+id},()=>refresh())
  .on("postgres_changes",{event:"INSERT",schema:"public",table:"class_reactions",filter:"session_id=eq."+id},p=>floatE(p.new.emoji)).subscribe()}
 $("back").onclick=()=>{clearInterval(tm);cur=0;if(ch){db.removeChannel(ch);ch=null}$("v_con").classList.add("hid");$("v_list").classList.remove("hid");list()};
 async function refresh(){if(!cur)return;await db.rpc("release_due",{p_session:cur});const {data,error}=await db.rpc("class_feed",{p_session:cur});if(error)return;feed=data;draw()}
 const pollT=p=>`<p style="margin:4px 0"><b>${esc(p.question)}</b></p>`+p.options.map(o=>`<div class="chk ${o.id===p.correct_option_id?"ok":""}"><span style="flex:1">${esc(o.label)}</span><b>${o.count}</b></div>`).join("")+`<small>${p.total} answered</small>`;
-function draw(){const s=feed.session;$("ctitle").textContent=s.title;$("cstate").textContent=s.is_live?"Live":"Not live";$("cstate").className="tag "+(s.is_live?"r":"");$("golive").textContent=s.is_live?"End class":"Go live";
+function draw(){const s=feed.session;drawStatus(s);$("ctitle").textContent=s.title;$("cstate").textContent=s.is_live?"Live":"Not live";$("cstate").className="tag "+(s.is_live?"r":"");$("golive").textContent=s.is_live?"End class":"Go live";
  document.querySelectorAll("[data-m]").forEach(b=>b.classList.toggle("on",b.dataset.m===s.chat_mode));
  $("cmode").textContent=s.chat_mode==="speaker"?"One student is speaking. Chat locks again after their message.":s.chat_mode==="open"?"Chat is open to everyone.":"Chat is locked. Students can raise a hand.";
  $("hands").innerHTML=feed.hands.map(h=>`<div class="chk"><span style="flex:1">${esc(h.name)}</span><button class="btn hi" data-spk="${h.student_id}">Let speak</button></div>`).join("")||'<p class="muted">No raised hands.</p>';
  $("queue").innerHTML=feed.messages.filter(m=>!m.released).map(m=>`<div class="bub"><div>${m.kind==="poll"?"Poll: ":""}${esc(m.body)}</div><div class="muted">Goes out ${m.release_at?esc(new Date(m.release_at).toLocaleString()):"when you send it"}</div><button class="btn" data-now="${m.id}">Send now</button> <button class="btn sec" data-del="${m.id}">Delete</button></div>`).join("")||'<p class="muted">Nothing prepared.</p>';
- $("feedbox").innerHTML=feed.messages.filter(m=>m.released).map(m=>`<div class="bub ${m.staff?"st":""}"><small>${esc(m.sender)}</small>${m.kind==="poll"&&m.poll?pollT(m.poll):`<div>${esc(m.body)}</div>`}<small>♥ ${m.likes}</small> <button class="lk" data-del="${m.id}">Delete</button></div>`).join("")||'<p class="muted">No messages yet.</p>'}
+ $("feedbox").innerHTML=feed.messages.filter(m=>m.released).map(m=>`<div class="bub ${m.staff?"st":""}"><small>${esc(m.sender)}</small>${m.kind==="poll"&&m.poll?pollT(m.poll):m.media_url?`<div>${m.kind==="image"?"🖼️ Image":"📎 "+esc(m.file_name||"File")} ${esc(m.body||"")}</div>`:`<div>${esc(m.body)}</div>`}<small>♥ ${m.likes}</small> <button class="lk" data-del="${m.id}">Delete</button></div>`).join("")||'<p class="muted">No messages yet.</p>'}
 $("v_con").onclick=async e=>{const b=e.target.closest("button");if(!b)return;const d=b.dataset;let r;
  if(d.m)r=await db.from("class_sessions").update({chat_mode:d.m,speaker_id:null}).eq("id",cur);
  else if(d.spk)r=await db.from("class_sessions").update({chat_mode:"speaker",speaker_id:d.spk}).eq("id",cur);
@@ -109,6 +129,32 @@ $("msend").onclick=async()=>{const t=$("mt").value.trim(),at=iso($("ms").value);
 $("psend").onclick=async()=>{const o=$("po").value.split("\n").map(x=>x.trim()).filter(Boolean);
  const {error}=await db.rpc("create_poll",{p_session:cur,p_question:$("pq").value.trim(),p_options:o,p_correct:+$("pc").value||null,p_release_at:iso($("ps").value)});
  if(error)return msg("pm",error.message,"err");$("pq").value=$("po").value=$("pc").value=$("ps").value="";msg("pm","Poll added.","ok");refresh()};
-db.auth.getSession().then(({data})=>{if(data.session)staff(data.session.user)});
-})();
-</script></body></html>
+/* flow builder */
+let steps=[],sf=null;
+const ICON={text:"💬",image:"🖼️",file:"📎",poll:"📊",delay:"⏱️",chat_open:"🔓",chat_lock:"🔒",end:"🏁"};
+const dur=s=>s%3600===0?(s/3600)+(s===3600?" hour":" hours"):s%60===0?(s/60)+(s===60?" minute":" minutes"):s+" seconds";
+const mmss=t=>String(Math.floor(t/60)).padStart(2,"0")+":"+String(t%60).padStart(2,"0");
+async function loadSteps(){const {data}=await db.from("class_flow_steps").select("*").eq("session_id",cur).order("position").order("id");steps=data||[];drawSteps()}
+function drawStatus(s){const names={idle:"Not started",running:"Running",paused:"Paused",done:"Finished"};
+ $("fstate").textContent=names[s.flow_status]||s.flow_status;$("fstate").className="tag"+(s.flow_status==="running"?" r":"");
+ $("fwhen").textContent=s.flow_status==="running"?`Step ${Math.min(s.flow_pos+1,steps.length)} of ${steps.length}. The class plays by itself, you can close this page.`
+  :s.flow_status==="paused"?"Paused. Tap Resume to continue.":s.flow_status==="done"?"Finished. Tap Reset to run it again."
+  :s.auto_run&&s.starts_at?"Starts by itself at "+new Date(s.starts_at).toLocaleString()+", even if you are offline.":"Not set to start by itself. Tap Start now.";
+ drawSteps()}
+function drawSteps(){const s=feed?.session,t0=s?.starts_at?new Date(s.starts_at).getTime():null;let off=0;
+ $("steps").innerHTML=steps.map((x,i)=>{const t=off;let body="";
+  if(x.kind==="delay"){off+=x.delay_seconds||0;body=`Wait ${dur(x.delay_seconds||0)}`}
+  else if(x.kind==="text")body=esc(x.body);
+  else if(x.kind==="image")body=`<img src="${esc(x.media_url)}" alt="">${esc(x.body||"")}`;
+  else if(x.kind==="file")body=`${esc(x.file_name||"File")} ${esc(x.body||"")}`;
+  else if(x.kind==="poll")body="Poll: "+esc(x.body);
+  else body={chat_open:"Open chat to everyone",chat_lock:"Lock chat",end:"End class"}[x.kind];
+  const at=x.kind==="delay"?"":`<div class="muted">+${mmss(t)}${t0?" ("+new Date(t0+t*1000).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})+")":""}</div>`;
+  const cur_=s&&s.flow_status!=="idle"&&s.flow_status!=="done"&&i===s.flow_pos;
+  return `<div class="stp ${x.kind==="delay"?"dl":""} ${cur_?"cur":""}"><span>${ICON[x.kind]}</span><div class="t">${body}${at}</div><div class="ac"><button class="btn sec" data-up="${i}" aria-label="Move up">↑</button><button class="btn sec" data-dn="${i}" aria-label="Move down">↓</button>${["text","image","file","delay"].includes(x.kind)?`<button class="btn sec" data-ed="${x.id}">Edit</button>`:""}<button class="btn sec" data-rm="${x.id}">Delete</button></div></div>`}).join("")||'<p class="muted">The flow is empty. Add your first block below.</p>'}
+function openSF(k,st){sf={k,id:st?.id};const f=$("sform");f.classList.remove("hid");
+ const cap=`<div class="field"><label>${k==="text"?"Message":"Caption (optional)"}</label><textarea id="sf_b">${esc(st?.body||"")}</textarea></div>`;
+ let h=`<h3>${st?"Edit":"New"} ${{text:"text",image:"image",file:"file",delay:"pause",poll:"poll"}[k]}</h3>`,u=60;
+ if(k==="text")h+=cap;
+ else if(k==="image"||k==="file")h+=`<div class="field"><label>${k==="image"?"Choose an image":"Choose a file (any type, under 10 MB)"}</label><input type="file" id="sf_f" ${k==="image"?'accept="image/*"':""}>${st?'<p class="muted">Leave empty to keep the current one.</p>':""}</div>`+cap;
+ else if(k==="delay"){const s=st?.delay_seconds||60;u=s%3600===0?3600:s%60===0?60:1;h+=`<div class="grid"><div class="field"><label>Wait for</label><input id="sf_n" type="number" min="1" value="${s/u}"></div><div class="field"><label>Unit</label><select id="sf_u"><option value="1">seconds</option><option value="60">minutes</option><option value="3600">hours</option></select></d
