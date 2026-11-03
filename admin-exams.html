@@ -17,7 +17,7 @@ input,select,textarea,button{font:inherit}input,select,textarea{width:100%;paddi
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:640px){.grid{grid-template-columns:1fr}}
 .note{padding:10px 12px;border-radius:10px;background:#eef2ff;margin:10px 0;font-size:14px}.err{background:#fde8e8;color:#8f1d22}.ok{background:#dff5ec;color:#08704c}.hid{display:none!important}
 .chk{display:flex;gap:9px;align-items:center;padding:8px 10px;border:1.5px solid var(--line);border-radius:10px;margin-bottom:6px}.chk input{width:18px;height:18px}.muted{color:var(--mut);font-size:13px}
-</style></head><body>
+.embed header{display:none}#t_c>.grid:first-child{display:none}.embed .wrap{padding-top:8px}</style><script>if(/[?&]embed/.test(location.search))document.documentElement.className='embed'</script></head><body>
 <header><b class="br">Staff: Courses and Questions</b><a href="admin.html">Lessons and classes ›</a></header>
 <div class="wrap">
 <section id="login" class="card" style="max-width:420px;margin:40px auto"><h2>Staff sign in</h2>
@@ -120,7 +120,7 @@ $("subs").onclick=async e=>{const b=e.target.closest("[data-r]");if(!b)return;co
  b.disabled=true;const {error}=await db.rpc("review_task",{p_submission:+b.dataset.r,p_approve:ok,p_note:note});if(error){alert(error.message);b.disabled=false;return}loadT()};
 async function staff(u){const {data}=await db.from("profiles").select("role").eq("id",u.id).maybeSingle();
  if(!data||!["admin","teacher"].includes(data.role)){await db.auth.signOut();$("lm").textContent="This account does not have staff access.";$("lm").className="note err";return}
- $("login").classList.add("hid");$("main").classList.remove("hid");await load()}
+ $("login").classList.add("hid");$("main").classList.remove("hid");await load();const hh={"#tasks":"t","#promos":"s","#questions":"q"}[location.hash];if(hh)document.querySelector('[data-t="'+hh+'"]').click()}
 $("go").onclick=async()=>{const {data,error}=await db.auth.signInWithPassword({email:$("em").value.trim(),password:$("pw").value});if(error){$("lm").textContent=error.message;$("lm").className="note err";return}staff(data.user)};
 async function load(){const [c,s]=await Promise.all([db.from("courses").select("*").order("sort_order"),db.from("subjects").select("id,name").order("sort_order")]);
  courses=c.data||[];subjects=s.data||[];const o=courses.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join("");$("ac").innerHTML=o;$("gc").innerHTML=o;
@@ -136,19 +136,4 @@ $("saveS").onclick=async()=>{const id=+$("ac").value,ids=[...document.querySelec
  msg("m2",e?e.message:"Subjects saved for this course.",e?"err":"ok")};
 $("grant").onclick=async()=>{const em=$("ge").value.trim().toLowerCase();const {data:p}=await db.from("profiles").select("id").ilike("email",em).maybeSingle();
  if(!p)return msg("m3","No student found with that email.","err");
- const {data,error}=await db.rpc("admin_grant_days",{p_student:p.id,p_course:+$("gc").value,p_days:+$("gd").value||30});
- msg("m3",error?error.message:"Access now runs until "+new Date(data).toLocaleDateString()+".",error?"err":"ok")};
-function csv(t){const d=(t.split("\n")[0]||"").includes("\t")?"\t":",";const rows=[];let r=[],f="",q=false;
- for(let i=0;i<t.length;i++){const c=t[i];if(q){if(c=='"'){if(t[i+1]=='"'){f+='"';i++}else q=false}else f+=c}
- else if(c=='"')q=true;else if(c==d){r.push(f);f=""}else if(c=="\n"||c=="\r"){if(c=="\r"&&t[i+1]=="\n")i++;r.push(f);f="";if(r.some(x=>x.trim()))rows.push(r);r=[]}else f+=c}
- r.push(f);if(r.some(x=>x.trim()))rows.push(r);return rows}
-$("imp").onclick=async()=>{let rows=csv($("qt").value);if(!rows.length)return msg("m4","Paste your questions first.","err");
- if(/^question$/i.test(rows[0][0].trim()))rows=rows.slice(1);
- const k=["question","a","b","c","d","correct","explanation","year"];const objs=rows.map(r=>Object.fromEntries(k.map((n,i)=>[n,(r[i]||"").trim()])));
- $("imp").disabled=true;let n=0;msg("m4","Importing...");
- for(let i=0;i<objs.length;i+=50){const {data,error}=await db.rpc("import_questions",{p_subject_id:+$("qs").value,p_rows:objs.slice(i,i+50)});
- if(error){$("imp").disabled=false;return msg("m4",`${n} imported before an error: ${error.message}`,"err")}n+=data}
- $("imp").disabled=false;msg("m4",`${n} questions imported and published.`,"ok");$("qt").value=""};
-db.auth.getSession().then(({data})=>{if(data.session)staff(data.session.user)});
-})();
-</script></body></html>
+ const {data,error}=
