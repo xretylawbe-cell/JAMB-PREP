@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Staff: Courses and Questions</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>window.supabase||document.write('<script src="https://unpkg.com/@supabase/supabase-js@2"><\/script>')</script>
+<script>window.supabase||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.45.4/umd/supabase.min.js"><\/script>')</script>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--ink:#0f1f4b;--hi:#ffd23f;--line:#dfe3f0;--mut:#5d6989}
@@ -77,6 +79,7 @@ input,select,textarea,button{font:inherit}input,select,textarea{width:100%;paddi
 </section></div>
 <script>
 (()=>{
+if(!window.supabase){document.body.insertAdjacentHTML('afterbegin','<div style="padding:14px;background:#fde8e8;color:#8f1d22;font:15px sans-serif">The app could not load. Check your internet connection or turn off data saver, then reload this page.</div>');return}
 const db=window.supabase.createClient("https://hsjaopfkyltvjpsxhdii.supabase.co","sb_publishable_UXN0budPmcKVEIcUKepfqA___bLRhpK");
 const $=i=>document.getElementById(i),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const msg=(id,t,k="")=>{$(id).innerHTML=t?`<div class="note ${k}">${esc(t)}</div>`:""};
@@ -141,4 +144,11 @@ function csv(t){const d=(t.split("\n")[0]||"").includes("\t")?"\t":",";const row
  r.push(f);if(r.some(x=>x.trim()))rows.push(r);return rows}
 $("imp").onclick=async()=>{let rows=csv($("qt").value);if(!rows.length)return msg("m4","Paste your questions first.","err");
  if(/^question$/i.test(rows[0][0].trim()))rows=rows.slice(1);
- 
+ const k=["question","a","b","c","d","correct","explanation","year"];const objs=rows.map(r=>Object.fromEntries(k.map((n,i)=>[n,(r[i]||"").trim()])));
+ $("imp").disabled=true;let n=0;msg("m4","Importing...");
+ for(let i=0;i<objs.length;i+=50){const {data,error}=await db.rpc("import_questions",{p_subject_id:+$("qs").value,p_rows:objs.slice(i,i+50)});
+ if(error){$("imp").disabled=false;return msg("m4",`${n} imported before an error: ${error.message}`,"err")}n+=data}
+ $("imp").disabled=false;msg("m4",`${n} questions imported and published.`,"ok");$("qt").value=""};
+db.auth.getSession().then(({data})=>{if(data.session)staff(data.session.user)});
+})();
+</script></body></html>
