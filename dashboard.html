@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0f1f4b"><title>Academy dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>window.supabase||document.write('<script src="https://unpkg.com/@supabase/supabase-js@2"><\/script>')</script>
+<script>window.supabase||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.45.4/umd/supabase.min.js"><\/script>')</script>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0f1f4b;--hi:#ffd23f;--line:#dfe3f0;--mut:#5d6989;--ok:#0f9d6b;--bad:#e5484d}
+*{box-sizing:border-box}body{margin:0;background:#f5f6fb;color:#16213f;font:15px/1.5 Figtree,system-ui,sans-serif}
+h2,h3,.br{font-family:'Bricolage Grotesque',system-ui,sans-serif;margin:0}
+input,select,textarea,button{font:inherit}input,select,textarea{width:100%;padding:11px;border:1.5px solid var(--line);border-radius:10px;background:#fff}textarea{min-height:80px}
+button{cursor:pointer;border:0}:focus-visible{outline:3px solid var(--hi);outline-offset:2px}
+.btn{background:var(--ink);color:#fff;border-radius:10px;padding:10px 14px;font-weight:700}.btn.hi{background:var(--hi);color:var(--ink)}.btn.sec{background:#e8ecf8;color:var(--ink)}.btn:disabled{opacity:.5}
+.hid{display:none!important}.muted{color:var(--mut);font-size:13px}.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+.field{margin:10px 0}.field label{display:block;font-size:13px;font-weight:700;margin-bottom:5px}
+.note{padding:10px 12px;border-radius:10px;background:#eef2ff;margin:10px 0;font-size:14px}.err{background:#fde8e8;color:#8f1d22}.ok{background:#dff5ec;color:#08704c}
+.tag{display:inline-block;border-radius:20px;padding:2px 10px;font-size:12px;font-weight:700;background:#e8ecf8;color:var(--ink)}.tag.g{background:#dff5ec;color:#08704c}.tag.r{background:#fde8e8;color:#a3262b}
+#app{min-height:100vh}.top{background:var(--ink);color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:5}
+.top .br{font-size:18px}.top button{background:#ffffff1f;color:#fff;border-radius:20px;padding:6px 12px;font-size:13px}
+#nav{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);display:flex;overflow-x:auto;padding:6px 4px calc(6px + env(safe-area-inset-bottom));z-index:6}
+#nav button{flex:0 0 auto;min-width:68px;background:none;color:var(--mut);font-size:11px;display:grid;justify-items:center;gap:1px;padding:4px 8px;border-radius:12px}#nav button i{font-style:normal;font-size:20px}#nav .on{color:var(--ink);font-weight:800;background:#eef2ff}
+#view{padding:16px 14px 100px;max-width:960px;margin:auto}#view.full{padding:0 0 70px;max-width:none}
+iframe{width:100%;height:calc(100vh - 118px);border:0;display:block;background:#f5f6fb}
+@media(min-width:900px){#nav{top:52px;bottom:0;right:auto;width:210px;flex-direction:column;border-top:0;border-right:1px solid var(--line);padding:12px 8px}#nav button{grid-auto-flow:column;justify-content:start;gap:10px;font-size:15px;padding:10px 12px;min-width:0}
+ #view,#view.full{margin-left:210px;max-width:none}#view:not(.full){padding:20px 28px}iframe{height:calc(100vh - 56px)}}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}.stat{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px}.stat b{display:block;font:800 28px 'Bricolage Grotesque'}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-top:14px}.tile{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;text-align:left}.tile span{font-size:26px}.tile b{display:block;font:800 16px 'Bricolage Grotesque'}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.grow{flex:1;min-width:150px}.item{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 13px;margin-bottom:8px}
+.chk{display:flex;gap:9px;align-items:center;padding:8px 11px;border:1.5px solid var(--line);border-radius:10px;margin:6px 0;background:#fff}.chk input{width:18px;height:18px;flex:none}
+.cat{margin:18px 0 8px;font:800 15px 'Bricolage Grotesque';color:var(--mut)}
+</style></head><body>
+<section id="login" style="max-width:420px;margin:60px auto;padding:0 16px"><div class="card"><h2>Academy dashboard</h2><p class="muted">Sign in once. Everything you are allowed to manage opens from here.</p>
+<div class="field"><label>Email</label><input id="em" type="email" autocomplete="email"></div><div class="field"><label>Password</label><input id="pw" type="password" autocomplete="current-password"></div>
+<button class="btn w" id="go" style="width:100%">Sign in</button><div id="lm"></div></div></section>
+<div id="app" class="hid"><div class="top"><span class="br" id="ttl">Dashboard</span><span><span id="who" class="muted" style="color:#c9d3f5;margin-right:8px"></span><button id="out">Sign out</button></span></div>
+<nav id="nav"></nav><main id="view"></main></div>
+<script>
+(()=>{
+if(!window.supabase){document.body.insertAdjacentHTML('afterbegin','<div style="padding:14px;background:#fde8e8;color:#8f1d22;font:15px sans-serif">The app could not load. Check your internet connection or turn off data saver, then reload this page.</div>');return}
+const db=window.supabase.createClient("https://hsjaopfkyltvjpsxhdii.supabase.co","sb_publishable_UXN0budPmcKVEIcUKepfqA___bLRhpK");
+const $=i=>document.getElementById(i),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const msg=(id,t,k="")=>{const e=$(id);if(e)e.innerHTML=t?`<div class="note ${k}">${esc(t)}</div>`:""};
+let me,prof,view="";
+const can=p=>prof.role==="admin"||(prof.role==="teacher"&&(prof.permissions||[]).includes(p));
+const NAV=[["home","🏠","Home",()=>true],["content","📚","Content",()=>true],["classes","🎥","Classes",()=>true],["courses","💳","Courses",()=>can("courses")],["promos","🎁","Promos",()=>can("promos")],["tasks","✅","Tasks",()=>can("tasks")||can("payments")],["team","👥","Team",()=>can("staff")],["me","👤","Me",()=>true]];
+const FRAMES={content:"admin.html?embed=1",classes:"teach.html?embed=1",promos:"admin-exams.html?embed=1#promos",tasks:"admin-exams.html?embed=1#tasks"};
+async function enter(u){me=u;const {data}=await db.from("profiles").select("*").eq("id",u.id).maybeSingle();
+ if(!data||!["admin","teacher"].includes(data.role)){await db.auth.signOut();return msg("lm","This account does not have staff access. Ask an admin to give you a role.","err")}
+ prof=data;$("login").classList.add("hid");$("app").classList.remove("hid");$("who").textContent=(prof.full_name||"")+" ("+prof.role+")";
+ $("nav").innerHTML=NAV.filter(n=>n[3]()).map(n=>`<button data-v="${n[0]}"><i>${n[1]}</i>${n[2]}</button>`).join("");
+ go(location.hash.slice(1)||"home")}
+$("go").onclick=async()=>{const {data,error}=await db.auth.signInWithPassword({email:$("em").value.trim(),password:$("pw").value});if(error)return msg("lm",error.message,"err");enter(data.user)};
+$("out").onclick=async()=>{await db.auth.signOut();location.reload()};
+$("nav").onclick=e=>{const b=e.target.closest("[data-v]");if(b)go(b.dataset.v)};
+function go(v){if(!NAV.some(n=>n[0]===v&&n[3]()))v="home";view=v;history.replaceState(null,"","#"+v);
+ document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
+ const n=NAV.find(x=>x[0]===v);$("ttl").textContent=n[2];const el=$("view");el.classList.toggle("full",!!FRAMES[v]);
+ if(FRAMES[v]){el.innerHTML=`<iframe src="${FRAMES[v]}" title="${n[2]}"></iframe>`;return}
+ el.innerHTML='<p class="muted">Loading...</p>';({home,courses,team,me:meView})[v]()}
+/* home */
+async function home(){const cnt=(t,f)=>f(db.from(t).select("id",{count:"exact",head:true})).then(r=>r.count??"-").catch(()=>"-");
+ const any=can("staff")||can("tasks")||can("payments")||can("promos")||can("courses");let s="";
+ if(any){const [a,b,c,d]=await Promise.all([cnt("profiles",q=>q.eq("role","student")),cnt("student_courses",q=>q.gt("access_until",new Date().toISOString())),cnt("class_sessions",q=>q.eq("is_live",true)),can("tasks")?cnt("task_submissions",q=>q.eq("status","pending")):Promise.resolve("-")]);
+  let rev="-";if(can("payments")){const {data}=await db.from("payments").select("amount_kobo").eq("status","success").limit(2000);rev="₦"+Math.round((data||[]).reduce((x,y)=>x+Number(y.amount_kobo),0)/100).toLocaleString()}
+  s=`<div class="stats"><div class="stat"><b>${a}</b><span class="muted">Students</span></div><div class="stat"><b>${b}</b><span class="muted">Active courses</span></div><div class="stat"><b>${c}</b><span class="muted">Live classes now</span></div>${can("tasks")?`<div class="stat"><b>${d}</b><span class="muted">Tasks to review</span></div>`:""}${can("payments")?`<div class="stat"><b>${rev}</b><span class="muted">Payments received</span></div>`:""}</div>`}
+ $("view").innerHTML=`<h2 style="margin-bottom:6px">Welcome, ${esc((prof.full_name||"").split(" ")[0]||"there")}</h2><p class="muted">${prof.role==="admin"?"You have full access.":"You can open the sections below."}</p>${s}<div class="tiles">${NAV.filter(n=>n[0]!=="home"&&n[3]()).map(n=>`<button class="tile" data-v="${n[0]}"><span>${n[1]}</span><b>${n[2]}</b></button>`).join("")}</div>`}
+$("view").addEventListener("click",e=>{const b=e.target.closest(".tile[data-v]");if(b)go(b.dataset.v)});
+/* courses: you only set the price and whether it is offered */
+let cs=[];
+async function courses(){const {data,error}=await db.from("courses").select("*").order("sort_order");if(error)return $("view").innerHTML=`<div class="note err">${esc(error.message)}</div>`;cs=data||[];
+ $("view").innerHTML=`<h2>Courses and prices</h2><p class="muted">Subjects come from each course's JAMB combination automatically. Set the monthly price and choose which courses are offered. A price of 0 means free. Students only see prices once you open subscriptions.</p><div class="field"><input id="cq" placeholder="Search courses"></div><div id="cl"></div><div id="cm"></div>`;
+ $("cq").oninput=drawCourses;drawCourses()}
+function drawCourses(){const q=($("cq")?.value||"").toLowerCase(),by={};cs.filter(c=>!q||c.name.toLowerCase().includes(q)).forEach(c=>(by[c.category||"Other"]??=[]).push(c));
+ $("cl").innerHTML=Object.entries(by).map(([k,l])=>`<div class="cat">${esc(k)}</div>`+l.map(c=>`<div class="item row"><span class="grow"><b>${esc(c.name)}</b><div class="muted">${esc(c.description||"")}</div></span><span style="width:130px"><input type="number" min="0" data-pr="${c.id}" value="${c.monthly_price}" aria-label="Monthly price in naira"></span><label class="row" style="gap:6px"><input type="checkbox" data-pb="${c.id}" ${c.is_published?"checked":""} style="width:18px;height:18px">Offered</label><button class="btn" data-sc="${c.id}">Save</button></div>`).join("")).join("")||'<p class="muted">No courses match.</p>'}
+$("view").addEventListener("click",async e=>{const b=e.target.closest("[data-sc]");if(!b)return;const id=+b.dataset.sc;b.disabled=true;
+ const r=await db.from("courses").update({monthly_price:+document.querySelector(`[data-pr="${id}"]`).value||0,is_published:document.querySelector(`[data-pb="${id}"]`).checked}).eq("id",id);
+ b.disabled=false;msg("cm",r.error?r.error.message:"Saved.",r.error?"err":"ok");if(!r.error){const c=cs.find(x=>x.id===id);c.monthly_price=+document.querySelector(`[data-pr="${id}"]`).value||0;c.is_published=document.querySelector(`[data-pb="${id}"]`).checked}});
+/* team: roles and access */
+const PERMS=[["courses","Set course prices"],["promos","Free events, codes and settings"],["tasks","Review student tasks"],["payments","See payments"],["staff","Manage the team"]];
+async function team(){const {data,error}=await db.rpc("list_staff");if(error)return $("view").innerHTML=`<div class="note err">${esc(error.message)}</div>`;
+ $("view").innerHTML=`<h2>Team and roles</h2><p class="muted">Admins can do everything. Teachers can manage lessons, questions and live classes, plus any extra access you tick. The person must sign up in the student app first.</p>
+ <div class="card"><h3>Give or change a role</h3><div class="field"><label>Their email</label><input id="te" type="email"></div>
+ <div class="field"><label>Role</label><select id="tr"><option value="teacher">Teacher</option><option value="admin">Admin (full access)</option><option value="student">Student (remove staff access)</option></select></div>
+ <div id="tp"><label class="muted" style="font-weight:700">Extra access for a teacher</label>${PERMS.map(p=>`<label class="chk"><input type="checkbox" value="${p[0]}">${p[1]}</label>`).join("")}</div>
+ <button class="btn hi" id="ts" style="margin-top:8px">Save</button><div id="tm"></div></div><h3 style="margin:6px 0 10px">Current team</h3>
+ ${(data||[]).map(s=>`<div class="item row"><span class="grow"><b>${esc(s.name||"No name")}</b><div class="muted">${esc(s.email)}</div></span><span class="tag ${s.role==="admin"?"g":""}">${esc(s.role)}</span><span class="muted">${s.role==="admin"?"Full access":(s.permissions||[]).length?esc(s.permissions.join(", ")):"Lessons, questions, classes"}</span><button class="btn sec" data-edit="${esc(s.email)}" data-role="${s.role}" data-perms="${esc((s.permissions||[]).join(","))}">Edit</button></div>`).join("")}`;
+ $("tr").onchange=()=>$("tp").classList.toggle("hid",$("tr").value!=="teacher");
+ $("ts").onclick=async()=>{const perms=[...document.querySelectorAll("#tp input:checked")].map(i=>i.value);
+  const {error}=await db.rpc("set_staff",{p_email:$("te").value.trim(),p_role:$("tr").value,p_perms:$("tr").value==="teacher"?perms:[]});
+  if(error)return msg("tm",error.message,"err");msg("tm","Saved.","ok");team()}}
+$("view").addEventListener("click",e=>{const b=e.target.closest("[data-edit]");if(!b)return;$("te").value=b.dataset.edit;$("tr").value=b.dataset.role==="student"?"teacher":b.dataset.role;$("tr").onchange();
+ const ps=b.dataset.perms.split(",");document.querySelectorAll("#tp input").forEach(i=>i.checked=ps.includes(i.value));scrollTo(0,0)});
+/* my profile */
+function meView(){$("view").innerHTML=`<h2>My profile</h2><div class="card"><div class="field"><label>Full name</label><input id="pn" value="${esc(prof.full_name||"")}"></div><div class="field"><label>Phone</label><input id="pp" value="${esc(prof.phone||"")}"></div>
+ <div class="field"><label>About me</label><textarea id="pb">${esc(prof.bio||"")}</textarea></div><div class="field"><label>Email</label><input value="${esc(prof.email||"")}" disabled></div>
+ <p class="muted">Role: <b>${esc(prof.role)}</b>${prof.role==="teacher"?". Extra access: "+((prof.permissions||[]).join(", ")||"none"):""}</p><button class="btn hi" id="ps">Save profile</button><div id="pm"></div></div>`;
+ $("ps").onclick=async()=>{const r={full_name:$("pn").value.trim(),phone:$("pp").value.trim(),bio:$("pb").value.trim()};const {error}=await db.from("profiles").update(r).eq("id",me.id);
+  if(error)return msg("pm",error.message,"err");Object.assign(prof,r);$("who").textContent=r.full_name+" ("+prof.role+")";msg("pm","Profile saved.","ok")}}
+db.auth.getSession().then(({data})=>{if(data.session)enter(data.session.user)});
+})();
+</script></body></html>
