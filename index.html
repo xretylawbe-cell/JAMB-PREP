@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0f1f4b"><title>JAMB Prep Academy</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="https://js.paystack.co/v1/inline.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>window.supabase||document.write('<script src="https://unpkg.com/@supabase/supabase-js@2"><\/script>')</script>
+<script>window.supabase||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.45.4/umd/supabase.min.js"><\/script>')</script>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--ink:#0f1f4b;--paper:#f5f6fb;--hi:#ffd23f;--ok:#0f9d6b;--bad:#e5484d;--mut:#5d6989;--line:#dfe3f0}
@@ -126,6 +127,7 @@ button,input,select{font:inherit}button{cursor:pointer;border:0}:focus-visible{o
 </section>
 <script>
 (()=>{
+if(!window.supabase){document.body.insertAdjacentHTML('afterbegin','<div style="padding:14px;background:#fde8e8;color:#8f1d22;font:15px sans-serif">The app could not load. Check your internet connection or turn off data saver, then reload this page.</div>');return}
 const db=window.supabase.createClient("https://hsjaopfkyltvjpsxhdii.supabase.co","sb_publishable_UXN0budPmcKVEIcUKepfqA___bLRhpK");
 const tg=window.Telegram?.WebApp;if(tg){tg.ready();tg.expand()}
 const $=i=>document.getElementById(i),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -169,4 +171,143 @@ async function showSubs(){const el=$("study");el.innerHTML='<h2 class="pt">Subje
  const {data}=await db.from("subjects").select("*").eq("is_published",true).order("sort_order");subs=data||[];
  $("sl").innerHTML=subs.map(s=>`<button class="card item row" data-s="${s.id}"><span><h3>${esc(s.name)}</h3><span class="muted">${esc(s.description||"")}</span></span><span>›</span></button>`).join("")||'<div class="empty">No subjects yet for your course.</div>'}
 async function topics(id){cs=id;const el=$("study"),s=subs.find(x=>x.id===id);el.innerHTML=`<button class="link" data-back="subs">‹ Subjects</button><h2 class="pt">${esc(s?.name)}</h2><div id="tl"></div>`;
- const {d
+ const {data}=await db.from("topics").select("*").eq("subject_id",id).eq("is_published",true).order("sort_order");
+ $("tl").innerHTML=(data||[]).map(t=>`<button class="card item row" data-t="${t.id}"><span><h3>${esc(t.name)}</h3><span class="muted">${esc(t.description||"")}</span></span><span>›</span></button>`).join("")||'<div class="empty">No topics yet.</div>'}
+async function lessons(id){ct=id;const el=$("study");el.innerHTML='<button class="link" data-back="topics">‹ Topics</button><h2 class="pt">Lessons</h2><div id="ll"></div>';
+ const {data}=await db.from("lessons").select("*").eq("topic_id",id).eq("is_published",true).order("sort_order");lrows=data||[];
+ $("ll").innerHTML=lrows.map(l=>`<button class="card item row" data-l="${l.id}"><span><h3>${esc(l.title)}</h3><span class="muted">${esc(l.summary||l.lesson_type)}</span></span><span>›</span></button>`).join("")||`<div class="empty">${days()?"No lessons yet.":"Lessons unlock when your course access is active."}</div>`}
+function lesson(id){const l=lrows.find(x=>x.id===id);if(!l)return;let m="";
+ if(https(l.video_url))m+=`<video class="media" controls playsinline src="${esc(l.video_url)}"></video>`;if(https(l.audio_url))m+=`<audio class="media" controls src="${esc(l.audio_url)}"></audio>`;
+ $("study").innerHTML=`<button class="link" data-back="lessons">‹ Lessons</button><div class="card" style="margin-top:10px"><h2>${esc(l.title)}</h2><p class="muted">${esc(l.summary||"")}</p>${m}<div class="lbody">${esc(l.written_content||"Notes have not been added yet.")}</div><button class="btn w" id="fin" style="margin-top:16px">Mark as completed</button><div id="fmsg"></div></div>`;
+ $("fin").onclick=async()=>{const {error}=await db.from("lesson_progress").upsert({student_id:me.id,lesson_id:l.id,completed:true,updated_at:new Date().toISOString()},{onConflict:"student_id,lesson_id"});$("fmsg").innerHTML=error?`<div class="note err">${esc(error.message)}</div>`:'<div class="note ok">Lesson completed.</div>'}}
+$("study").onclick=e=>{const b=e.target.closest("button");if(!b)return;const d=b.dataset;
+ if(d.s)topics(+d.s);else if(d.t)lessons(+d.t);else if(d.l)lesson(+d.l);else if(d.back==="subs")showSubs();else if(d.back==="topics")topics(cs);else if(d.back==="lessons")lessons(ct)};
+/* classes */
+async function loadClasses(){$("clist").innerHTML='<div class="empty">Loading...</div>';
+ const {data}=await db.from("class_sessions").select("*").eq("is_published",true).order("starts_at");
+ $("clist").innerHTML=(data||[]).map(c=>{const u=https(c.class_type==="live"?c.meeting_url:c.recording_url);
+ return `<div class="card"><span class="tag">${c.class_type==="live"?"Live":"Recorded"}</span><h3 style="margin-top:6px">${esc(c.title)}</h3><p class="muted">${esc(c.description||"")}</p><p class="muted">${c.starts_at?esc(new Date(c.starts_at).toLocaleString()):"Date to be announced"}</p>${c.delivery&&c.delivery!=="link"?`<button class="btn hi" data-room="${c.id}">${c.is_live?"Enter live classroom":"Open classroom"}</button>`:u?`<a class="btn hi" style="display:inline-block;text-decoration:none" href="${esc(u)}" target="_blank" rel="noopener">${c.class_type==="live"?"Join class":"Watch recording"}</a>`:""}</div>`}).join("")||'<div class="empty">No classes yet, or your course access is not active.</div>'}
+/* me */
+async function loadMe(){const [a,p]=await Promise.all([
+ db.from("exam_attempts").select("exam_title,score,total_questions,mode,submitted_at").eq("student_id",me.id).eq("status","submitted").order("submitted_at",{ascending:false}).limit(8),
+ db.from("lesson_progress").select("id").eq("student_id",me.id).eq("completed",true)]);
+ $("mebox").innerHTML=`<div class="card"><div class="score">${(p.data||[]).length}</div><div class="muted">lessons completed</div></div><h3 style="margin:14px 0 8px">Recent tests</h3>`+((a.data||[]).map(x=>`<div class="card row"><span><b>${esc(x.exam_title)}</b><div class="muted">${esc(new Date(x.submitted_at).toLocaleDateString())}</div></span><b>${x.score}/${x.mode==="jamb"?400:x.total_questions}</b></div>`).join("")||'<div class="empty">You have not written a test yet.</div>')}
+/* test setup */
+async function setupTest(){if(!subs.length){const {data}=await db.from("subjects").select("*").eq("is_published",true).order("sort_order");subs=data||[]}
+ const eng=subs.find(s=>s.slug==="use-of-english"),oth=subs.filter(s=>s!==eng);
+ $("jambsubs").innerHTML=(eng?`<label class="chk"><input type="checkbox" checked disabled>${esc(eng.name)} (compulsory)</label>`:'<div class="note err">Use of English is not in your course yet.</div>')+oth.map(s=>`<label class="chk"><input type="checkbox" value="${s.id}">${esc(s.name)}</label>`).join("");
+ $("onesub").innerHTML=subs.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join("")}
+async function run(fn,args){note("tmsg","Preparing your questions...");const {data,error}=await db.rpc(fn,args);if(error)return note("tmsg",error.message,"err");note("tmsg","");ls.set(data.attempt_id);startCbt(data)}
+$("jambGo").onclick=()=>{const ids=[...document.querySelectorAll("#jambsubs input:checked:not(:disabled)")].map(i=>+i.value);if(ids.length!==3)return note("tmsg","Pick exactly 3 subjects besides Use of English.","err");run("start_jamb_exam",{p_subject_ids:ids})};
+$("oneGo").onclick=()=>run("start_exam",{p_subject_id:+$("onesub").value,p_count:+$("cnt").value||20,p_minutes:+$("mins").value||20});
+/* CBT */
+function startCbt(d){ex=d;ans={};d.questions.forEach(q=>{if(q.selected_option_id)ans[q.id]=q.selected_option_id});cur=0;endAt=Date.now()+d.seconds_left*1000;
+ $("ctitle").textContent=d.title;const sj=[...new Map(d.questions.map(q=>[q.subject_id,q.subject]))];
+ $("ctabs").innerHTML=d.mode==="jamb"?sj.map(([i,n])=>`<button data-sub="${i}">${esc(n)}</button>`).join(""):"";
+ go("cbt");render();clearInterval(tmr);tmr=setInterval(tick,1000);tick()}
+function tick(){const s=Math.max(0,Math.round((endAt-Date.now())/1000)),h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;
+ $("tm").textContent=(h?h+":":"")+String(m).padStart(2,"0")+":"+String(x).padStart(2,"0");$("tm").classList.toggle("low",s<300);if(s<=0){clearInterval(tmr);submit(true)}}
+function render(){const qs=ex.questions,q=qs[cur];$("qlab").textContent=`Question ${cur+1} of ${qs.length}`;$("qsub").textContent=q.subject;$("qtext").textContent=q.text;
+ $("opts").innerHTML=q.options.map(o=>`<button class="opt ${ans[q.id]===o.id?"sel":""}" data-o="${o.id}"><b>${esc(o.label)}</b><span>${esc(o.text)}</span></button>`).join("");
+ $("ctabs").querySelectorAll("button").forEach(b=>b.classList.toggle("on",+b.dataset.sub===q.subject_id));
+ $("pal").innerHTML=qs.map((x,i)=>`<button data-i="${i}" class="${ans[x.id]?"done":""} ${i===cur?"cur":""}">${i+1}</button>`).join("");
+ $("prev").disabled=cur===0;$("next").disabled=cur===qs.length-1}
+$("opts").onclick=e=>{const b=e.target.closest("[data-o]");if(!b)return;const q=ex.questions[cur],o=+b.dataset.o;ans[q.id]=o;db.rpc("save_answer",{p_attempt:ex.attempt_id,p_question:q.id,p_option:o});render()};
+$("pal").onclick=e=>{const b=e.target.closest("[data-i]");if(b){cur=+b.dataset.i;render()}};
+$("ctabs").onclick=e=>{const b=e.target.closest("[data-sub]");if(b){cur=ex.questions.findIndex(q=>q.subject_id===+b.dataset.sub);render()}};
+$("prev").onclick=()=>{cur--;render()};$("next").onclick=()=>{cur++;render()};$("sub").onclick=()=>submit(false);
+async function submit(auto){const un=ex.questions.filter(q=>!ans[q.id]).length;
+ if(!auto&&!confirm(un?`You have ${un} unanswered question(s). Submit now?`:"Submit your test?"))return;
+ clearInterval(tmr);$("sub").disabled=true;const {data,error}=await db.rpc("submit_exam",{p_attempt:ex.attempt_id,p_answers:ans});$("sub").disabled=false;
+ if(error){alert(error.message);if(endAt>Date.now())tmr=setInterval(tick,1000);return}ls.del();result(data)}
+function result(r){go("res");const j=r.mode==="jamb";$("rtitle").textContent=r.title;$("rscore").textContent=r.score+" / "+r.max_score;
+ $("rsub").innerHTML=r.by_subject.map(s=>`<div class="mb"><div class="row"><span>${esc(s.subject)}</span><b>${s.correct} of ${s.total} correct${j?", "+s.score+"/100":""}</b></div><div class="bar"><i style="width:${s.score}%"></i></div></div>`).join("");
+ $("rrev").innerHTML=r.review.map((q,i)=>`<div class="card"><span class="tag">${esc(q.subject)}</span><p><b>${i+1}.</b> ${esc(q.text)}</p>${q.options.map(o=>`<div class="opt ${o.id===q.correct_option_id?"right":o.id===q.selected_option_id?"wrong":""}"><b>${esc(o.label)}</b><span>${esc(o.text)}</span></div>`).join("")}${q.selected_option_id?"":'<p class="muted">You did not answer this one.</p>'}${q.explanation?`<p class="why">${esc(q.explanation)}</p>`:""}</div>`).join("")}
+$("rhome").onclick=home;
+/* ---- SETTINGS: fill these in ---- */
+const PAYSTACK_PK="pk_test_REPLACE_ME";            // your Paystack PUBLIC key (starts pk_)
+const APP_LINK="";                                  // e.g. "https://t.me/YourBot/app?startapp=" (leave "" to share the web link)
+function getRef(){try{return tg?.initDataUnsafe?.start_param||new URLSearchParams(location.search).get("ref")||""}catch(e){return ""}}
+/* payments */
+let pc=[];
+async function loadPay(){const pay=cfg.payments_enabled==="true";$("payarea").classList.toggle("hid",!pay);$("paysoon").classList.toggle("hid",pay);$("paylist").classList.toggle("nochk",!pay);const {data}=await db.from("courses").select("*").eq("is_published",true).order("sort_order");pc=data||[];const own=new Set(mine.map(m=>m.course_id));
+ $("paylist").innerHTML=pc.map(c=>{const m=mine.find(x=>x.course_id===c.id),on=m&&m.access_until&&new Date(m.access_until)>new Date();
+ return `<label class="chk"><input type="checkbox" value="${c.id}" ${own.has(c.id)?"checked":""}><span style="flex:1">${esc(c.name)}<div class="muted">${m?(on?"Active until "+esc(new Date(m.access_until).toLocaleDateString()):"Your course, not active"):"Extra course"}</div></span>${pay?`<b>₦${Number(c.monthly_price).toLocaleString()}</b>`:(own.has(c.id)||cfg.allow_multi_course!=="true"?"":`<button class="btn" data-add="${c.id}">Add</button>`)}</label>`}).join("")||'<div class="empty">No courses yet.</div>';sumPay()}
+function sumPay(){const ids=[...document.querySelectorAll("#paylist input:checked")].map(i=>+i.value),m=+$("pmonths").value,t=pc.filter(c=>ids.includes(c.id)).reduce((a,c)=>a+c.monthly_price,0)*m;$("ptotal").textContent="₦"+t.toLocaleString();return {ids,m,t}}
+$("paylist").onchange=sumPay;$("pmonths").onchange=sumPay;
+$("payGo").onclick=async()=>{const {ids,m,t}=sumPay();if(!ids.length||!t)return note("pmsg","Choose at least one course that has a price.","err");
+ if(PAYSTACK_PK.includes("REPLACE"))return note("pmsg","Payments are not switched on yet.","err");
+ if(!window.PaystackPop){await new Promise(r=>{const s=document.createElement("script");s.src="https://js.paystack.co/v1/inline.js";s.onload=s.onerror=r;document.head.appendChild(s)})}
+ if(!window.PaystackPop)return note("pmsg","Could not load the payment window. Check your connection and try again.","err");
+ const {data,error}=await db.rpc("create_payment",{p_course_ids:ids,p_months:m});if(error)return note("pmsg",error.message,"err");
+ PaystackPop.setup({key:PAYSTACK_PK,email:data.email||me.email,amount:data.amount_kobo,currency:"NGN",ref:data.reference,callback:r=>{confirmPay(r.reference)},onClose:()=>note("pmsg","Payment window closed.")}).openIframe()};
+async function confirmPay(ref){note("pmsg","Confirming your payment...");
+ try{const r=await fetch("https://hsjaopfkyltvjpsxhdii.supabase.co/functions/v1/paystack",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({reference:ref})});const j=await r.json();
+ if(!j.ok)throw new Error(j.message);await loadMine();note("pmsg","Payment confirmed. Your access is active.","ok");loadPay()}
+ catch(e){note("pmsg",(e.message||"We could not confirm the payment yet.")+" If you were charged, your access will activate within a few minutes.","err")}}
+/* free days: referrals + tasks */
+let curTask=0;
+async function loadEarn(){const [p,t,s,r]=await Promise.all([db.from("profiles").select("referral_code").eq("id",me.id).maybeSingle(),db.from("tasks").select("*").eq("is_active",true).order("id"),db.from("task_submissions").select("task_id,status").eq("student_id",me.id).order("id"),db.from("referrals").select("reward_days").eq("referrer_id",me.id)]);
+ const code=p.data?.referral_code||"",link=APP_LINK?APP_LINK+code:location.origin+location.pathname+"?ref="+code,rf=r.data||[];
+ $("refbox").innerHTML=`<h3>Invite friends</h3><p class="muted">When a friend signs up with your link and picks a course, you earn free days.</p><input id="rl" readonly value="${esc(link)}" style="width:100%;padding:11px;border:1.5px solid var(--line);border-radius:10px"><div class="row" style="margin-top:10px"><button class="btn hi" id="rcopy">Copy link</button><span class="muted">${rf.length} joined, ${rf.reduce((a,x)=>a+x.reward_days,0)} days earned</span></div>`;
+ $("rcopy").onclick=()=>{$("rl").select();try{navigator.clipboard.writeText(link)}catch(e){}note("emsg","Link copied.","ok")};
+ const st={};(s.data||[]).forEach(x=>st[x.task_id]=x.status);
+ $("tasks").innerHTML=(t.data||[]).map(k=>`<div class="card"><span class="tag">${esc(k.platform||"Task")}</span> <span class="tag g">${k.reward_days} free days</span><h3 style="margin-top:6px">${esc(k.title)}</h3><p class="muted" style="white-space:pre-wrap">${esc(k.instructions||"")}</p>${st[k.id]?`<span class="tag ${st[k.id]==="approved"?"g":st[k.id]==="rejected"?"r":""}">${st[k.id]==="pending"?"Waiting for review":st[k.id]}</span>`:""}${!st[k.id]||st[k.id]==="rejected"?`<button class="btn w" data-task="${k.id}" style="margin-top:8px">Submit proof</button>`:""}</div>`).join("")||'<div class="empty">No tasks right now. Check back soon.</div>'}
+$("tasks").onclick=e=>{const b=e.target.closest("[data-task]");if(!b)return;curTask=+b.dataset.task;$("ttext").value="";$("tfile").value="";$("tform").classList.remove("hid");$("tform").scrollIntoView({behavior:"smooth"})};
+$("tsend").onclick=async()=>{const f=$("tfile").files[0];let path=null;$("tsend").disabled=true;
+ if(f){if(f.size>5e6){$("tsend").disabled=false;return note("emsg","That image is too large. Use one under 5 MB.","err")}
+ path=me.id+"/"+Date.now()+"-"+f.name.replace(/[^\w.-]/g,"_");const {error}=await db.storage.from("task-proofs").upload(path,f);if(error){$("tsend").disabled=false;return note("emsg",error.message,"err")}}
+ const {error}=await db.rpc("submit_task",{p_task:curTask,p_path:path,p_text:$("ttext").value.trim()});$("tsend").disabled=false;
+ if(error)return note("emsg",error.message,"err");$("tform").classList.add("hid");note("emsg","Sent. You get your free days once the academy approves it.","ok");loadEarn()};
+/* live classroom */
+let room=0,rch=null,rpoll=null,feed=null,pk={},vidSrc="";
+const EMO=["❤️","👏","🔥","😂","👍","🙏"];
+$("remo").insertAdjacentHTML("afterbegin",EMO.map(e=>`<button data-e="${e}" aria-label="React ${e}">${e}</button>`).join(""));
+const embed=u=>{u=https(u);const m=u.match(/(?:youtu\.be\/|[?&]v=|embed\/|live\/)([\w-]{11})/);return m?"https://www.youtube.com/embed/"+m[1]:u};
+function floatE(e){const s=document.createElement("span");s.textContent=e;s.style.left=(10+Math.random()*80)+"%";$("rfl").appendChild(s);setTimeout(()=>s.remove(),2500)}
+$("clist").onclick=e=>{const b=e.target.closest("[data-room]");if(b)openRoom(+b.dataset.room)};
+async function openRoom(id){room=id;feed=null;pk={};vidSrc="";$("rmsgs").innerHTML="";$("rvid").innerHTML="";note("rnote","");go("room");await refresh();
+ clearInterval(rpoll);rpoll=setInterval(refresh,4000);if(rch)db.removeChannel(rch);
+ rch=db.channel("room"+id).on("postgres_changes",{event:"*",schema:"public",table:"class_messages",filter:"session_id=eq."+id},()=>refresh())
+ .on("postgres_changes",{event:"UPDATE",schema:"public",table:"class_sessions",filter:"id=eq."+id},()=>refresh())
+ .on("postgres_changes",{event:"INSERT",schema:"public",table:"class_reactions",filter:"session_id=eq."+id},p=>{if(p.new.student_id!==feed?.me)floatE(p.new.emoji)}).subscribe()}
+$("rback").onclick=()=>{clearInterval(rpoll);room=0;if(rch){db.removeChannel(rch);rch=null}go("classes")};
+async function refresh(){if(!room)return;await db.rpc("release_due",{p_session:room});const {data,error}=await db.rpc("class_feed",{p_session:room});
+ if(error){$("rbn").textContent=error.message;return}feed=data;draw()}
+function pollH(x){const p=x.poll,v=p.voted,pc=pk[p.id];
+ const opts=p.options.map(o=>{let c="opt";if(v){if(o.id===p.correct_option_id)c+=" right";else if(o.id===v)c+=" wrong"}else if(pc===o.id)c+=" sel";
+ return `<button class="${c}" data-po="${o.id}" data-pp="${p.id}" ${v?"disabled":""}><span style="flex:1">${esc(o.label)}</span>${v?`<b style="width:auto;height:auto;background:none">${o.count}</b>`:""}</button>`}).join("");
+ const ans=p.options.find(o=>o.id===p.correct_option_id);
+ const r=v&&ans?(v===ans.id?'<p class="note ok">Correct!</p>':`<p class="note err">Not quite. The answer is ${esc(ans.label)}.</p>`):"";
+ return `<div class="bub st"><small>Poll from ${esc(x.sender)}</small><p style="margin:4px 0"><b>${esc(p.question)}</b></p>${opts}${!v&&pc?`<button class="btn w" data-pc="${p.id}">Confirm my answer</button>`:""}${r}${v?`<small>${p.total} answered</small>`:""}<button class="lk ${x.liked?"on":""}" data-like="${x.id}">♥ ${x.likes||""}</button></div>`}
+function mediaH(x){const u=esc(https(x.media_url)),cap=x.body?`<div>${esc(x.body)}</div>`:"";
+ const m=x.kind==="image"?`<a href="${u}" target="_blank" rel="noopener"><img src="${u}" alt="" style="max-width:100%;border-radius:10px;display:block;margin:4px 0"></a>`:`<a class="btn sec" style="display:inline-block;text-decoration:none;margin:4px 0" href="${u}" target="_blank" rel="noopener">📎 ${esc(x.file_name||"Download file")}</a>`;
+ return `<div class="bub ${x.staff?"st":""}"><small>${esc(x.sender)}${x.staff?" (teacher)":""}</small>${m}${cap}<button class="lk ${x.liked?"on":""}" data-like="${x.id}">♥ ${x.likes||""}</button></div>`}
+function draw(){const s=feed.session,me=feed.me,m=s.chat_mode,mine=m==="speaker"&&s.speaker_id===me,can=s.is_live&&(m==="open"||mine);
+ $("rtitle2").textContent=s.title;$("rlive").textContent=s.is_live?"Live":"Not live";$("rlive").className="tag "+(s.is_live?"r":"");
+ const src=s.delivery==="stream"?embed(s.stream_url):"";if(src!==vidSrc){vidSrc=src;$("rvid").innerHTML=src?`<iframe class="rvid" src="${esc(src)}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`:""}
+ $("rbn").className="rbn"+(mine?" live":"");$("rbn").textContent=!s.is_live?"This class is not live yet.":m==="open"?"Chat is open.":mine?"It is your turn. Send your message now.":m==="speaker"?"A student was chosen to speak. Chat is locked.":"Chat is locked. Raise your hand to ask a question.";
+ $("rin").disabled=!can;$("rsend").disabled=!can;$("rin").placeholder=can?"Type a message":"Chat is locked";
+ $("rhand").classList.toggle("hid",!s.is_live||m==="open");$("rhand").textContent=feed.hand?"Lower hand":"Raise hand";
+ const near=innerHeight+scrollY>=document.body.scrollHeight-200;
+ $("rmsgs").innerHTML=feed.messages.map(x=>x.kind==="poll"&&x.poll?pollH(x):x.kind==="image"||x.kind==="file"?mediaH(x):`<div class="bub ${x.staff?"st":""}"><small>${esc(x.sender)}${x.staff?" (teacher)":""}</small><div>${esc(x.body)}</div><button class="lk ${x.liked?"on":""}" data-like="${x.id}">♥ ${x.likes||""}</button></div>`).join("")||'<div class="empty">No messages yet.</div>';
+ if(near)scrollTo(0,document.body.scrollHeight)}
+$("rmsgs").onclick=async e=>{const b=e.target.closest("button");if(!b)return;const d=b.dataset;
+ if(d.like){const {error}=await db.rpc("toggle_like",{p_message:+d.like});if(error)note("rnote",error.message,"err");refresh()}
+ else if(d.po){pk[+d.pp]=+d.po;draw()}
+ else if(d.pc){const o=pk[+d.pc];if(!o)return;b.disabled=true;const {error}=await db.rpc("vote_poll",{p_poll:+d.pc,p_option:o});if(error)note("rnote",error.message,"err");refresh()}};
+async function sendMsg(){const t=$("rin").value.trim();if(!t)return;$("rsend").disabled=true;const {error}=await db.rpc("send_message",{p_session:room,p_body:t});
+ if(error)note("rnote",error.message,"err");else{$("rin").value="";note("rnote","")}await refresh()}
+$("rsend").onclick=sendMsg;$("rin").onkeydown=e=>{if(e.key==="Enter")sendMsg()};
+$("rhand").onclick=async()=>{const {error}=await db.rpc("toggle_hand",{p_session:room});if(error)note("rnote",error.message,"err");refresh()};
+$("remo").onclick=e=>{const b=e.target.closest("[data-e]");if(!b)return;floatE(b.dataset.e);db.rpc("react",{p_session:room,p_emoji:b.dataset.e})};
+let cfg={};
+async function loadCfg(){const {data}=await db.from("settings").select("*");cfg={};(data||[]).forEach(x=>cfg[x.key]=x.value)}
+$("redeem").onclick=async()=>{const c=$("codein").value.trim();if(!c)return note("emsg","Enter your code first.","err");
+ const {data,error}=await db.rpc("redeem_code",{p_code:c});if(error)return note("emsg",error.message,"err");
+ $("codein").value="";await loadMine();note("emsg",data+" days added to your access.","ok")};
+$("paylist").onclick=async e=>{const b=e.target.closest("[data-add]");if(!b)return;e.preventDefault();
+ const {error}=await db.rpc("enroll_course",{p_course_id:+b.dataset.add});if(error)return alert(error.message);await loadMine();loadPay()};
+db.auth.getSession().then(({data})=>{if(data.session)enter(data.session.user)});
+})();
+</script></body></html>
