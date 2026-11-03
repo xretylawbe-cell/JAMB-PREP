@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>window.supabase||document.write('<script src="https://unpkg.com/@supabase/supabase-js@2"><\/script>')</script>
+<script>window.supabase||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.45.4/umd/supabase.min.js"><\/script>')</script>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--ink:#0f1f4b;--hi:#ffd23f;--line:#dfe3f0;--mut:#5d6989}
@@ -30,6 +32,7 @@ input,select,textarea,button{font:inherit}input,select,textarea{width:100%;paddi
 <div id="list"></div></section></div>
 <script>
 (()=>{
+if(!window.supabase){document.body.insertAdjacentHTML('afterbegin','<div style="padding:14px;background:#fde8e8;color:#8f1d22;font:15px sans-serif">The app could not load. Check your internet connection or turn off data saver, then reload this page.</div>');return}
 const db=window.supabase.createClient("https://hsjaopfkyltvjpsxhdii.supabase.co","sb_publishable_UXN0budPmcKVEIcUKepfqA___bLRhpK");
 const $=i=>document.getElementById(i),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const msg=(t,k="")=>{const e=$("fm");if(e)e.innerHTML=t?`<div class="note ${k}">${esc(t)}</div>`:""};
