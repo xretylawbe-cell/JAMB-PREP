@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin dashboard</title>
+<script>(function(){function show(m){var b=document.body;if(!b)return;var d=document.getElementById("__err");if(!d){d=document.createElement("div");d.id="__err";d.style.cssText="position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#8f1d22;color:#fff;font:12px sans-serif;padding:8px 12px";b.appendChild(d)}d.textContent="Something went wrong: "+m+". Take a screenshot and send it to support."}window.addEventListener("error",function(e){if(e.message)show(e.message+" ("+String(e.filename||"").split("/").pop()+":"+e.lineno+")")});window.addEventListener("unhandledrejection",function(e){show(String(e.reason&&e.reason.message||e.reason))})})();</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>window.supabase||document.write('<script src="https://unpkg.com/@supabase/supabase-js@2"><\/script>')</script>
 <script>window.supabase||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.45.4/umd/supabase.min.js"><\/script>')</script>
@@ -42,7 +43,7 @@ const nm=(k,id)=>L[k].find(x=>x.id===id)?.name||"?";
 const C={
  subjects:{t:"subjects",l:"Subject",o:"sort_order",s:"name",f:[["name","Name","text",1],["slug","Short name (use-of-english for English)","text",1],["description","Description","area"],["icon","Icon (one emoji)","text"],["sort_order","Order","num"],["is_published","Visible to students","chk"]],title:r=>r.name,sub:r=>r.slug},
  topics:{t:"topics",l:"Topic",o:"sort_order",s:"name",flt:["subject_id","subjects"],f:[["subject_id","Subject","sel:subjects",1],["name","Name","text",1],["description","Description","area"],["sort_order","Order","num"],["is_published","Visible to students","chk"]],title:r=>r.name,sub:r=>"Subject: "+nm("subjects",r.subject_id)},
- lessons:{t:"lessons",l:"Lesson",o:"sort_order",s:"title",flt:["topic_id","topics"],f:[["topic_id","Topic","sel:topics",1],["title","Title","text",1],["summary","Short summary","text"],["lesson_type","Type","opt:written,audio,video"],["written_content","Notes (text)","area"],["audio_url","Audio link (https)","text"],["video_url","Video link (https)","text"],["duration_minutes","Minutes","num"],["sort_order","Order","num"],["is_published","Visible to students","chk"]],title:r=>r.title,sub:r=>"Topic: "+nm("topics",r.topic_id)},
+ lessons:{t:"lessons",l:"Subtopic",o:"sort_order",s:"title",flt:["topic_id","topics"],f:[["topic_id","Topic","sel:topics",1],["title","Title","text",1],["summary","Short summary","text"],["lesson_type","Type","opt:written,audio,video"],["written_content","Notes (text)","area"],["audio_url","Audio link (https)","text"],["video_url","Video link (https)","text"],["duration_minutes","Minutes","num"],["sort_order","Order","num"],["is_published","Visible to students","chk"]],title:r=>r.title,sub:r=>"Topic: "+nm("topics",r.topic_id)},
  questions:{t:"questions",l:"Question",o:"id",s:"question_text",flt:["subject_id","subjects"],title:r=>(r.question_text||"").slice(0,90),sub:r=>nm("subjects",r.subject_id)+(r.question_year?", "+r.question_year:"")}
 };
 async function staff(u){const {data}=await db.from("profiles").select("role").eq("id",u.id).maybeSingle();
@@ -60,8 +61,9 @@ async function load(){const c=C[tab];let q=db.from(c.t).select("*").order(c.o,{a
  if(c.flt&&$("flt").value)q=q.eq(c.flt[0],+$("flt").value);if($("srch").value.trim())q=q.ilike(c.s,"%"+$("srch").value.trim()+"%");
  const {data,error}=await q;if(error){$("list").innerHTML=`<div class="note err">${esc(error.message)}</div>`;return}
  rows={};(data||[]).forEach(r=>rows[r.id]=r);
- $("list").innerHTML=(data||[]).map(r=>`<div class="item"><span class="grow"><b>${esc(c.title(r))}</b> ${r.is_published?"":'<span class="tag r">Hidden</span>'}<div class="muted">${esc(c.sub(r))}</div></span><button class="btn sec" data-e="${r.id}">Edit</button><button class="btn sec" data-p="${r.id}">${r.is_published?"Hide":"Show"}</button><button class="btn sec" data-d="${r.id}">Delete</button></div>`).join("")||'<p class="muted">Nothing here yet. Tap New to add one.</p>'}
+ $("list").innerHTML=(data||[]).map(r=>`<div class="item"><span class="grow"><b>${esc(c.title(r))}</b> ${r.is_published?"":'<span class="tag r">Hidden</span>'}<div class="muted">${esc(c.sub(r))}</div></span>${tab==="lessons"?`<button class="btn sec" data-pg="${r.id}">Pages</button>`:""}<button class="btn sec" data-e="${r.id}">Edit</button><button class="btn sec" data-p="${r.id}">${r.is_published?"Hide":"Show"}</button><button class="btn sec" data-d="${r.id}">Delete</button></div>`).join("")||'<p class="muted">Nothing here yet. Tap New to add one.</p>'}
 $("list").onclick=async e=>{const b=e.target.closest("button");if(!b)return;const d=b.dataset,c=C[tab];let r;
+ if(d.pg)return openPages(+d.pg);
  if(d.e)return tab==="questions"?openQ(rows[d.e]):openForm(rows[d.e]);
  if(d.p)r=await db.from(c.t).update({is_published:!rows[d.p].is_published}).eq("id",+d.p);
  else if(d.d){if(!confirm("Delete this "+c.l.toLowerCase()+"? This cannot be undone."))return;r=await db.from(c.t).delete().eq("id",+d.d)}
@@ -85,6 +87,40 @@ async function save(){const c=C[tab],r={};
  for(const k of ["audio_url","video_url"])if(r[k]&&!/^https:\/\//i.test(r[k]))return msg("Links must start with https://","err");
  const {error}=await(editRow?db.from(c.t).update(r).eq("id",editRow.id):db.from(c.t).insert(r));
  if(error)return msg(error.message,"err");$("form").classList.add("hid");await lookups();load()}
+/* lesson pages: short cards that students go through one at a time */
+let PG={l:0,rows:[],e:null};
+async function openPages(id){PG.l=id;const {data,error}=await db.from("lesson_pages").select("*").eq("lesson_id",id).order("position").order("id");if(error)return alert(error.message);PG.rows=data||[];drawPages()}
+function drawPages(){const l=rows[PG.l];$("form").classList.remove("hid");
+ $("form").innerHTML=`<h3>Pages: ${esc(l?.title||"")}</h3><p class="muted">Students go through these one page at a time. Add text, pictures, video, audio and quick questions. With no pages, the notes are split into cards automatically.</p>`+
+ (PG.rows.map((p,i)=>`<div class="item"><span class="grow"><b>${i+1}. ${esc(p.kind==="quiz"?"question":p.kind)}</b> ${esc(p.title||"")}<div class="muted">${esc((p.body||p.media_url||"").slice(0,80))}</div></span><button class="btn sec" data-pu="${i}" aria-label="Move up">↑</button><button class="btn sec" data-pd="${i}" aria-label="Move down">↓</button><button class="btn sec" data-pe="${p.id}">Edit</button><button class="btn sec" data-px="${p.id}">Delete</button></div>`).join("")||'<p class="muted">No pages yet.</p>')+
+ `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">${["text","image","video","audio","quiz"].map(k=>`<button class="btn" data-pk="${k}">+ ${k==="quiz"?"question":k}</button>`).join("")}<button class="btn sec" id="pgclose">Close</button></div><div id="pgform"></div><div id="fm"></div>`;
+ $("pgclose").onclick=()=>$("form").classList.add("hid");scrollTo(0,0)}
+function pageForm(k,p){PG.e={k,id:p?.id};let h=`<div class="card" style="margin-top:12px;border:2px dashed var(--ink)"><h3>${p?"Edit":"New"} ${k==="quiz"?"question":k} page</h3>`;
+ if(k!=="quiz")h+=`<div class="field"><label>Heading (optional)</label><input id="pg_t" value="${esc(p?.title||"")}"></div>`;
+ h+=`<div class="field"><label>${k==="quiz"?"Question":k==="text"?"Text (put **two stars** around words to bold them)":"Caption (optional)"}</label><textarea id="pg_b">${esc(p?.body||"")}</textarea></div>`;
+ if(["image","video","audio"].includes(k))h+=`<div class="field"><label>${k==="video"?"Video link (YouTube or https), or upload a file":"Upload a file"}</label>${k==="video"?`<input id="pg_u" placeholder="https://" value="${esc(p?.media_url||"")}">`:""}<input type="file" id="pg_f" accept="${k}/*" style="margin-top:6px"></div>`;
+ if(k==="quiz")h+=`<div class="field"><label>Options, one per line (2 to 5)</label><textarea id="pg_o">${esc((p?.options||[]).join("\n"))}</textarea></div><div class="field"><label>Right option number</label><input id="pg_c" type="number" min="1" value="${p?(p.correct_index??0)+1:1}"></div><div class="field"><label>Explanation (shown after answering)</label><textarea id="pg_x">${esc(p?.explanation||"")}</textarea></div>`;
+ h+=`<button class="btn hi" id="pg_s">Save page</button> <button class="btn sec" id="pg_c2">Cancel</button></div>`;$("pgform").innerHTML=h;$("pg_c2").onclick=()=>$("pgform").innerHTML="";$("pg_s").onclick=savePage;$("pgform").scrollIntoView({behavior:"smooth"})}
+async function savePage(){const {k,id}=PG.e,old=PG.rows.find(r=>r.id===id),r={lesson_id:PG.l,kind:k};$("pg_s").disabled=true;
+ try{
+  if(k!=="quiz")r.title=$("pg_t").value.trim()||null;
+  r.body=$("pg_b").value.trim()||null;if(k==="text"&&!r.body)throw new Error("Write the text first.");
+  if(["image","video","audio"].includes(k)){let u=old?.media_url||null;if(k==="video"&&$("pg_u").value.trim())u=$("pg_u").value.trim();
+   const f=$("pg_f").files[0];if(f){if(f.size>2e7)throw new Error("That file is over 20 MB.");const p=`l${PG.l}/${Date.now()}-${f.name.replace(/[^\w.-]/g,"_")}`;const up=await db.storage.from("lesson-media").upload(p,f);if(up.error)throw up.error;u=db.storage.from("lesson-media").getPublicUrl(p).data.publicUrl}
+   if(!u)throw new Error("Add a file"+(k==="video"?" or a link":"")+" first.");if(!/^https:\/\//i.test(u))throw new Error("Links must start with https://");r.media_url=u}
+  if(k==="quiz"){const o=$("pg_o").value.split("\n").map(x=>x.trim()).filter(Boolean),c=+$("pg_c").value;
+   if(!r.body)throw new Error("Write the question first.");if(o.length<2||o.length>5)throw new Error("Add 2 to 5 options.");if(!(c>=1&&c<=o.length))throw new Error("The right option number must match one of your options.");
+   r.options=o;r.correct_index=c-1;r.explanation=$("pg_x").value.trim()||null}
+  if(id){const {error}=await db.from("lesson_pages").update(r).eq("id",id);if(error)throw error}
+  else{r.position=(PG.rows.length?Math.max(...PG.rows.map(x=>x.position)):0)+10;const {error}=await db.from("lesson_pages").insert(r);if(error)throw error}
+  await openPages(PG.l)
+ }catch(e){msg(e.message,"err");const s=$("pg_s");if(s)s.disabled=false}}
+$("form").addEventListener("click",async e=>{const b=e.target.closest("button");if(!b)return;const d=b.dataset;
+ if(d.pk)pageForm(d.pk,null);
+ else if(d.pe){const p=PG.rows.find(r=>r.id===+d.pe);pageForm(p.kind,p)}
+ else if(d.px){if(!confirm("Delete this page?"))return;const {error}=await db.from("lesson_pages").delete().eq("id",+d.px);if(error)alert(error.message);openPages(PG.l)}
+ else if(d.pu!==undefined||d.pd!==undefined){const i=+(d.pu??d.pd),j=d.pu!==undefined?i-1:i+1,a=PG.rows[i],c=PG.rows[j];if(!a||!c)return;
+  await db.from("lesson_pages").update({position:c.position}).eq("id",a.id);await db.from("lesson_pages").update({position:a.position}).eq("id",c.id);openPages(PG.l)}});
 /* questions: one editor for the question, its options and the answer key */
 async function openQ(r){let o=[],a=null;
  if(r){const [x,y]=await Promise.all([db.from("question_options").select("*").eq("question_id",r.id),db.from("question_answers").select("*").eq("question_id",r.id).maybeSingle()]);o=x.data||[];a=y.data}
