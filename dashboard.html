@@ -30,7 +30,7 @@ iframe{width:100%;height:calc(100vh - 118px);border:0;display:block;background:#
 .chk{display:flex;gap:9px;align-items:center;padding:8px 11px;border:1.5px solid var(--line);border-radius:10px;margin:6px 0;background:#fff}.chk input{width:18px;height:18px;flex:none}
 .cat{margin:18px 0 8px;font:800 15px 'Bricolage Grotesque';color:var(--mut)}
 </style></head><body>
-<section id="login" style="max-width:420px;margin:60px auto;padding:0 16px"><div class="card"><h2>Academy dashboard</h2><p class="muted">Sign in once. Everything you are allowed to manage opens from here.</p><p class="muted" style="font-size:11px">Version 9</p>
+<section id="login" style="max-width:420px;margin:60px auto;padding:0 16px"><div class="card"><h2>Academy dashboard</h2><p class="muted">Sign in once. Everything you are allowed to manage opens from here.</p><p class="muted" style="font-size:11px">Version 10</p>
 <div class="field"><label>Email</label><input id="em" type="email" autocomplete="email"></div><div class="field"><label>Password</label><input id="pw" type="password" autocomplete="current-password"></div>
 <button class="btn w" id="go" style="width:100%">Sign in</button><div id="lm"></div></div></section>
 <div id="app" class="hid"><div class="top"><span class="br" id="ttl">Dashboard</span><span><span id="who" class="muted" style="color:#c9d3f5;margin-right:8px"></span><button id="out">Sign out</button></span></div>
@@ -43,7 +43,7 @@ const $=i=>document.getElementById(i),esc=s=>String(s??"").replace(/[&<>"']/g,c=
 const msg=(id,t,k="")=>{const e=$(id);if(e)e.innerHTML=t?`<div class="note ${k}">${esc(t)}</div>`:""};
 let me,prof,view="";
 const can=p=>prof.role==="admin"||(prof.role==="teacher"&&(prof.permissions||[]).includes(p));
-const NAV=[["home","🏠","Home",()=>true],["content","📚","Content",()=>true],["classes","🎥","Classes",()=>true],["courses","💳","Courses",()=>can("courses")],["promos","🎁","Promos",()=>can("promos")],["tasks","✅","Tasks",()=>can("tasks")||can("payments")],["team","👥","Team",()=>can("staff")],["me","👤","Me",()=>true]];
+const NAV=[["home","🏠","Home",()=>true],["teaching","🎓","Teaching",()=>true],["content","📚","Content",()=>true],["classes","🎥","Classes",()=>true],["courses","💳","Courses",()=>can("courses")],["promos","🎁","Promos",()=>can("promos")],["tasks","✅","Tasks",()=>can("tasks")||can("payments")],["team","👥","Team",()=>can("staff")],["payroll","💰","Payroll",()=>can("payments")],["me","👤","Me",()=>true]];
 const FRAMES={content:"admin.html?embed=1",classes:"teach.html?embed=1",promos:"admin-exams.html?embed=1#promos",tasks:"admin-exams.html?embed=1#tasks"};
 async function enter(u){me=u;const {data}=await db.from("profiles").select("*").eq("id",u.id).maybeSingle();
  if(!data||!["admin","teacher"].includes(data.role)){await db.auth.signOut();return msg("lm","This account does not have staff access. Ask an admin to give you a role.","err")}
@@ -57,7 +57,7 @@ function go(v){if(!NAV.some(n=>n[0]===v&&n[3]()))v="home";view=v;history.replace
  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
  const n=NAV.find(x=>x[0]===v);$("ttl").textContent=n[2];const el=$("view");el.classList.toggle("full",!!FRAMES[v]);
  if(FRAMES[v]){el.innerHTML=`<iframe src="${FRAMES[v]}" title="${n[2]}"></iframe>`;return}
- el.innerHTML='<p class="muted">Loading...</p>';({home,courses,team,me:meView})[v]()}
+ el.innerHTML='<p class="muted">Loading...</p>';({home,teaching,courses,team,payroll,me:meView})[v]()}
 /* home */
 async function home(){const cnt=(t,f)=>f(db.from(t).select("id",{count:"exact",head:true})).then(r=>r.count??"-").catch(()=>"-");
  const any=can("staff")||can("tasks")||can("payments")||can("promos")||can("courses");let s="";
@@ -65,7 +65,7 @@ async function home(){const cnt=(t,f)=>f(db.from(t).select("id",{count:"exact",h
   let rev="-";if(can("payments")){const {data}=await db.from("payments").select("amount_kobo").eq("status","success").limit(2000);rev="₦"+Math.round((data||[]).reduce((x,y)=>x+Number(y.amount_kobo),0)/100).toLocaleString()}
   s=`<div class="stats"><div class="stat"><b>${a}</b><span class="muted">Students</span></div><div class="stat"><b>${b}</b><span class="muted">Active courses</span></div><div class="stat"><b>${c}</b><span class="muted">Live classes now</span></div>${can("tasks")?`<div class="stat"><b>${d}</b><span class="muted">Tasks to review</span></div>`:""}${can("payments")?`<div class="stat"><b>${rev}</b><span class="muted">Payments received</span></div>`:""}</div>`}
  $("view").innerHTML=`<h2 style="margin-bottom:6px">Welcome, ${esc((prof.full_name||"").split(" ")[0]||"there")}</h2><p class="muted">${prof.role==="admin"?"You have full access.":"You can open the sections below."}</p>${s}<div class="tiles">${NAV.filter(n=>n[0]!=="home"&&n[3]()).map(n=>`<button class="tile" data-v="${n[0]}"><span>${n[1]}</span><b>${n[2]}</b></button>`).join("")}</div>`}
-$("view").addEventListener("click",e=>{const b=e.target.closest(".tile[data-v]");if(b)go(b.dataset.v)});
+$("view").addEventListener("click",e=>{const b=e.target.closest("[data-v]");if(b)go(b.dataset.v)});
 /* courses: you only set the price and whether it is offered */
 let cs=[];
 async function courses(){const {data,error}=await db.from("courses").select("*").order("sort_order");if(error)return $("view").innerHTML=`<div class="note err">${esc(error.message)}</div>`;cs=data||[];
@@ -83,20 +83,31 @@ async function team(){const {data,error}=await db.rpc("list_staff");if(error)ret
  <div class="card"><h3>Give or change a role</h3><div class="field"><label>Their email</label><input id="te" type="email"></div>
  <div class="field"><label>Role</label><select id="tr"><option value="teacher">Teacher</option><option value="admin">Admin (full access)</option><option value="student">Student (remove staff access)</option></select></div>
  <div id="tp"><label class="muted" style="font-weight:700">Extra access for a teacher</label>${PERMS.map(p=>`<label class="chk"><input type="checkbox" value="${p[0]}">${p[1]}</label>`).join("")}</div>
- <button class="btn hi" id="ts" style="margin-top:8px">Save</button><div id="tm"></div></div><h3 style="margin:6px 0 10px">Current team</h3>
- ${(data||[]).map(s=>`<div class="item row"><span class="grow"><b>${esc(s.name||"No name")}</b><div class="muted">${esc(s.email)}</div></span><span class="tag ${s.role==="admin"?"g":""}">${esc(s.role)}</span><span class="muted">${s.role==="admin"?"Full access":(s.permissions||[]).length?esc(s.permissions.join(", ")):"Lessons, questions, classes"}</span><button class="btn sec" data-edit="${esc(s.email)}" data-role="${s.role}" data-perms="${esc((s.permissions||[]).join(","))}">Edit</button></div>`).join("")}`;
+ <button class="btn hi" id="ts" style="margin-top:8px">Save</button><div id="tm"></div></div><div id="tc"></div><h3 style="margin:6px 0 10px">Current team</h3>
+ ${(data||[]).map(s=>`<div class="item row"><span class="grow"><b>${esc(s.name||"No name")}</b><div class="muted">${esc(s.email)}</div></span><span class="tag ${s.role==="admin"?"g":""}">${esc(s.role)}</span><span class="muted">${s.role==="admin"?"Full access":(s.permissions||[]).length?esc(s.permissions.join(", ")):"Lessons, questions, classes"}</span><button class="btn sec" data-edit="${esc(s.email)}" data-id="${s.id}" data-name="${esc(s.name||s.email)}" data-role="${s.role}" data-perms="${esc((s.permissions||[]).join(","))}">Edit</button></div>`).join("")}`;
  $("tr").onchange=()=>$("tp").classList.toggle("hid",$("tr").value!=="teacher");
  $("ts").onclick=async()=>{const perms=[...document.querySelectorAll("#tp input:checked")].map(i=>i.value);
   const {error}=await db.rpc("set_staff",{p_email:$("te").value.trim(),p_role:$("tr").value,p_perms:$("tr").value==="teacher"?perms:[]});
   if(error)return msg("tm",error.message,"err");msg("tm","Saved.","ok");team()}}
 $("view").addEventListener("click",e=>{const b=e.target.closest("[data-edit]");if(!b)return;$("te").value=b.dataset.edit;$("tr").value=b.dataset.role==="student"?"teacher":b.dataset.role;$("tr").onchange();
- const ps=b.dataset.perms.split(",");document.querySelectorAll("#tp input").forEach(i=>i.checked=ps.includes(i.value));scrollTo(0,0)});
-/* my profile */
-function meView(){$("view").innerHTML=`<h2>My profile</h2><div class="card"><div class="field"><label>Full name</label><input id="pn" value="${esc(prof.full_name||"")}"></div><div class="field"><label>Phone</label><input id="pp" value="${esc(prof.phone||"")}"></div>
- <div class="field"><label>About me</label><textarea id="pb">${esc(prof.bio||"")}</textarea></div><div class="field"><label>Email</label><input value="${esc(prof.email||"")}" disabled></div>
- <p class="muted">Role: <b>${esc(prof.role)}</b>${prof.role==="teacher"?". Extra access: "+((prof.permissions||[]).join(", ")||"none"):""}</p><button class="btn hi" id="ps">Save profile</button><div id="pm"></div></div>`;
- $("ps").onclick=async()=>{const r={full_name:$("pn").value.trim(),phone:$("pp").value.trim(),bio:$("pb").value.trim()};const {error}=await db.from("profiles").update(r).eq("id",me.id);
-  if(error)return msg("pm",error.message,"err");Object.assign(prof,r);$("who").textContent=r.full_name+" ("+prof.role+")";msg("pm","Profile saved.","ok")}}
-db.auth.getSession().then(({data})=>{if(data.session)enter(data.session.user)});
-})();
-</script></body></html>
+ const ps=b.dataset.perms.split(",");document.querySelectorAll("#tp input").forEach(i=>i.checked=ps.includes(i.value));if(b.dataset.role==="teacher")teachCard(b.dataset.id,b.dataset.name);else $("tc").innerHTML="";scrollTo(0,0)});
+/* teacher: my teaching */
+async function teaching(){const {data:s,error}=await db.rpc("my_teacher_summary");if(error)return $("view").innerHTML=`<div class="note err">${esc(error.message)}</div>`;const n=x=>"₦"+Number(x||0).toLocaleString();
+ $("view").innerHTML=`<h2>My teaching</h2>
+ <div class="card"><h3>${esc(prof.full_name||"Teacher")}</h3><span class="muted">${esc(prof.email||"")}${prof.phone?", "+esc(prof.phone):""}</span><p>${esc(prof.bio||"Add a short bio on the Me page.")}</p><div>${s.subjects.map(x=>`<span class="tag g">${esc(x.name)}</span>`).join(" ")||'<span class="muted">No subjects assigned yet. An admin sets these on the Team page.</span>'}</div>${s.courses.length?`<p class="muted" style="margin-top:10px">Courses you teach in: ${s.courses.map(esc).join(", ")}</p>`:""}</div>
+ <div class="stats"><div class="stat"><b>${s.held_month}</b><span class="muted">Classes this month</span></div><div class="stat"><b>${s.held_total}</b><span class="muted">Classes held in total</span></div><div class="stat"><b>${s.students_active}</b><span class="muted">Active students (of ${s.students_total})</span></div></div>
+ <h3 style="margin:18px 0 8px">Upcoming classes</h3>${s.upcoming.map(c=>`<div class="item row"><span class="grow"><b>${esc(c.title)}</b> ${c.is_live?'<span class="tag r">Live</span>':""}<div class="muted">${c.starts_at?esc(new Date(c.starts_at).toLocaleString()):"No date"}, ${esc(c.delivery)}</div></span><button class="btn sec" data-v="classes">Open</button></div>`).join("")||'<p class="muted">No upcoming classes. Create one on the Classes page.</p>'}
+ <h3 style="margin:18px 0 8px">Earnings</h3><div class="card"><div class="row" style="justify-content:space-between"><span>Monthly salary</span><b>${n(s.monthly_salary)}</b></div><div class="row" style="justify-content:space-between"><span>Extra per class held</span><b>${n(s.per_class_rate)}</b></div><div class="row" style="justify-content:space-between"><span>Estimate for this month</span><b>${n(s.estimate)}</b></div></div>
+ ${s.payroll.map(p=>`<div class="item row"><span class="grow"><b>${esc(p.period)}</b><div class="muted">${p.classes} classes</div></span><b>${n(p.amount)}</b><span class="tag ${p.status==="paid"?"g":""}">${p.status==="paid"?"Paid":"Pending"}</span></div>`).join("")||'<p class="muted">No payments recorded yet.</p>'}`}
+/* admin: subjects and pay for one teacher */
+async function teachCard(id,name){const [a,b]=await Promise.all([db.rpc("teacher_admin",{p_teacher:id}),db.from("subjects").select("id,name").order("name")]);
+ if(a.error)return msg("tm",a.error.message,"err");const t=a.data,sel=new Set(t.subject_ids||[]);
+ $("tc").innerHTML=`<div class="card"><h3>Teaching and pay: ${esc(name)}</h3><label class="muted" style="font-weight:700">Subjects they teach</label><div style="max-height:220px;overflow:auto">${(b.data||[]).map(s=>`<label class="chk"><input type="checkbox" data-ts="${s.id}" ${sel.has(s.id)?"checked":""}>${esc(s.name)}</label>`).join("")}</div>
+ <div class="field"><label>Monthly salary (₦)</label><input id="tc_s" type="number" min="0" value="${t.monthly_salary||0}"></div><div class="field"><label>Extra pay for each class held (₦)</label><input id="tc_r" type="number" min="0" value="${t.per_class_rate||0}"></div>
+ <div class="field"><label>Notes</label><input id="tc_n" value="${esc(t.notes||"")}"></div><button class="btn hi" id="tc_b">Save teaching and pay</button><div id="tcm"></div></div>`;
+ $("tc_b").onclick=async()=>{const {error}=await db.rpc("set_teacher",{p_teacher:id,p_subjects:[...document.querySelectorAll("[data-ts]:checked")].map(i=>+i.dataset.ts),p_salary:+$("tc_s").value||0,p_rate:+$("tc_r").value||0,p_notes:$("tc_n").value.trim()});msg("tcm",error?error.message:"Saved.",error?"err":"ok")}}
+/* admin: payroll */
+async function payroll(){const d=new Date(),per=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
+ $("view").innerHTML=`<h2>Teacher payroll</h2><p class="muted">Pick a month and tap Calculate. Pay is the monthly salary plus the per-class amount for classes held that month. Set each teacher's pay on the Team page. Months already marked paid are never changed.</p><div class="row"><input type="month" id="pp_m" value="${per}" style="max-width:200px"><button class="btn hi" id="pp_g">Calculate</button></div><div id="pp_msg"></div><div id="pp_l" style="margin-top:12px"></div>`;
+ const load=async()=>{const {data,error}=await db.rpc("list_payroll",{p_period:$("pp_m").value});if(error)return msg("pp_msg",error.message,"err");
+  $("pp_l").innerHTML=(data||[]).map(p=>`<div class="item row"><span class="grow"><b>${esc(p.name||p.email)}</b><div class="muted">${p.classes} classes${p.paid_at?", paid "+esc(new Date(p.paid_at).toLo
