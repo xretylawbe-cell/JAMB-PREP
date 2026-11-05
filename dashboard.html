@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0f1f4b"><title>Academy dashboard</title>
-<script>(function(){function show(m){var b=document.body;if(!b)return;var d=document.getElementById("__err");if(!d){d=document.createElement("div");d.id="__err";d.style.cssText="position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#8f1d22;color:#fff;font:12px sans-serif;padding:8px 12px";b.appendChild(d)}d.textContent="Something went wrong: "+m+". Take a screenshot and send it to support."}window.addEventListener("error",function(e){if(e.message)show(e.message+" ("+String(e.filename||"").split("/").pop()+":"+e.lineno+")")});window.addEventListener("unhandledrejection",function(e){show(String(e.reason&&e.reason.message||e.reason))})})();</script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>(function(){function show(m){var b=document.body;if(!b)return;var d=document.getElementById("__err");if(!d){d=document.createElement("div");d.id="__err";d.style.cssText="position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#8f1d22;color:#fff;font:12px sans-serif;padding:8px 12px";b.appendChild(d)}d.textContent="Something went wrong: "+m+". Take a screenshot and send it to support."}window.addEventListener("error",function(e){if(/supabase\.js/.test(e.filename||""))return;if(e.message)show(e.message+" ("+String(e.filename||"").split("/").pop()+":"+e.lineno+")")});window.addEventListener("unhandledrejection",function(e){show(String(e.reason&&e.reason.message||e.reason))})})();</script>
+<script src="supabase.js"></script>
+<script>window.supabase||document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>')</script>
 <script>window.supabase||document.write('<script src="https://unpkg.com/@supabase/supabase-js@2"><\/script>')</script>
 <script>window.supabase||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.45.4/umd/supabase.min.js"><\/script>')</script>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
@@ -30,7 +31,7 @@ iframe{width:100%;height:calc(100vh - 118px);border:0;display:block;background:#
 .chk{display:flex;gap:9px;align-items:center;padding:8px 11px;border:1.5px solid var(--line);border-radius:10px;margin:6px 0;background:#fff}.chk input{width:18px;height:18px;flex:none}
 .cat{margin:18px 0 8px;font:800 15px 'Bricolage Grotesque';color:var(--mut)}
 </style></head><body>
-<section id="login" style="max-width:420px;margin:60px auto;padding:0 16px"><div class="card"><h2>Academy dashboard</h2><p class="muted">Sign in once. Everything you are allowed to manage opens from here.</p><p class="muted" style="font-size:11px">Version 10</p>
+<section id="login" style="max-width:420px;margin:60px auto;padding:0 16px"><div class="card"><h2>Academy dashboard</h2><p class="muted">Sign in once. Everything you are allowed to manage opens from here.</p><p class="muted" style="font-size:11px">Version 12</p>
 <div class="field"><label>Email</label><input id="em" type="email" autocomplete="email"></div><div class="field"><label>Password</label><input id="pw" type="password" autocomplete="current-password"></div>
 <button class="btn w" id="go" style="width:100%">Sign in</button><div id="lm"></div></div></section>
 <div id="app" class="hid"><div class="top"><span class="br" id="ttl">Dashboard</span><span><span id="who" class="muted" style="color:#c9d3f5;margin-right:8px"></span><button id="out">Sign out</button></span></div>
@@ -110,4 +111,16 @@ async function teachCard(id,name){const [a,b]=await Promise.all([db.rpc("teacher
 async function payroll(){const d=new Date(),per=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
  $("view").innerHTML=`<h2>Teacher payroll</h2><p class="muted">Pick a month and tap Calculate. Pay is the monthly salary plus the per-class amount for classes held that month. Set each teacher's pay on the Team page. Months already marked paid are never changed.</p><div class="row"><input type="month" id="pp_m" value="${per}" style="max-width:200px"><button class="btn hi" id="pp_g">Calculate</button></div><div id="pp_msg"></div><div id="pp_l" style="margin-top:12px"></div>`;
  const load=async()=>{const {data,error}=await db.rpc("list_payroll",{p_period:$("pp_m").value});if(error)return msg("pp_msg",error.message,"err");
-  $("pp_l").innerHTML=(data||[]).map(p=>`<div class="item row"><span class="grow"><b>${esc(p.name||p.email)}</b><div class="muted">${p.classes} classes${p.paid_at?", paid "+esc(new Date(p.paid_at).toLo
+  $("pp_l").innerHTML=(data||[]).map(p=>`<div class="item row"><span class="grow"><b>${esc(p.name||p.email)}</b><div class="muted">${p.classes} classes${p.paid_at?", paid "+esc(new Date(p.paid_at).toLocaleDateString()):""}</div></span><b>₦${Number(p.amount).toLocaleString()}</b><span class="tag ${p.status==="paid"?"g":""}">${p.status==="paid"?"Paid":"Pending"}</span><button class="btn sec" data-pay="${p.id}" data-to="${p.status==="paid"?0:1}">${p.status==="paid"?"Mark unpaid":"Mark paid"}</button></div>`).join("")||'<p class="muted">Nothing calculated for this month yet. Tap Calculate.</p>'};
+ $("pp_m").onchange=load;
+ $("pp_g").onclick=async()=>{const {data,error}=await db.rpc("generate_payroll",{p_period:$("pp_m").value});if(error)return msg("pp_msg",error.message,"err");msg("pp_msg",data?"Calculated for "+data+" teacher(s).":"No teacher has pay set yet. Set it on the Team page.","ok");load()};
+ $("pp_l").onclick=async e=>{const b=e.target.closest("[data-pay]");if(!b)return;const {error}=await db.rpc("mark_payroll",{p_id:+b.dataset.pay,p_paid:b.dataset.to==="1",p_note:null});if(error)alert(error.message);load()};load()}
+/* my profile */
+function meView(){$("view").innerHTML=`<h2>My profile</h2><div class="card"><div class="field"><label>Full name</label><input id="pn" value="${esc(prof.full_name||"")}"></div><div class="field"><label>Phone</label><input id="pp" value="${esc(prof.phone||"")}"></div>
+ <div class="field"><label>About me</label><textarea id="pb">${esc(prof.bio||"")}</textarea></div><div class="field"><label>Email</label><input value="${esc(prof.email||"")}" disabled></div>
+ <p class="muted">Role: <b>${esc(prof.role)}</b>${prof.role==="teacher"?". Extra access: "+((prof.permissions||[]).join(", ")||"none"):""}</p><button class="btn hi" id="ps">Save profile</button><div id="pm"></div></div>`;
+ $("ps").onclick=async()=>{const r={full_name:$("pn").value.trim(),phone:$("pp").value.trim(),bio:$("pb").value.trim()};const {error}=await db.from("profiles").update(r).eq("id",me.id);
+  if(error)return msg("pm",error.message,"err");Object.assign(prof,r);$("who").textContent=r.full_name+" ("+prof.role+")";msg("pm","Profile saved.","ok")}}
+db.auth.getSession().then(({data})=>{if(data.session)enter(data.session.user)});
+})();
+</script></body></html>
