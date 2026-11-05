@@ -1,4 +1,4 @@
-— Page 1 — var supabase=(function(e){function t(e,t){var n={};for(var r
+var supabase=(function(e){function t(e,t){var n={};for(var r
 in
 e)Object.prototype.hasOwnProperty.call(e,r)&&t.indexOf(r)<0&&(n[r]=e[r]);if(e!=null&&typeof
 Object.getOwnPropertySymbols==function)for(var
@@ -68,12 +68,9 @@ r=n.call(e,t||default);if(m(r)!=object)return r;throw
 TypeError(@@toPrimitive must return a  primitive value.)}return(t===string?String:Number)(e)}function
 g(e){var t=h(e,string);return
 m(t)==symbol?t:t+`}function ee(e,t,n){return(t=g(t))in e?Object.defineProperty(e,t, {value:n,enumerable:!0,configurable:!0,writable:!0}):e[t]=n,e}function te(e,t){var  n=Object.keys(e);if(Object.getOwnPropertySymbols){var r=Object.getOwnPropertySymbols(e);t&& (r=r.filter(function(t){return  Object.getOwnPropertyDescriptor(e,t).enumerable})),n.push.apply(n,r)}return n}function _(e) {for(var t=1;t<arguments.length;t++){var n=arguments[t]==null?{}:arguments[t];t%2? te(Object(n),!0).forEach(function(t){ee(e,t,n[t])}):Object.getOwnPropertyDescriptors? Object.defineProperties(e,Object.getOwnPropertyDescriptors(n)):te(Object(n)).forEach(function(t) {Object.defineProperty(e,t,Object.getOwnPropertyDescriptor(n,t))})}return e}function ne(e,t) {return new Promise(n=>{if(t?.aborted){n();return}let r=setTimeout(()=> {t?.removeEventListener(abort,i),n()},e);function i() {clearTimeout(r),n()}t?.addEventListener(abort,i)})}function re(e,t,n,r){return! (!r||n>=3||!p.includes(e)||!f.includes(t))}async function ie(e,t,n,r){let i=0;for(;;){let  a=_({},n.headers);i>0&&(a[X-Retry-Count]=String(i));let o;try{o=await e(t, {method:n.method,headers:a,body:n.body,signal:n.signal})}catch(e) {if(e?.name===AbortError||e?.code===ABORT_ERR||e?.name===TimeoutError`&&n.signal?.aborted||!p
-11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-1/40
 
-— Page 2 — .includes(n.method))throw e;if(r&&i<3){let e=d(i);i++,await
+.includes(n.method))throw e;if(r&&i<3){let e=d(i);i++,await
 ne(e,n.signal);continue}throw e}if(re(n.method,o.status,i,r)){let
 e=o.headers?.get(Retry-After)??null,t=e===null?
 d(i):Math.max(0,parseInt(e,10)||0)*1e3;await o.text(),i++,await
@@ -125,11 +122,9 @@ this.url.searchParams.set(i,${e}),this.url.searchParams.set(a,${t-e+1}),this}abo
 this.headers.set(Accept,application/vnd.pgrst.object+json),this}maybeSingle(){return
 this.isMaybeSingle=!0,this}csv(){return
 this.headers.set(Accept,text/csv),this}geojson() 11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-2/40
 
-— Page 3 — {return
+{return
 this.headers.set(Accept,application/geo+json),this}explain({analyze:e=!1,verbose:t=!1,settings
 :n=!1,buffers:r=!1,wal:i=!1,format:a=text}={}){let
 o=[e?analyze:null,t?verbose:null,n? settings:null,r?buffers:null,i?
@@ -200,11 +195,8 @@ ignore:merge}-duplicates),t!==void  0&&a.searchParams.set(on_conflict,t),r&&o.ap
 ssing=default`),Array.isArray(e)){let
 t=e.reduce((e,t)=>e.concat(Object.keys(t)), []);if(t.length>0){let
 e=[…new 11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-3/40
 
-— Page 4 —
 Set(t)].map(e=>"${e}");a.searchParams.set(columns,e.join(,))}}return new
 v({method:POST,url:a,headers:o,schema:this.schema,body:e,fetch:this.fetch??
 fetch,urlLengthLimit:this.urlLengthLimit,retry:this.retry})}update(e,{count:t}={})
@@ -253,12 +245,8 @@ WebSocket
 implementation.}}static getWebSocketConstructor() {let e=this.detectEnvironment();if(e.wsConstructor)return e.wsConstructor;let  t=e.error||WebSocket
 not supported in this environment.;throw e.workaround&&(t+= solution:
 ${e.workaround}),Error(t)}static isWebSocketSupported(){try{return  this.detectEnvironment().type===native}catch{return!1}}};let me=1.0.0,y= {closed:closed,errored:errored,joined:joined,joining:joining,leaving:leaving`},he=
-11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-4/40
 
-— Page 5 —
 {close:phx_close,error:phx_error,join:phx_join,reply:phx_reply,leave:phx_leave,access_to
 ken:access_token},ge={connecting:connecting,open:open,closing:closing,closed:closed};var
 _e=class
@@ -283,11 +271,8 @@ this._pick(e.payload,this.allowedMetadataKeys):{},l=r.encode(Object.keys(c).leng
 :JSON.stringify(c));if(o.length>255)throw Error(`joinRef length ${o.length} exceeds maximum of  255`);if(a.length>255)throw Error(`ref length ${a.length} exceeds maximum of  255`);if(i.length>255)throw Error(`topic length ${i.length} exceeds maximum of  255`);if(s.length>255)throw Error(`userEvent length ${s.length} exceeds maximum of  255`);if(l.length>255)throw Error(`metadata length ${l.length} exceeds maximum of 255`);let  u=this.USER_BROADCAST_PUSH_META_LENGTH+o.length+a.length+i.length+s.length+l.length,d=new  ArrayBuffer(this.HEADER_LENGTH+u),f=new DataView(d),p=new  Uint8Array(d),m=0;f.setUint8(m++,this.KINDS.userBroadcastPush),f.setUint8(m++,o.length),f.setUint8 (m++,a.length),f.setUint8(m++,i.length),f.setUint8(m++,s.length),f.setUint8(m++,l.length),f.setUin t8(m++,t),p.set(o,m),m+=o.length,p.set(a,m),m+=a.length,p.set(i,m),m+=i.length,p.set(s,m),m+=s.len gth,p.set(l,m),m+=l.length;var h=new Uint8Array(d.byteLength+n.byteLength);return h.set(new  Uint8Array(d),0),h.set(new Uint8Array(n),d.byteLength),h.buffer}decode(e,t) {if(this._isArrayBuffer(e))return t(this._binaryDecode(e));if(typeof e==`string`) {let[n,r,i,a,o]=JSON.parse(e);return t({join_ref:n,ref:r,topic:i,event:a,payload:o})}return  t({})}_binaryDecode(e){let t=new DataView(e),n=t.getUint8(0),r=new TextDecoder;switch(n){case  this.KINDS.userBroadcast:return this._decodeUserBroadcast(e,t,r)}}_decodeUserBroadcast(e,t,n){let  r=t.getUint8(1),i=t.getUint8(2),a=t.getUint8(3),o=t.getUint8(4),s=this.HEADER_LENGTH+4,c=n.decode( e.slice(s,s+r));s+=r;let l=n.decode(e.slice(s,s+i));s+=i;let u=n.decode(e.slice(s,s+a));s+=a;let  d=e.slice(s,e.byteLength),f=o===this.JSON_ENCODING?JSON.parse(n.decode(d)):d,p= {type:this.BROADCAST_EVENT,event:l,payload:f};return a>0&&(p.meta=JSON.parse(u)), {join_ref:null,ref:null,topic:c,event:this.BROADCAST_EVENT,payload:p}}_isArrayBuffer(e){return e  instanceof ArrayBuffer||e?.constructor?.name===`ArrayBuffer`}_pick(e,t){return!e||typeof  e!=`object`? {}:Object.fromEntries(Object.entries(e).filter(([e])=>t.includes(e)))}};_e.DEFAULT_METADATA_KEYS= [`persist`];var ve=_e,b;(function(e) {e.abstime=`abstime`,e.bool=`bool`,e.date=`date`,e.daterange=`daterange`,e.float4=`float4`,e.float 8=`float8`,e.int2=`int2`,e.int4=`int4`,e.int4range=`int4range`,e.int8=`int8`,e.int8range=`int8rang e`,e.json=`json`,e.jsonb=`jsonb`,e.money=`money`,e.numeric=`numeric`,e.oid=`oid`,e.reltime=`reltim e`,e.text=`text`,e.time=`time`,e.timestamp=`timestamp`,e.timestamptz=`timestamptz`,e.timetz=`timet z`,e.tsrange=`tsrange`,e.tstzrange=`tstzrange`})(b||={});let ye=(e,t,n={})=>{let r=n.skipTypes?? [];return t?Object.keys(t).reduce((n,i)=>(n[i]=be(i,e,t,r),n),{}):{}},be=(e,t,n,r)=>{let  i=t.find(t=>t.name===e)?.type,a=n[e];return i&&!r.includes(i)?xe(i,a):Se(a)},xe=(e,t)=> {if(e.charAt(0)===`_`)return Ee(t,e.slice(1,e.length));switch(e){case b.bool:return Ce(t);case  b.float4:case b.float8:case b.int2:case b.int4:case b.int8:case b.numeric:case b.oid:return  we(t);case b.json:case b.jsonb:return Te(t);case b.timestamp:return De(t);case b.abstime:case  b.date:case b.daterange:case b.int4range:case b.int8range:case b.money:case b.reltime:case  b.text:case b.time:case b.timestamptz:case b.timetz:case b.tsrange:case b.tstzrange:return  Se(t);default:return Se(t)}},Se=e=>e,Ce=e=>{switch(e) {case`t`:return!0;case`f`:return!1;default:return e}},we=e=>{if(typeof e==`string`){let  t=parseFloat(e);if(!Number.isNaN(t))return t}return e},Te=e=>{if(typeof e==`string`)try{return  JSON.parse(e)}catch{return e}return e},Ee=(e,t)=>{if(typeof e!=`string`)return e;let n=e.length- 1,r=e[n];if(e[0]===`{`&&r===`}`){let r,i=e.slice(1,n);try{r=JSON.parse(`[`+i+`]`)}catch{r=i? i.split(`,`):[]}return r.map(e=>xe(t,e))}return e},De=e=>typeof e==`string`?e.replace(`  `,`T`):e,Oe=e=>{let t=new URL(e);return  t.protocol=t.protocol.replace(/^ws/i,`http`),t.pathname=t.pathname.replace(/\/+$/,).replace(//s
 ocket/websocket$/i,``).replace(/\/socket$/i,).replace(/\/websocket$/i,),t.pathname===`||t.pa thname===/?t.pathname=/api/broadcast:t.pathname+=/api/broadcast,t.href};var ke=e=>typeof  e==function?e:function(){return e},Ae=typeof self<u?self:null,je=typeof window<u? window:null,x=Ae||je||globalThis,Me=2.0.0`,Ne=1e4,Pe=1e3,Fe=100,S=
 {connecting:0,open:1,closing:2,closed:3},C= 11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-5/40
 
-— Page 6 —
 {closed:closed,errored:errored,joined:joined,joining:joining,leaving:leaving},w=
 {close:phx_close,error:phx_error,join:phx_join,reply:phx_reply,leave:phx_leave},Ie=
 {longpoll:longpoll,websocket:websocket},Le=
@@ -359,11 +344,9 @@ this.joinPush.ref}rejoin(e=this.timeout){this.isLeaving()||
 (this.socket.leaveOpenTopic(this.topic),this.state=C.joining,this.joinPush.resend(e))}trigger(e,t,
 n,r){let i=this.onMessage(e,t,n,r);if(t&&!i)throw Error(`channel
 onMessage callbacks must return 11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-6/40
 
-— Page 7 — the payload, modified or
+the payload, modified or
 unmodified);let  a=this.bindings.filter(r=>r.event===e&&this.filterBindings(r,t,n));for(let  e=0;e<a.length;e++)a[e].callback(i,n,r||this.joinRef())}replyEventName(e) {returnchan_reply_${e}`}isClosed(){return this.state===C.closed}isErrored(){return
 this.state===C.errored}isJoined(){return this.state===C.joined}isJoining(){return
 this.state===C.joining}isLeaving(){return this.state===C.leaving}},He=class{static
@@ -394,12 +377,8 @@ ${t})}})}send(e){typeof e!=string&&(e=Ue(e)),this.currentBatch? this.currentBatc
 ),()=>this.onerror(timeout),t=>{!t||t.status!==200? (this.awaitingBatchAck=!1,this.onerror(t&&t.status),this.closeAndRetry(1011,internal
 server
 error,!1)):n<e.length?this.batchSend(e,n):this.batchBuffer.length>0? (this.batchSend(this.batchBuffer),this.batchBuffer=[]):this.awaitingBatchAck=!1})}close(e,t,n) {for(let e of this.reqs)e.abort();this.readyState=S.closed;let  r=Object.assign({code:1e3,reason:void 0,wasClean:!0}, {code:e,reason:t,wasClean:n});this.batchBuffer= [],clearTimeout(this.currentBatchTimer),this.currentBatchTimer=null,typeof CloseEvent<u? this.onclose(new CloseEvent(close,r)):this.onclose(r)}ajax(e,t,n,r,i){let  a;a=He.request(e,this.endpointURL(),t,n,this.timeout,()=>{this.reqs.delete(a),r()},e=> {this.reqs.delete(a),this.isActive()&&i(e)}),this.reqs.add(a)}},Ge=class e{constructor(t,n={}){let  r=n.events|| {state:presence_state,diff:presence_diff`};this.state=Object.create(null),this.pendingDiffs=
-11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-7/40
 
-— Page 8 —
 [],this.channel=t,this.joinRef=null,this.caller={onJoin:function(){},onLeave:function()
 {},onSync:function(){}},this.channel.on(r.state,t=>
 {let{onJoin:n,onLeave:r,onSync:i}=this.caller;this.joinRef=this.channel.joinRef(),this.state=e.syn
@@ -482,11 +461,8 @@ ections=0,this.defaultEncoder=Ke.encode.bind(Ke),this.defaultDecoder=Ke.decode.b
 WasClean=!0,this.disconnecting=!1,this.binaryType=t.binaryType||arraybuffer,this.connectClock=1,
 this.pageHidden=!1,this.encode=void 0,this.decode=void
 0,this.transport===We? 11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-8/40
 
-— Page 9 —
 (this.encode=this.defaultEncoder,this.decode=this.defaultDecoder):
 (this.encode=t.encode||this.defaultEncoder,this.decode=t.decode||this.defaultDecoder);let
 r=null;je&&je.addEventListener&&(je.addEventListener(pagehide,e=>{this.conn&&
@@ -556,11 +532,8 @@ this.flushSendBuffer(),this.reconnectTimer.reset(),this.autoSendHeartbeat&&this.
 his.triggerStateCallbacks(open)}heartbeatTimeout(){if(this.pendingHeartbeatRef)
 {this.pendingHeartbeatRef=null,this.heartbeatSentAt=null,this.hasLogger()&&this.log(transport,`h
 eartbeat timeout. Attempting to re-establish 11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-9/40
 
-— Page 10 —
 connection);try{this.heartbeatCallback(timeout)}catch(e){this.log(error,error
 in heartbeat callback,e)}this.triggerChanError(Error(heartbeat
 timeout)),this.closeWasClean=!1,this.teardown(()=>this.reconnectTimer.scheduleTimeout(),Pe,heart
@@ -594,11 +567,9 @@ t=this.channels.find(t=>t.topic===e&&(t.isJoined()||t.isJoining()));t&&
 this.presenceAdapter.state}constructor(e,t)
 {this.channel=e,this.presenceAdapter=new
 Je(this.channel.channelAdapter,t)}};function tt(e){if(e 11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-10/40
 
-— Page 11 — instanceof Error)return e;if(typeof e==string)return
+instanceof Error)return e;if(typeof e==string)return
 Error(e);if(e&&typeof e==object){let t=e;if(typeof t.code==number){let
 n=typeof
 t.reason==string&&t.reason?(${t.reason}):;return Error(`socket closed: ${t.code}${n}`,{cause:e})}return Error(`channel  error: transport failure`,{cause:e})}return Error(`channel error: connection lost`)}var  nt=class{constructor(e,t,n){let r=rt(n);this.channel=e.getSocket().channel(t,r),this.socket=e}get  state(){return this.channel.state}set state(e){this.channel.state=e}get joinedOnce(){return  this.channel.joinedOnce}get joinPush(){return this.channel.joinPush}get rejoinTimer(){return  this.channel.rejoinTimer}on(e,t){return this.channel.on(e,t)}off(e,t) {this.channel.off(e,t)}subscribe(e){return this.channel.join(e)}unsubscribe(e){return  this.channel.leave(e)}teardown(){this.channel.teardown()}onClose(e) {this.channel.onClose(e)}onError(e){return this.channel.onError(e)}push(e,t,n){let  r;try{r=this.channel.push(e,t,n)}catch{throw Error(`tried to push '${e}' to  '${this.channel.topic}' before joining. Use channel.subscribe() before pushing  events`)}if(this.channel.pushBuffer.length>100){let  e=this.channel.pushBuffer.shift();e.cancelTimeout(),this.socket.log(`channel`,`discarded push due  to buffer overflow: ${e.event}`,e.payload())}return r}updateJoinPayload(e){let  t=this.channel.joinPush.payload();this.channel.joinPush.payload= ()=>Object.assign(Object.assign({},t),e)}canPush(){return  this.socket.isConnected()&&this.state===y.joined}isJoined(){return  this.state===y.joined}isJoining(){return this.state===y.joining}isClosed(){return  this.state===y.closed}isLeaving(){return this.state===y.leaving}updateFilterBindings(e) {this.channel.filterBindings=e}updatePayloadTransform(e){this.channel.onMessage=e}getChannel() {return this.channel}};function rt(e){return{config:Object.assign({broadcast: {ack:!1,self:!1},presence:{key:,enabled:!1},private:!1},e.config)}}let
@@ -617,11 +588,9 @@ to use replay on public channel ‘${this.topic}’. It must be a private
 channel.)}subscribe(e,t=this.timeout) {if(this.socket.isConnected()||this.socket.connect(),this.channelAdapter.isClosed()){let{config: {broadcast:n,presence:r,private:i,postgres_changes_options:a}}=this.params,o=this.bindings.postgre s_changes?.map(e=>e.filter)?? [],s=!!this.bindings[T.PRESENCE]&&this.bindings[T.PRESENCE].length>0||this.params.config.presence? .enabled===!0,c={},l=Object.assign({broadcast:n,presence:Object.assign(Object.assign({},r), {enabled:s}),postgres_changes:o,private:i},a?{postgres_changes_options:a}: {});this.socket.accessTokenValue&&(c.access_token=this.socket.accessTokenValue),this._onError(t=> {e?.(E.CHANNEL_ERROR,tt(t))}),this._onClose(()=>e?. (E.CLOSED)),this.updateJoinPayload(Object.assign({config:l},c)),this._updateFilterMessage();let  u=a?.wait&&o.length>0?Math.max(t,(a.timeout?? 15e3)+1e4):t;this.channelAdapter.subscribe(u).receive(ok,async({postgres_changes:t})=> {if(this.socket._isManualToken()||this.socket.setAuth(),t===void 0){e?. (E.SUBSCRIBED);return}this._updatePostgresBindings(t,e)}).receive(error,t=> {this.state=y.errored;let n=Object.values(t).join(,
 )||error;e?.(E.CHANNEL_ERROR,Error(n, {cause:t}))}).receive(timeout`,()=>{e?.(E.TIMED_OUT)})}return
 this}_updatePostgresBindings(t,n) 11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-11/40
 
-— Page 12 — {let
+{let
 r=this.bindings.postgres_changes,i=r?.length??0,a=[];for(let
 o=0;o<i;o++){let i=r[o],{filter:
 {event:s,schema:c,table:l,filter:u}}=i,d=t&&t[o];if(d&&d.event===s&&e.isFilterValueEqual(d.schema,
@@ -673,12 +642,8 @@ out))})}updateJoinPayload(e) {this.channelAdapter.updateJoinPayload(e)}async uns
 out)).receive(error,()=>t(error))})}teardown(){this.channelAdapter.teardown()}async  _fetchWithTimeout(e,t,n){let r=new AbortController,i=setTimeout(()=>r.abort(),n),a=await  this.socket.fetch(e,Object.assign(Object.assign({},t),{signal:r.signal}));return  clearTimeout(i),a}_on(t,n,r){let i=t.toLocaleLowerCase(),a=n?.filter;if((a instanceof ut||typeof  a==object&&a&&typeof a.build==function)&&(n=Object.assign(Object.assign({},n), {filter:a.build()})),i===T.POSTGRES_CHANGES&&this.bindings[i]?.find(t=>e.isSamePostgresFilter(t.fi lter,n)))return this.socket.log(error,duplicate
 `postgres_changes` binding for ${this.topic}
 ignored,n),this;let o=this.channelAdapter.on(t,r),s={type:i,filter:n,callback:r,ref:o};return  this.bindings[i]?this.bindings[i].push(s):this.bindings[i]= [s],this._updateFilterMessage(),this}_onClose(e){this.channelAdapter.onClose(e)}_onError(e) {this.channelAdapter.onError(e)}_updateFilterMessage() {this.channelAdapter.updateFilterBindings((e,t,n)=>{let  r=e.event.toLocaleLowerCase();if(this._notThisChannelEvent(r,n))return!1;let  i=this.bindings[r]?.find(t=>t.ref===e.ref);if(!i)return!0;if([broadcast,presence,postgres_cha
-11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-12/40
 
-— Page 13 —
 nges].includes(r))if(idin i){let e=i.id,n=i.filter?.event;return e&&t.ids?.includes(e)&& (n===||n?.toLocaleLowerCase()===t.data?.type.toLocaleLowerCase())}else{let e= (i?.filter?.event)?.toLocaleLowerCase();return e===||e===(t?.event)?.toLocaleLowerCase()}else  return i.type.toLocaleLowerCase()===r})}_notThisChannelEvent(e,t) {let{close:n,error:r,leave:i,join:a}=he;return t&& [n,r,i,a].includes(e)&&t!==this.joinPush.ref}_updateFilterTransform() {this.channelAdapter.updatePayloadTransform((e,t,n)=>{if(typeof t==object&&idsin t){let  e=t.data,{schema:n,table:r,commit_timestamp:i,type:a,errors:o}=e,s= {schema:n,table:r,commit_timestamp:i,eventType:a,new:{},old:{},errors:o};return  Object.assign(Object.assign({},s),this._getPayloadRecords(e))}return t})}copyBindings(e) {if(this.joinedOnce)throw Error(cannot
 copy bindings into joined
 channel);for(let t in  e.bindings)for(let n of e.bindings[t])this._on(n.type,n.filter,n.callback)}static  isFilterValueEqual(e,t){return(e??void 0)===(t??void 0)}static isSamePostgresFilter(t,n){let r= (t?.select)?.join()??void 0,i=(n?.select)?.join()??void 0;return  t?.event===n?.event&&e.isFilterValueEqual(t?.schema,n?.schema)&&e.isFilterValueEqual(t?.table,n?.t able)&&e.isFilterValueEqual(t?.filter,n?.filter)&&r===i}_getPayloadRecords(e){let t={new:{},old: {}};return(e.type===INSERT||e.type===UPDATE)&&(t.new=ye(e.columns,e.record)), (e.type===UPDATE||e.type===DELETE)&& (t.old=ye(e.columns,e.old_record)),t}},ht=class{constructor(e,t){this.socket=new qe(e,t)}get  timeout(){return this.socket.timeout}get endPoint(){return this.socket.endPoint}get transport() {return this.socket.transport}get heartbeatIntervalMs(){return this.socket.heartbeatIntervalMs}get  heartbeatCallback(){return this.socket.heartbeatCallback}set heartbeatCallback(e) {this.socket.heartbeatCallback=e}get heartbeatTimer(){return this.socket.heartbeatTimer}get  pendingHeartbeatRef(){return this.socket.pendingHeartbeatRef}get reconnectTimer(){return  this.socket.reconnectTimer}get vsn(){return this.socket.vsn}get encode(){return  this.socket.encode}get decode(){return this.socket.decode}get reconnectAfterMs(){return  this.socket.reconnectAfterMs}get sendBuffer(){return this.socket.sendBuffer}get  stateChangeCallbacks(){return this.socket.stateChangeCallbacks}connect() {this.socket.connect()}disconnect(e,t,n,r=1e4){return new Promise(i=> {setTimeout(()=>i(timeout),r),this.socket.disconnect(()=>{e(),i(ok)},t,n)})}push(e) {this.socket.push(e)}log(e,t,n){this.socket.log(e,t,n)}hasLogger(){return  this.socket.hasLogger()}makeRef(){return this.socket.makeRef()}onOpen(e) {this.socket.onOpen(e)}onClose(e){this.socket.onClose(e)}onError(e) {this.socket.onError(e)}onMessage(e){this.socket.onMessage(e)}isConnected(){return  this.socket.isConnected()}isConnecting(){return  this.socket.connectionState()==ge.connecting}isDisconnecting(){return  this.socket.connectionState()==ge.closing}connectionState(){return  this.socket.connectionState()}endPointURL(){return this.socket.endPointURL()}sendHeartbeat() {this.socket.sendHeartbeat()}getSocket(){return this.socket}};let gt= {HEARTBEAT_INTERVAL:25e3,RECONNECT_DELAY:10,HEARTBEAT_TIMEOUT_FALLBACK:100},_t= [1e3,2e3,5e3,1e4];function vt(){let e=new Map;return{get length(){return e.size},clear() {e.clear()},getItem(t){return e.has(t)?e.get(t):null},key(t){return Array.from(e.keys())[t]?? null},removeItem(t){e.delete(t)},setItem(t,n){e.set(t,String(n))}}}function yt(){try{if(typeof  globalThis<u&&globalThis.sessionStorage)return globalThis.sessionStorage}catch{}return vt()}var  bt=class{get endPoint(){return this.socketAdapter.endPoint}get timeout(){return  this.socketAdapter.timeout}get transport(){return this.socketAdapter.transport}get  heartbeatCallback(){return this.socketAdapter.heartbeatCallback}get heartbeatIntervalMs(){return  this.socketAdapter.heartbeatIntervalMs}get heartbeatTimer(){return this.worker? this._workerHeartbeatTimer:this.socketAdapter.heartbeatTimer}get pendingHeartbeatRef(){return  this.worker?this._pendingWorkerHeartbeatRef:this.socketAdapter.pendingHeartbeatRef}get  reconnectTimer(){return this.socketAdapter.reconnectTimer}get vsn(){return  this.socketAdapter.vsn}get encode(){return this.socketAdapter.encode}get decode(){return  this.socketAdapter.decode}get reconnectAfterMs(){return this.socketAdapter.reconnectAfterMs}get  sendBuffer(){return this.socketAdapter.sendBuffer}get stateChangeCallbacks(){return  this.socketAdapter.stateChangeCallbacks}constructor(e,t){if(this.channels= [],this.accessTokenValue=null,this.accessToken=null,this.apiKey=null,this.httpEndpoint=``,this.hea ders={},this.params={},this.ref=0,this.serializer=new  ve,this._manuallySetToken=!1,this._authPromise=null,this._authGeneration=0,this._workerHeartbeatTi mer=void  0,this._pendingWorkerHeartbeatRef=null,this._pendingDisconnectTimer=null,this._disconnectOnEmptyCh annelsAfterMs=0,this._resolveFetch=e=>e?(...t)=>e(...t): (...e)=>fetch(...e),!t?.params?.apikey)throw Error(API
@@ -688,11 +653,8 @@ not available:
 ${t}`)}this._handleNodeJsRaceCondition()}}endpointURL(){return
 this.socketAdapter.endPointURL()}async disconnect(e,t){return 11/5/26,
 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-13/40
 
-— Page 14 —
 this._cancelPendingDisconnect(),this.isDisconnecting()?ok:await
 this.socketAdapter.disconnect(()=>
 {clearInterval(this._workerHeartbeatTimer),this._terminateWorker()},e,t)}getChannels(){return
@@ -754,11 +716,8 @@ t}_initializeOptions(e)
 {this.worker=e?.worker??!1,this.accessToken=e?.accessToken??null;let
 t={};t.timeout=e?.timeout??
 1e4,t.heartbeatIntervalMs=e?.heartbeatIntervalMs?? 11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-14/40
 
-— Page 15 —
 gt.HEARTBEAT_INTERVAL,this._disconnectOnEmptyChannelsAfterMs=e?.disconnectOnEmptyChannelsAfterMs??
 2*(e?.heartbeatIntervalMs??gt.HEARTBEAT_INTERVAL),t.transport=e?.transport??
 pe.getWebSocketConstructor(),t.params=e?.params,t.logger=e?.logger,t.heartbeatCallback=this._wrapH
@@ -791,7 +750,7 @@ request({method:n,path:r,query:i,body:a,headers:o}){let
 s=St(e.baseUrl,r,i),c=await Ct(e.auth),l=await
 t(s,{method:n,headers:{…a?{“Content-Type”:application/json}:
 {},…c,…o},body:a?JSON.stringify(a):void 0}),u=await
-l.text(),d=(l.headers.get(content- type)||).includes(`application/json`),f=d&&u?JSON.parse(u):u;if(!l.ok){let e=d?f:void  0,t=e?.error;throw new xt(t?.message??`Request failed with status ${l.status}`, {status:l.status,icebergType:t?.type,icebergCode:t?.code,details:e})}return{status:l.status,header s:l.headers,data:f}}}}function Tt(e){return e.join(` `)}var Et=class{constructor(e,t=)
+l.text(),d=(l.headers.get(content- type)||).includes(`application/json`),f=d&&u?JSON.parse(u):u;if(!l.ok){let e=d?f:void  0,t=e?.error;throw new xt(t?.message??`Request failed with status ${l.status}`, {status:l.status,icebergType:t?.type,icebergCode:t?.code,details:e})}return{status:l.status,header s:l.headers,data:f}}}}function Tt(e){return e.join(``)}var Et=class{constructor(e,t=)
 {this.client=e,this.prefix=t}async listNamespaces(e){let
 t=e?{parent:Tt(e.namespace)}:void 0;return(await
 this.client.request({method:GET,path:${this.prefix}/namespaces,query:t})).data.namespaces.map(
@@ -807,7 +766,7 @@ this.client.request({method:HEAD,path:${this.prefix}/namespaces/${Tt(e.namespace
 e){if(e instanceof xt&&e.status===404)return!1;throw e}}async
 createNamespaceIfNotExists(e,t) {try{return await
 this.createNamespace(e,t)}catch(e){if(e instanceof
-xt&&e.status===409)return;throw e}}};function D(e){return e.join( )}var
+xt&&e.status===409)return;throw e}}};function D(e){return e.join()}var
 Dt=class{constructor(e,t=`,n){this.client=e,this.prefix=t,this.accessDelegation=n}async  listTables(e){return(await  this.client.request({method:GET,path:this.prefix/namespaces/{D(e.namespace)}/tables})).dat a.identifiers}async createTable(e,t){let n={};return this.accessDelegation&&(n[X-Iceberg-Access-
 Delegation]=this.accessDelegation),(await  this.client.request({method:POST,path:this.prefix/namespaces/{D(e.namespace)}/tables,body: t,headers:n})).data.metadata}async updateTable(e,t){let n=await  this.client.request({method:POST,path:this.prefix/namespaces/{D(e.namespace)}/tables/${e.na
 me}`,body:t});return{"metadata-location":n.data[`metadata-
@@ -818,12 +777,8 @@ e}`,headers:t})).data.metadata}async tableExists(e){let t={};this.accessDelegati
 Access-Delegation`]=this.accessDelegation);try{return await
 this.client.request({method:`HEAD`,path:`${this.prefix}/namespaces/D(e.namespace)/tables/{e.na
 me},headers:t}),!0}catch(e){if(e instanceof xt&&e.status===404)return!1;throw e}}async  createTableIfNotExists(e,t){try{return await this.createTable(e,t)}catch(n){if(n instanceof  xt&&n.status===409)return await this.loadTable({namespace:e.namespace,name:t.name});throw  n}}},Ot=class{constructor(e){let t=v1`;e.catalogName&&
-11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-15/40
 
-— Page 16 —
 (t+=/${e.catalogName}),this.client=wt({baseUrl:e.baseUrl.endsWith(/)?
 e.baseUrl:${e.baseUrl}/,auth:e.auth,fetchImpl:e.fetch}),this.accessDelegation=e.accessDelegation
 ?.join(,),this.namespaceOps=new Et(this.client,t),this.tableOps=new
@@ -881,12 +836,8 @@ t=e.headers.get(content-type);if(e.headers.get(content- length)===0||e.status===
 e.json()}).then(e=>s(e)).catch(e=>Kt(e,c,r,o))})}function Yt(e=storage)
 {return{get:async(t,n,r,i)=>Jt(t,GET,n,r,i,void
 0,e),post:async(t,n,r,i,a)=>Jt(t,POST,n,i,a,r,e),put:async(t,n,r,i,a)=>Jt(t,PUT,n,i,a,r,e),hea
-11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-16/40
 
-— Page 17 —
 d:async(t,n,r,i)=>Jt(t,HEAD,n,O(O({},r),{},{noResolveJson:!0}),i,void
 0,e),remove:async(t,n,r,i,a)=>Jt(t,DELETE,n,i,a,r,e)}}let{get:k,post:A,put:Xt,head:Zt,remove:Qt}
 =Yt(storage),j=Yt(vectors);var $t=class{constructor(e,t={},n,r=storage)
@@ -941,11 +892,8 @@ sionId:n?.sourceVersionId},{headers:r.headers}))}async copy(e,t,n){var r=this;re
 r.handleOperation(async()=>{let i=n;return{path:(await A(r.fetch,`${r.url}/object/copy, {bucketId:r.bucketId,sourceKey:e,destinationKey:t,destinationBucket:n?.destinationBucket,sourceVer sionId:n?.sourceVersionId,copyMetadata:typeof i?.copyMetadata==boolean?i.copyMetadata:void  0,metadata:i?.copyMetadata===!1?i.metadata:void 0},{headers:r.headers})).Key}})}async  createSignedUrl(e,t,n){var r=this;return r.handleOperation(async()=>{let  i=r._getFinalPath(e),a=typeof  n?.transform==object&&n.transform!==null&&Object.keys(n.transform).length>0,o=await  A(r.fetch,r.url/object/sign/{i},O(O({expiresIn:t},a?{transform:n.transform}: {}),n?.versionId==null?{}:{versionId:n.versionId}),{headers:r.headers}),s=new  URLSearchParams;n?.download&&s.set(download,n.download===!0? ``:n.download),n?.cacheNonce!=null&&s.set(cacheNonce,String(n.cacheNonce));let  c=s.toString();return{signedUrl:encodeURI(r.url{o.signedURL}${c?`&${c}:``})}})}async
 createSignedUrls(e,t,n){var r=this;return
 r.handleOperation(async()=>{let i=await 11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-17/40
 
-— Page 18 —
 A(r.fetch,${r.url}/object/sign/${r.bucketId},{expiresIn:t,paths:e},{headers:r.headers}),a=new
 URLSearchParams;n?.download&&a.set(download,n.download===!0?
 :n.download),n?.cacheNonce!=null&&a.set(`cacheNonce`,String(n.cacheNonce));let  o=a.toString();return i.map(e=>O(O({},e),{},{signedUrl:e.signedURL? encodeURI(`${r.url}${e.signedURL}${o?`&${o}`:}):null}))})}download(e,t,n){let r=typeof  t?.transform==object&&t.transform!==null&&Object.keys(t.transform).length>0?render/image/authenticated:object,i=new  URLSearchParams;t?.transform&&this.applyTransformOptsToQuery(i,t.transform),t?.cacheNonce!=null&&i .set(cacheNonce,String(t.cacheNonce)),t?.versionId!=null&&i.set(versionId,String(t.versionId)) ;let a=i.toString(),o=this._getFinalPath(e);return new  rn(()=>k(this.fetch,this.url/{r}/o{a??${a}:}`, {headers:this.headers,noResolveJson:!0},n),this.shouldThrowOnError)}async info(e,t){var n=this;let  r=n._getFinalPath(e),i=new  URLSearchParams;t?.versionId!=null&&i.set(`versionId`,String(t.versionId));let  a=i.toString();return n.handleOperation(async()=>Ht(await k(n.fetch,`${n.url}/object/info/${r}${a? `?${a}`:},{headers:n.headers})))}async exists(e){let{error:t}=await  this.info(e);if(!t)return{data:!0,error:null};if(t instanceof It&& (t.code===NoSuchKey||t.status===404&&t.code===void 0))return{data:!1,error:t};throw  t}getPublicUrl(e,t){let n=this._getFinalPath(e),r=new  URLSearchParams;t?.download&&r.set(download,t.download===!0? ``:t.download),t?.transform&&this.applyTransformOptsToQuery(r,t.transform),t?.cacheNonce!=null&&r. set(cacheNonce,String(t.cacheNonce)),t?.versionId!=null&&r.set(versionId,String(t.versionId)); let i=r.toString(),a=typeof  t?.transform==object&&t.transform!==null&&Object.keys(t.transform).length>0?render/image:object;return{data:{publicUrl:encodeURI(this.url/{a}/public/${n}`)+(i?`?${i}:``)}}}async remove(e){var t=this;return t.handleOperation(async()=>await  Qt(t.fetch,t.url/object/{t.bucketId},{prefixes:e},{headers:t.headers}))}async  purgeCache(e,t,n){var r=this;return r.handleOperation(async()=>{let i=Wt(r._getFinalPath(e)),a=new  URLSearchParams;t?.transformations&&a.set(transformations,true);let o=a.toString();return  await Qt(r.fetch,r.url/cdn/{i}${o?`?${o}:``},{},{headers:r.headers},n)})}async
@@ -983,11 +931,9 @@ deleteBucketLifecycle(e){var t=this;return
 t.handleOperation(async()=>await
 Qt(t.fetch,t.bucketLifecycleUrl(e),{},{headers:t.headers}))}async
 purgeBucketCache(e,t,n){var 11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-18/40
 
-— Page 19 — r=this;return r.handleOperation(async()=>{let i=new
+r=this;return r.handleOperation(async()=>{let i=new
 URLSearchParams;t?.transformations&&i.set(transformations,true);let
 a=i.toString();return await
 Qt(r.fetch,${r.url}/cdn/${Wt(e)}${a??${a}`:``}`,{},
@@ -1036,11 +982,9 @@ t().call(n,e)}},gn=class extends fn{constructor(e,t,n,r)
 t=()=>super.getIndex,n=this;return
 t().call(n,n.vectorBucketName,e)}async deleteIndex(e){var
 t=()=>super.deleteIndex,n=this;return 11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-19/40
 
-— Page 20 — t().call(n,n.vectorBucketName,e)}index(e){return new
+t().call(n,n.vectorBucketName,e)}index(e){return new
 n(this.url,this.headers,this.vectorBucketName,e,this.fetch)}},n=class
 extends
 pn{constructor(e,t,n,r,i){super(e,t,i),this.vectorBucketName=n,this.indexName=r}async
@@ -1119,12 +1063,8 @@ e!=object||!e||!(schemain e)||e.schema===void 0||
 (Wn=!0,console.warn(@supabase/supabase-js: The "schema" option must be nested under "db", e.g.  createClient(url, key, { db: { schema: 'myschema' } }). A top-level "schema" is ignored and  queries go to the default schema.))}function
 Kn(e,t){let{db:n,auth:r,realtime:i,global:a}=e,
 {db:o,auth:s,realtime:c,global:l}=t,u=Hn(e.tracePropagation),d=Hn(t.tracePropagation),f={db:
-11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-20/40
 
-— Page 21 —
 {…o,…n},auth:{…s,…r},realtime:{…c,…i},storage:{},global:{…l,…a,headers:
 {…l?.headers??{},…a?.headers??{}}},tracePropagation:{enabled:u?.enabled??
 d?.enabled??!1,respectSamplingDecision:u?.respectSamplingDecision??
@@ -1150,11 +1090,9 @@ t=[],n={queue:0,queuedBits:0},r=e=> {t.push(e)};for(let
 t=0;t<e.length;t+=1)br(e.charCodeAt(t),n,r);return new
 Uint8Array(t)}function Er(e){let t=[];return Cr(e,e=>t.push(e)),new
 Uint8Array(t)}function B(e){let t=[],n= 11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-21/40
 
-— Page 22 — {queue:0,queuedBits:0},r=e=>{t.push(e)};return
+{queue:0,queuedBits:0},r=e=>{t.push(e)};return
 e.forEach(e=>yr(e,n,r)),yr(null,n,r),t.join()}function Dr(e){return  Math.round(Date.now()/1e3)+e}function Or(){return Symbol(`auth-callback`)}let V=()=>typeof  window<`u`&&typeof document<`u`,H={tested:!1,writable:!1},kr=()=>{if(!V())return!1;try{if(typeof  globalThis.localStorage!=`object`)return!1}catch{return!1}if(H.tested)return H.writable;let  e=`lswt-${Math.random()}${Math.random()}`;try{globalThis.localStorage.setItem(e,e),globalThis.loca lStorage.removeItem(e),H.tested=!0,H.writable=!0}catch{H.tested=!0,H.writable=!1}return  H.writable};function Ar(e){let t={},n=new URL(e);if(n.hash&&n.hash[0]===`#`)try{new  URLSearchParams(n.hash.substring(1)).forEach((e,n)=>{t[n]=e})}catch{}return  n.searchParams.forEach((e,n)=>{t[n]=e}),t}let jr=e=>e?(...t)=>e(...t): (...e)=>fetch(...e),Mr=e=>typeof e==`object`&&!!e&&`status`in e&&`ok`in e&&`json`in e&&typeof  e.json==`function`,U=async(e,t,n)=>{await e.setItem(t,JSON.stringify(n))},W=async(e,t)=>{let  n=await e.getItem(t);if(!n)return null;try{return JSON.parse(n)}catch{return null}},G=async(e,t)=> {await e.removeItem(t)};var Nr=class e{constructor(){this.promise=new e.promiseConstructor((e,t)=> {this.resolve=e,this.reject=t})}};Nr.promiseConstructor=Promise;function Pr(e){let  t=e.split(`.`);if(t.length!==3)throw new hr(`Invalid JWT structure`);for(let  e=0;e<t.length;e++)if(!$n.test(t[e]))throw new hr(`JWT not in base64url  format`);return{header:JSON.parse(xr(t[0])),payload:JSON.parse(xr(t[1])),signature:Tr(t[2]),raw: {header:t[0],payload:t[1]}}}async function Fr(e){return await new Promise(t=> {setTimeout(()=>t(null),e)})}function Ir(e,t){return new Promise((n,r)=>{(async()=>{for(let  i=0;i<1/0;i++)try{let r=await e(i);if(!t(i,null,r)){n(r);return}}catch(e){if(!t(i,e)) {r(e);return}}})()})}function Lr(e){return(`0`+e.toString(16)).substr(-2)}function Rr(){let e=new  Uint32Array(56);if(typeof crypto>`u`){let e=;for(let
 t=0;t<56;t++)e+=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~.charAt(Math.f
 loor(Math.random()66));return e}return
@@ -1211,11 +1149,8 @@ util.inspect.custom)`)return}throw Error(`@supabase/auth-js: client was created 
 option and there was no user stored in the user storage. Accessing the "${t}”
 property of the session object is not supported. Please use getUser()
 instead.`)},set:(e,t)=>{throw 11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-22/40
 
-— Page 23 —
 Error(@supabase/auth-js: client was created with userStorage option and there was no user stored  in the user storage. Setting the "${t}" property of the session object is not supported. Please  use getUser() to fetch a user object you can manipulate.)},deleteProperty:(e,t)=>{throw
 Error(@supabase/auth-js: client was created with userStorage option and there was no user stored  in the user storage. Deleting the "${t}" property of the session object is not supported. Please  use getUser() to fetch a user object you can manipulate.)}})}function
 ai(e,t){return new Proxy(e,
@@ -1269,11 +1204,8 @@ Error(@supabase/auth-js: Parameter scope must  be one of ${gi.join(,
 {if(F(e))return{data:null,error:e};throw e}}async
 inviteUserByEmail(e,t={}){try{return await
 Y(this.fetch,POST,${this.url}/invite,{body: 11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-23/40
 
-— Page 24 —
 {email:e,data:t.data},headers:this.headers,redirectTo:t.redirectTo,xform:Z})}catch(e)
 {if(F(e))return{data:{user:null},error:e};throw e}}async generateLink(e)
 {try{let{options:n}=e,r=t(e,[options]),i=Object.assign(Object.assign({},r),n);returnnewEmailin
@@ -1359,11 +1291,9 @@ Y(this.fetch,DELETE,${this.url}/admin/custom-providers/${e},
 {headers:this.headers,noResolveJson:!0}),{data:null,error:null}}catch(e)
 {if(F(e))return{data:null,error:e};throw e}}async
 _adminListPasskeys(e){q(e.userId);try{return 11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-24/40
 
-— Page 25 — await
+await
 Y(this.fetch,GET,${this.url}/admin/users/${e.userId}/passkeys,
 {headers:this.headers,xform:e=>({data:e,error:null})})}catch(e)
 {if(F(e))return{data:null,error:e};throw e}}async _adminDeletePasskey(e)
@@ -1439,11 +1369,8 @@ sign in with your Ethereum
 account:${f}\n\n${e.statement?${e.statement}\n:}`,m=`URI:  ${u}\nVersion: ${d}\nChain ID: ${t}${a?`\nNonce: ${a}`:}At:
 ${i.toISOString()};if(r&& (m+=Time: ${r.toISOString()}),o&&(m+=Before:
 ${o.toISOString()}),s&& (m+=ID: ${s}),c){let e= 11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-25/40
 
-— Page 26 —
 Resources:;for(let t of c){if(!t||typeof t!=string)throw Error(@supabase/auth-js:
 Invalid SIWE message field “resources”. Every resource must be a valid
 string. Provided value:
@@ -1499,12 +1426,8 @@ required);if(typeof  PublicKeyCredential<u&&parseCreationOptionsFromJSONin Publi
 {id:Tr(r.id).buffer}),c=Object.assign(Object.assign({},a),{challenge:o,user:s});if(i&&i.length>0)
 {c.excludeCredentials=Array(i.length);for(let e=0;e<i.length;e++){let
 t=i[e];c.excludeCredentials[e]=Object.assign(Object.assign({},t),
-11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-26/40
 
-— Page 27 —
 {id:Tr(t.id).buffer,type:t.type||public-key,transports:t.transports})}}return
 c}function Fi(e) {if(!e)throw
 Error(Credential request options are required);if(typeof
@@ -1572,11 +1495,8 @@ this.challenge({factorId:e,webauthn: {rpId:t,rpOrigins:n},signal:r},
 {request:i});if(!a)return{data:null,error:o};let{webauthn:s}=a;return
 this._verify({factorId:e,challengeId:a.challengeId,webauthn: 11/5/26,
 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-27/40
 
-— Page 28 —
 {type:s.type,rpId:t,rpOrigins:n,credential_response:s.credential_response}})}catch(e){return
 F(e)? {data:null,error:e}:{data:null,error:new
 I(Unexpected error in authenticate,e)}}}async
@@ -1647,12 +1567,9 @@ globalThis.BroadcastChannel(this.storageKey)}catch(e)
 {console.error(Failed to create a new BroadcastChannel, multi-tab state changes will not be  available,e)}(n=this.broadcastChannel)==null||n.addEventListener(message,async
 e=>
 {this._debug(received broadcast notification from other tab or client,e),
-11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-28/40
 
-— Page 29 — (e.data.event===TOKEN_REFRESHED||e.data.event===SIGNED_IN)&&
+(e.data.event===TOKEN_REFRESHED||e.data.event===SIGNED_IN)&&
 (this.lastRefreshFailure=null);try{await
 this._notifyAllSubscribers(e.data.event,e.data.session,!1)}catch(e)
 {this._debug(#broadcastChannel,error,e)}})}r.skipAutoInitialize||this.initialize().catch(e=>
@@ -1739,11 +1656,8 @@ this._handleProviderSignIn(e.provider,
 BrowserRedirect:e.options?.skipBrowserRedirect})}async
 exchangeCodeForSession(e,t){return await
 this.initializePromise,this.lock==null? 11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-29/40
 
-— Page 30 —
 this._exchangeCodeForSession(e,t):this._acquireLock(this.lockAcquireTimeout,async()=>this._exchang
 eCodeForSession(e,t))}async
 signInWithWeb3(e){let{chain:t}=e;switch(t){caseethereum:return await
@@ -1819,11 +1733,8 @@ chaToken?{gotrue_meta_security:{captcha_token:e.options?.captchaToken}}:null),xf
 i;if(!r||!r.session||!r.user){let e=new z;return
 this._returnResult({data: {user:null,session:null},error:e})}return
 r.session&&(await this._saveSession(r.session),await 11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-30/40
 
-— Page 31 —
 this._notifyAllSubscribers(SIGNED_IN,r.session)),this._returnResult({data:Object.assign({},r),er
 ror:i})}catch(e){if(F(e))return
 this._returnResult({data:{user:null,session:null},error:e});throw
@@ -1863,12 +1774,8 @@ i=await Y(this.fetch,`POST`,`${this.url}/sso, {body:Object.assign(Object.assign(
 this._returnResult({data:{user:null,session:null},error:r})})}catch(e){if(F(e))return
 this._returnResult({data:{user:null,session:null},error:e});throw e}}async resend(e){let
 t=null;try{let n=`${this.url}/resend;if(emailin e) {let{email:r,type:i,options:a}=e,o=null,s=null;this.flowType===pkce&&([o,s,t]=await  this._getCodeChallengeAndMethod());let{error:c}=await Y(this.fetch,POST`,n,
-11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-31/40
 
-— Page 32 —
 {headers:this.headers,body:{email:r,type:i,gotrue_meta_security:
 {captcha_token:a?.captchaToken},code_challenge:o,code_challenge_method:s},redirectTo:this._maybeAp
 pendFlowIdToRedirect(a?.emailRedirectTo,t)});return c&&await
@@ -1954,11 +1861,8 @@ this._acquireLock(this.lockAcquireTimeout,async()=>await
 this._setSession(e))}async _setSession(e)
 {try{if(!e.access_token||!e.refresh_token)throw new R;let
 t=Date.now()/1e3,n=t,r=!0,i=null, 11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-32/40
 
-— Page 33 —
 {payload:a}=Pr(e.access_token);if(a.exp&&(n=a.exp,r=n<=t),r){let{data:t,error:n}=await
 this._callRefreshToken(e.refresh_token);if(n)return
 this._returnResult({data:
@@ -2032,12 +1936,8 @@ this._acquireLock(this.lockAcquireTimeout,async()=>
 _emitInitialSession(e){return await this._useSession(async
 t=>{try{let{data:{session:n},error:r}=t;if(r)throw r;await
 this.stateChangeEmitters.get(e)?.callback(INITIAL_SESSION,n),this._debug(INITIAL_SESSION,call back id,e,session,n)}catch(t){if(await
-11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-33/40
 
-— Page 34 —
 this.stateChangeEmitters.get(e)?.callback(INITIAL_SESSION,null),this._debug(INITIAL_SESSION,c allback id,e,error,t),fr(t))return;nr(t)||ur(t)||tr(t)&&
 (t.code===refresh_token_not_found||t.code===refresh_token_already_used||t.code===session_expi red)?console.warn(t):console.error(t)}})}async
 resetPasswordForEmail(e,t={}){let
@@ -2123,11 +2023,8 @@ this._getUser(t.access_token);!r&&n?.user?(t.user=n.user,await
 this._saveSession(t),await
 this._notifyAllSubscribers(SIGNED_IN,t)):this._debug(e,could not get user data, skipping  SIGNED_IN notification)}catch(t){console.error(Error getting user data:,t),this._debug(e,error  getting user data, skipping SIGNED_IN notification,t)}else
 await 11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-34/40
 
-— Page 35 —
 this._notifyAllSubscribers(SIGNED_IN,t)}catch(t){this._debug(e,error,t),ur(t)?
 console.warn(t):console.error(t);return}finally{this._debug(e,end)}}async
 _callRefreshToken(e) {var t,n;if(!e)throw new
@@ -2209,11 +2106,8 @@ this._useSession(async t=>
 {let{data:{session:n}}=t;if(!n||!n.refresh_token||!n.expires_at)
 {this._debug(#_autoRefreshTokenTick(),no session);return}let
 r=Math.floor((n.expires_at*1e3- 11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-35/40
 
-— Page 36 —
 e)/M);this._debug(#_autoRefreshTokenTick(),access token expires in ${r} ticks, a tick lasts  ${M}ms, refresh threshold is 3 ticks),r<=3&&await
 this._callRefreshToken(n.refresh_token)})}catch(e){console.error(Auto refresh tick failed with  error. This is likely a transient  error.,e)}}finally{this._debug(#_autoRefreshTokenTick(),end)}})}catch(e){if(e
 instanceof
@@ -2286,12 +2180,8 @@ Y(this.fetch,POST,${this.url}/factors/${e.factorId}/verify,
 {body:i,headers:this.headers,jwt:n?.session?.access_token});return o?
 this._returnResult({data:null,error:o}):(await
 this._saveSession(Object.assign({expires_at:Math.round(Date.now()/1e3)+a.expires_in},a)),await
-11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-36/40
 
-— Page 37 —
 this._notifyAllSubscribers(MFA_CHALLENGE_VERIFIED,a),this._returnResult({data:a,error:o}))})}cat
 ch(e){if(F(e))return this._returnResult({data:null,error:e});throw
 e}};return this.lock==null?
@@ -2372,12 +2262,9 @@ this._returnResult({data:null,error:i}):this._returnResult({data:r,error:null})}
 _unenrollRecoveryCodes() {ri(this.experimental);try{return await
 this._useSession(async e=> {let{data:t,error:n}=e;if(n)return
 this._returnResult({data:null,error:n});let{data:r,error:i}=await
-11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-37/40
 
-— Page 38 — Y(this.fetch,DELETE,${this.url}/factors/recovery-codes,
+Y(this.fetch,DELETE,${this.url}/factors/recovery-codes,
 {headers:this.headers,jwt:t?.session?.access_token});return i?
 this._returnResult({data:null,error:i}):this._returnResult({data:r,error:null})})}catch(e)
 {if(F(e))return this._returnResult({data:null,error:e});throw e}}async
@@ -2471,11 +2358,9 @@ I(WebAuthn ceremony failed,null)});let a=Ii(r);return
 this._verifyPasskeyRegistration({challengeId:t.challenge_id,credential:a})}catch(e){if(F(e))return
 this._returnResult({data:null,error:e});throw e}}async
 _startPasskeyRegistration(){try{return 11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-38/40
 
-— Page 39 — await this._useSession(async
+await this._useSession(async
 e=>{let{data:{session:t},error:n}=e;if(n)return
 this._returnResult({data:null,error:n});if(!t)return
 this._returnResult({data:null,error:new R});let{data:r,error:i}=await
@@ -2553,11 +2438,9 @@ this.rest.from(e,t)}schema(e){return
 this.rest.schema(e)}getOpenApiSpec(){return
 this.rest.getOpenApiSpec()}rpc(e,t={},n={head:!1,get:!1,count:void
 0}){return 11/5/26, 3:45 AM
-cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
 https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
-39/40
 
-— Page 40 — this.rest.rpc(e,t,n)}channel(e,t={config:{}}){return
+this.rest.rpc(e,t,n)}channel(e,t={config:{}}){return
 this.realtime.channel(e,t)}getChannels() {return
 this.realtime.getChannels()}removeChannel(e){return
 this.realtime.removeChannel(e)}removeAllChannels(){return
@@ -2607,4 +2490,4 @@ e=et,e.SIGN_OUT_SCOPES=gi,e.StorageApiError=It,e.SupabaseClient=na,e.WebSocketFa
 lient=ra,e.isAuthApiError=tr,e.isAuthError=F,e.isAuthImplicitGrantRedirectError=ar,e.isAuthPKCECod
 eVerifierMissingError=cr,e.isAuthRefreshDiscardedError=fr,e.isAuthRetryableFetchError=ur,e.isAuthS
 essionMissingError=nr,e.isAuthWeakPasswordError=mr,e.lockInternals=Q,e.navigatorLock=Si,e.postgres
-ChangesFilter=dt,e.processLock=wi,e})({}); 
+ChangesFilter=dt,e.processLock=wi,e})({});
