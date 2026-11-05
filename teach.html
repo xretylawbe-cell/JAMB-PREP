@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Teacher console</title>
-<script>(function(){function show(m){var b=document.body;if(!b)return;var d=document.getElementById("__err");if(!d){d=document.createElement("div");d.id="__err";d.style.cssText="position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#8f1d22;color:#fff;font:12px sans-serif;padding:8px 12px";b.appendChild(d)}d.textContent="Something went wrong: "+m+". Take a screenshot and send it to support."}window.addEventListener("error",function(e){if(e.message)show(e.message+" ("+String(e.filename||"").split("/").pop()+":"+e.lineno+")")});window.addEventListener("unhandledrejection",function(e){show(String(e.reason&&e.reason.message||e.reason))})})();</script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>(function(){function show(m){var b=document.body;if(!b)return;var d=document.getElementById("__err");if(!d){d=document.createElement("div");d.id="__err";d.style.cssText="position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#8f1d22;color:#fff;font:12px sans-serif;padding:8px 12px";b.appendChild(d)}d.textContent="Something went wrong: "+m+". Take a screenshot and send it to support."}window.addEventListener("error",function(e){if(/supabase\.js/.test(e.filename||""))return;if(e.message)show(e.message+" ("+String(e.filename||"").split("/").pop()+":"+e.lineno+")")});window.addEventListener("unhandledrejection",function(e){show(String(e.reason&&e.reason.message||e.reason))})})();</script>
+<script src="supabase.js"></script>
+<script>window.supabase||document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>')</script>
 <script>window.supabase||document.write('<script src="https://unpkg.com/@supabase/supabase-js@2"><\/script>')</script>
 <script>window.supabase||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.45.4/umd/supabase.min.js"><\/script>')</script>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
@@ -53,7 +54,7 @@ input,select,textarea,button{font:inherit}input,select,textarea{width:100%;paddi
 <p class="muted" id="cmode"></p><h3 style="font-size:16px;margin-top:8px">Raised hands</h3><div id="hands"></div></div>
 
 <div class="card"><h3>Send a message</h3><div class="field"><textarea id="mt" placeholder="Write to the class"></textarea></div>
-<input id="ms" type="hidden"><button class="btn" id="msend">Send or prepare</button><div id="mm"></div></div>
+<input id="ms" type="hidden"><button class="btn" id="msend">Send or prepare</button> <button class="btn sec" id="vrec">🎙️ Record a voice note</button> <span class="muted" id="vrt"></span><div id="mm"></div></div>
 
 <div class="card"><h3>Poll</h3><div class="field"><label>Question</label><input id="pq"></div>
 <div class="field"><label>Options, one per line (2 to 6)</label><textarea id="po"></textarea></div>
@@ -70,6 +71,7 @@ input,select,textarea,button{font:inherit}input,select,textarea{width:100%;paddi
 <button class="blk" data-k="text">💬 Text<small>A message to the class</small></button>
 <button class="blk" data-k="image">🖼️ Image<small>Picture with a caption</small></button>
 <button class="blk" data-k="delay">⏱️ Pause<small>Wait before the next block</small></button>
+<button class="blk" data-k="audio">🎙️ Voice note<small>Record or upload audio</small></button>
 <button class="blk" data-k="file">📎 File<small>PDF, notes, any file</small></button>
 <button class="blk" data-k="poll">📊 Poll<small>Question with a result</small></button>
 <button class="blk" data-k="chat_open">🔓 Open chat<small>Let students type</small></button>
@@ -133,9 +135,24 @@ $("msend").onclick=async()=>{const t=$("mt").value.trim(),at=iso($("ms").value);
 $("psend").onclick=async()=>{const o=$("po").value.split("\n").map(x=>x.trim()).filter(Boolean);
  const {error}=await db.rpc("create_poll",{p_session:cur,p_question:$("pq").value.trim(),p_options:o,p_correct:+$("pc").value||null,p_release_at:iso($("ps").value)});
  if(error)return msg("pm",error.message,"err");$("pq").value=$("po").value=$("pc").value=$("ps").value="";msg("pm","Poll added.","ok");refresh()};
+/* voice recorder (same on every page that records) */
+const Rec={mr:null,chunks:[],t0:0,tick:null,
+ async start(cb){if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder)throw new Error("Recording is not supported in this browser. Upload an audio file instead.");
+  let st;try{st=await navigator.mediaDevices.getUserMedia({audio:true})}catch(e){throw new Error("Allow the microphone to record.")}
+  const mt=["audio/webm;codecs=opus","audio/webm","audio/mp4","audio/ogg"].find(x=>MediaRecorder.isTypeSupported(x))||"";
+  Rec.chunks=[];Rec.mr=new MediaRecorder(st,mt?{mimeType:mt}:{});Rec.mr.ondataavailable=e=>{if(e.data.size)Rec.chunks.push(e.data)};Rec.mr.start();Rec.t0=Date.now();
+  Rec.tick=setInterval(()=>cb(Math.floor((Date.now()-Rec.t0)/1000)),500)},
+ stop(){return new Promise(res=>{clearInterval(Rec.tick);const mr=Rec.mr;mr.onstop=()=>{mr.stream.getTracks().forEach(x=>x.stop());const type=(mr.mimeType||"audio/webm").split(";")[0];res({blob:new Blob(Rec.chunks,{type}),ext:type.includes("mp4")?"m4a":type.includes("ogg")?"ogg":"webm",secs:Math.round((Date.now()-Rec.t0)/1000)})};mr.stop()})}};
+let SFA=null;
+/* live voice note to the class */
+$("vrec").onclick=async()=>{const b=$("vrec");
+ if(b.dataset.on){b.disabled=true;try{const r=await Rec.stop();b.dataset.on="";b.textContent="🎙️ Record a voice note";$("vrt").textContent="";
+  if(r.secs<1)throw new Error("That was too short.");const p=`live/${cur}/${Date.now()}.${r.ext}`,up=await db.storage.from("class-media").upload(p,r.blob,{contentType:r.blob.type});if(up.error)throw up.error;
+  const {error}=await db.from("class_messages").insert({session_id:cur,sender_id:me.id,kind:"audio",media_url:db.storage.from("class-media").getPublicUrl(p).data.publicUrl});if(error)throw error;msg("mm","Voice note sent.","ok");refresh()}catch(e){msg("mm",e.message,"err")}b.disabled=false;return}
+ try{await Rec.start(s=>$("vrt").textContent="Recording "+mmss(s));b.dataset.on="1";b.textContent="■ Stop and send"}catch(e){msg("mm",e.message,"err")}};
 /* flow builder */
 let steps=[],sf=null;
-const ICON={text:"💬",image:"🖼️",file:"📎",poll:"📊",delay:"⏱️",chat_open:"🔓",chat_lock:"🔒",end:"🏁"};
+const ICON={audio:"🎙️",text:"💬",image:"🖼️",file:"📎",poll:"📊",delay:"⏱️",chat_open:"🔓",chat_lock:"🔒",end:"🏁"};
 const dur=s=>s%3600===0?(s/3600)+(s===3600?" hour":" hours"):s%60===0?(s/60)+(s===60?" minute":" minutes"):s+" seconds";
 const mmss=t=>String(Math.floor(t/60)).padStart(2,"0")+":"+String(t%60).padStart(2,"0");
 async function loadSteps(){const {data}=await db.from("class_flow_steps").select("*").eq("session_id",cur).order("position").order("id");steps=data||[];drawSteps()}
@@ -150,27 +167,30 @@ function drawSteps(){const s=feed?.session,t0=s?.starts_at?new Date(s.starts_at)
   if(x.kind==="delay"){off+=x.delay_seconds||0;body=`Wait ${dur(x.delay_seconds||0)}`}
   else if(x.kind==="text")body=esc(x.body);
   else if(x.kind==="image")body=`<img src="${esc(x.media_url)}" alt="">${esc(x.body||"")}`;
+  else if(x.kind==="audio")body=`<audio controls preload="none" src="${esc(x.media_url)}" style="width:100%;max-width:320px"></audio>${esc(x.body||"")}`;
   else if(x.kind==="file")body=`${esc(x.file_name||"File")} ${esc(x.body||"")}`;
   else if(x.kind==="poll")body="Poll: "+esc(x.body);
   else body={chat_open:"Open chat to everyone",chat_lock:"Lock chat",end:"End class"}[x.kind];
   const at=x.kind==="delay"?"":`<div class="muted">+${mmss(t)}${t0?" ("+new Date(t0+t*1000).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})+")":""}</div>`;
   const cur_=s&&s.flow_status!=="idle"&&s.flow_status!=="done"&&i===s.flow_pos;
-  return `<div class="stp ${x.kind==="delay"?"dl":""} ${cur_?"cur":""}"><span>${ICON[x.kind]}</span><div class="t">${body}${at}</div><div class="ac"><button class="btn sec" data-up="${i}" aria-label="Move up">↑</button><button class="btn sec" data-dn="${i}" aria-label="Move down">↓</button>${["text","image","file","delay"].includes(x.kind)?`<button class="btn sec" data-ed="${x.id}">Edit</button>`:""}<button class="btn sec" data-rm="${x.id}">Delete</button></div></div>`}).join("")||'<p class="muted">The flow is empty. Add your first block below.</p>'}
+  return `<div class="stp ${x.kind==="delay"?"dl":""} ${cur_?"cur":""}"><span>${ICON[x.kind]}</span><div class="t">${body}${at}</div><div class="ac"><button class="btn sec" data-up="${i}" aria-label="Move up">↑</button><button class="btn sec" data-dn="${i}" aria-label="Move down">↓</button>${["text","image","file","audio","delay"].includes(x.kind)?`<button class="btn sec" data-ed="${x.id}">Edit</button>`:""}<button class="btn sec" data-rm="${x.id}">Delete</button></div></div>`}).join("")||'<p class="muted">The flow is empty. Add your first block below.</p>'}
 function openSF(k,st){sf={k,id:st?.id};const f=$("sform");f.classList.remove("hid");
  const cap=`<div class="field"><label>${k==="text"?"Message":"Caption (optional)"}</label><textarea id="sf_b">${esc(st?.body||"")}</textarea></div>`;
- let h=`<h3>${st?"Edit":"New"} ${{text:"text",image:"image",file:"file",delay:"pause",poll:"poll"}[k]}</h3>`,u=60;
+ let h=`<h3>${st?"Edit":"New"} ${{text:"text",image:"image",file:"file",audio:"voice note",delay:"pause",poll:"poll"}[k]}</h3>`,u=60;
  if(k==="text")h+=cap;
  else if(k==="image"||k==="file")h+=`<div class="field"><label>${k==="image"?"Choose an image":"Choose a file (any type, under 10 MB)"}</label><input type="file" id="sf_f" ${k==="image"?'accept="image/*"':""}>${st?'<p class="muted">Leave empty to keep the current one.</p>':""}</div>`+cap;
+ else if(k==="audio")h+=`<div class="field"><label>Record a voice note</label><div class="row"><button class="btn" id="sf_rec">● Record</button><span id="sf_rt" class="muted"></span></div><audio id="sf_pv" controls class="hid" style="width:100%;margin-top:8px"></audio></div><div class="field"><label>Or upload an audio file</label><input type="file" id="sf_f" accept="audio/*">${st?'<p class="muted">Leave empty to keep the current one.</p>':""}</div>`+cap;
  else if(k==="delay"){const s=st?.delay_seconds||60;u=s%3600===0?3600:s%60===0?60:1;h+=`<div class="grid"><div class="field"><label>Wait for</label><input id="sf_n" type="number" min="1" value="${s/u}"></div><div class="field"><label>Unit</label><select id="sf_u"><option value="1">seconds</option><option value="60">minutes</option><option value="3600">hours</option></select></div></div>`}
  else if(k==="poll")h+=`<div class="field"><label>Question</label><input id="sf_q"></div><div class="field"><label>Options, one per line (2 to 6)</label><textarea id="sf_o"></textarea></div><div class="field"><label>Right option number (empty for an opinion poll)</label><input id="sf_c" type="number" min="1"></div>`;
  h+=`<div class="row"><button class="btn hi" id="sf_save">Save block</button><button class="btn sec" id="sf_x">Cancel</button></div><div id="sfm"></div>`;
- f.innerHTML=h;if(k==="delay")$("sf_u").value=String(u);$("sf_x").onclick=()=>f.classList.add("hid");$("sf_save").onclick=sfSave;f.scrollIntoView({behavior:"smooth",block:"center"})}
+ f.innerHTML=h;if(k==="delay")$("sf_u").value=String(u);SFA=null;
+ if(k==="audio")$("sf_rec").onclick=async()=>{const b=$("sf_rec");if(b.dataset.on){SFA=await Rec.stop();b.dataset.on="";b.textContent="● Record again";$("sf_pv").src=URL.createObjectURL(SFA.blob);$("sf_pv").classList.remove("hid");return}try{await Rec.start(s=>$("sf_rt").textContent=mmss(s));b.dataset.on="1";b.textContent="■ Stop"}catch(e){msg("sfm",e.message,"err")}};$("sf_x").onclick=()=>f.classList.add("hid");$("sf_save").onclick=sfSave;f.scrollIntoView({behavior:"smooth",block:"center"})}
 const nextPos=()=>(steps.length?Math.max(...steps.map(s=>s.position)):0)+10;
 async function sfSave(){const k=sf.k,st=steps.find(s=>s.id===sf.id),r={session_id:cur,kind:k};$("sf_save").disabled=true;
  try{
   if(k==="text"){r.body=$("sf_b").value.trim();if(!r.body)throw new Error("Write the message first.")}
   else if(k==="delay"){const n=+$("sf_n").value;if(!(n>0))throw new Error("Enter how long to wait.");r.delay_seconds=Math.round(n*+$("sf_u").value)}
-  else if(k==="image"||k==="file"){r.body=$("sf_b").value.trim()||null;const f=$("sf_f").files[0];
+  else if(k==="image"||k==="file"||k==="audio"){r.body=$("sf_b").value.trim()||null;const f=$("sf_f").files[0]||(k==="audio"&&SFA?new File([SFA.blob],"voice."+SFA.ext,{type:SFA.blob.type}):null);
    if(f){if(f.size>1e7)throw new Error("That file is over 10 MB.");const p=`flow/${cur}/${Date.now()}-${f.name.replace(/[^\w.-]/g,"_")}`;const up=await db.storage.from("class-media").upload(p,f);if(up.error)throw up.error;r.media_url=db.storage.from("class-media").getPublicUrl(p).data.publicUrl;r.file_name=f.name}
    else if(!st)throw new Error("Choose a "+k+" first.")}
   else if(k==="poll"){const o=$("sf_o").value.split("\n").map(x=>x.trim()).filter(Boolean);const {error}=await db.rpc("create_flow_poll",{p_session:cur,p_question:$("sf_q").value.trim(),p_options:o,p_correct:+$("sf_c").value||null});if(error)throw error;$("sform").classList.add("hid");return loadSteps()}
