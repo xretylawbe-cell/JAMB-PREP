@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0f1f4b"><title>Academy dashboard</title>
-<script>(function(){function show(m){var b=document.body;if(!b)return;var d=document.getElementById("__err");if(!d){d=document.createElement("div");d.id="__err";d.style.cssText="position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#8f1d22;color:#fff;font:12px sans-serif;padding:8px 12px";b.appendChild(d)}d.textContent="Something went wrong: "+m+". Take a screenshot and send it to support."}window.addEventListener("error",function(e){if(/supabase\.js/.test(e.filename||""))return;if(e.message)show(e.message+" ("+String(e.filename||"").split("/").pop()+":"+e.lineno+")")});window.addEventListener("unhandledrejection",function(e){show(String(e.reason&&e.reason.message||e.reason))})})();</script>
-<script src="supabase.js"></script>
+<script>(function(){function show(m){var b=document.body;if(!b)return;var d=document.getElementById("__err");if(!d){d=document.createElement("div");d.id="__err";d.style.cssText="position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#8f1d22;color:#fff;font:12px sans-serif;padding:8px 12px";b.appendChild(d)}d.textContent="Something went wrong: "+m+". Take a screenshot and send it to support."}window.addEventListener("error",function(e){if(/(sb|supabase)\.js/.test(e.filename||""))return;if(e.message)show(e.message+" ("+String(e.filename||"").split("/").pop()+":"+e.lineno+")")});window.addEventListener("unhandledrejection",function(e){show(String(e.reason&&e.reason.message||e.reason))})})();</script>
+<script src="sb.js"></script>
 <script>window.supabase||document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>')</script>
 <script>window.supabase||document.write('<script src="https://unpkg.com/@supabase/supabase-js@2"><\/script>')</script>
 <script>window.supabase||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.45.4/umd/supabase.min.js"><\/script>')</script>
@@ -31,7 +31,7 @@ iframe{width:100%;height:calc(100vh - 118px);border:0;display:block;background:#
 .chk{display:flex;gap:9px;align-items:center;padding:8px 11px;border:1.5px solid var(--line);border-radius:10px;margin:6px 0;background:#fff}.chk input{width:18px;height:18px;flex:none}
 .cat{margin:18px 0 8px;font:800 15px 'Bricolage Grotesque';color:var(--mut)}
 </style></head><body>
-<section id="login" style="max-width:420px;margin:60px auto;padding:0 16px"><div class="card"><h2>Academy dashboard</h2><p class="muted">Sign in once. Everything you are allowed to manage opens from here.</p><p class="muted" style="font-size:11px">Version 12</p>
+<section id="login" style="max-width:420px;margin:60px auto;padding:0 16px"><div class="card"><h2>Academy dashboard</h2><p class="muted">Sign in once. Everything you are allowed to manage opens from here.</p><p class="muted" style="font-size:11px">Version 13</p>
 <div class="field"><label>Email</label><input id="em" type="email" autocomplete="email"></div><div class="field"><label>Password</label><input id="pw" type="password" autocomplete="current-password"></div>
 <button class="btn w" id="go" style="width:100%">Sign in</button><div id="lm"></div></div></section>
 <div id="app" class="hid"><div class="top"><span class="br" id="ttl">Dashboard</span><span><span id="who" class="muted" style="color:#c9d3f5;margin-right:8px"></span><button id="out">Sign out</button></span></div>
