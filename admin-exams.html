@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Staff: Courses and Questions</title>
-<script>(function(){function show(m){var b=document.body;if(!b)return;var d=document.getElementById("__err");if(!d){d=document.createElement("div");d.id="__err";d.style.cssText="position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#8f1d22;color:#fff;font:12px sans-serif;padding:8px 12px";b.appendChild(d)}d.textContent="Something went wrong: "+m+". Take a screenshot and send it to support."}window.addEventListener("error",function(e){if(/(sb|supabase)\.js/.test(e.filename||""))return;if(e.message)show(e.message+" ("+String(e.filename||"").split("/").pop()+":"+e.lineno+")")});window.addEventListener("unhandledrejection",function(e){show(String(e.reason&&e.reason.message||e.reason))})})();</script>
+<script>(function(){function log(m){try{var a=JSON.parse(localStorage.getItem("app_errors")||"[]");a.push({t:new Date().toISOString(),p:location.pathname.split("/").pop()||"index",m:String(m).slice(0,300)});localStorage.setItem("app_errors",JSON.stringify(a.slice(-20)))}catch(e){}}window.addEventListener("error",function(e){if(/(sb|supabase)\.js/.test(e.filename||""))return;if(e.message)log(e.message+" ("+String(e.filename||"").split("/").pop()+":"+e.lineno+")")});window.addEventListener("unhandledrejection",function(e){log(e.reason&&e.reason.message||e.reason)})})();</script>
 <script src="sb.js"></script>
 <script>window.supabase||document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>')</script>
 <script>window.supabase||document.write('<script src="https://unpkg.com/@supabase/supabase-js@2"><\/script>')</script>
@@ -50,9 +50,10 @@ input,select,textarea,button{font:inherit}input,select,textarea{width:100%;paddi
 <div class="grid"><div class="field"><label>Title</label><input id="kt" placeholder="Post our flyer on your WhatsApp status"></div>
 <div class="field"><label>Platform</label><select id="kp"><option>WhatsApp status</option><option>Facebook</option><option>X (Twitter)</option><option>Instagram</option><option>Other</option></select></div></div>
 <div class="field"><label>Instructions (say what proof to send, and which contact to save)</label><textarea id="ki" style="min-height:90px"></textarea></div>
-<div class="grid"><div class="field"><label>Reward (free days)</label><input id="kr" type="number" value="3" min="1"></div>
+<div class="field"><label>Image students post (optional)</label><input type="file" id="kf" accept="image/*"></div><div class="field"><label>Caption students copy (optional)</label><textarea id="kc" style="min-height:70px"></textarea></div><div class="field"><label>Link (optional, starts with https://)</label><input id="kl" placeholder="https://"></div><div class="grid"><div class="field"><label>Reward (free days)</label><input id="kr" type="number" value="3" min="1"></div>
 <div class="field"><label>Times each student can do it</label><input id="km" type="number" value="1" min="1"></div></div>
 <button class="btn" id="addK">Publish task</button><div id="m5"></div></div>
+<div class="card"><h3>Your tasks</h3><div id="tlist" class="muted">Loading...</div></div>
 <div class="card"><h3>Waiting for review</h3><div id="subs" class="muted">Loading...</div></div>
 <div class="card"><h3>Recent payments</h3><div id="pays" class="muted">Loading...</div></div></div>
 
@@ -110,9 +111,17 @@ $("t_s").onclick=async e=>{const b=e.target.closest("button");if(!b)return;const
  else if(d.cd)r=await db.from("promo_codes").update({is_active:d.on==="1"}).eq("id",+d.cd);
  else if(d.sc){r=await db.from("courses").update({monthly_price:+document.querySelector(`[data-pr="${d.sc}"]`).value||0,is_published:document.querySelector(`[data-pb="${d.sc}"]`).checked}).eq("id",+d.sc);msg("m9",r.error?r.error.message:"Course saved.",r.error?"err":"ok");return}
  else return;if(r.error)alert(r.error.message);loadS()};
-$("addK").onclick=async()=>{const r={title:$("kt").value.trim(),platform:$("kp").value,instructions:$("ki").value.trim(),reward_days:+$("kr").value||3,max_per_student:+$("km").value||1};
- if(!r.title)return msg("m5","Enter a task title.","err");const {error}=await db.from("tasks").insert(r);if(error)return msg("m5",error.message,"err");msg("m5","Task published to students.","ok");$("kt").value=$("ki").value=""};
-async function loadT(){const {data:s}=await db.from("task_submissions").select("*,tasks(title,reward_days),profiles(full_name,email)").eq("status","pending").order("created_at").limit(40);
+$("addK").onclick=async()=>{const r={title:$("kt").value.trim(),platform:$("kp").value,instructions:$("ki").value.trim(),caption:$("kc").value.trim()||null,link_url:$("kl").value.trim()||null,reward_days:+$("kr").value||3,max_per_student:+$("km").value||1};
+ if(!r.title)return msg("m5","Enter a task title.","err");if(r.link_url&&!/^https:\/\//i.test(r.link_url))return msg("m5","The link must start with https://","err");
+ $("addK").disabled=true;try{const f=$("kf").files[0];if(f){if(f.size>5e6)throw new Error("The image is over 5 MB.");const p="tasks/"+Date.now()+"-"+f.name.replace(/[^\w.-]/g,"_"),up=await db.storage.from("content-media").upload(p,f);if(up.error)throw up.error;r.image_url=db.storage.from("content-media").getPublicUrl(p).data.publicUrl}
+  const {error}=await db.from("tasks").insert(r);if(error)throw error;msg("m5","Task published to students.","ok");$("kt").value=$("ki").value=$("kc").value=$("kl").value=$("kf").value="";loadTasksList()}catch(e){msg("m5",e.message,"err")}$("addK").disabled=false};
+async function loadTasksList(){const {data}=await db.from("tasks").select("*").order("id",{ascending:false}).limit(30);
+ $("tlist").innerHTML=(data||[]).map(k=>`<div class="chk"><span style="flex:1"><b>${esc(k.title)}</b> ${k.image_url?"🖼️":""}<div class="muted">${esc(k.platform||"")}, ${k.reward_days} days, ${k.is_active?"showing to students":"hidden"}</div></span><button class="btn ${k.is_active?"":"hi"}" data-tt="${k.id}" data-on="${k.is_active?0:1}">${k.is_active?"Hide":"Show"}</button><button class="btn" data-td="${k.id}">Delete</button></div>`).join("")||"No tasks yet."}
+$("tlist").onclick=async e=>{const b=e.target.closest("button");if(!b)return;let r;
+ if(b.dataset.tt)r=await db.from("tasks").update({is_active:b.dataset.on==="1"}).eq("id",+b.dataset.tt);
+ else if(b.dataset.td){if(!confirm("Delete this task? Students' past submissions for it are deleted too."))return;r=await db.from("tasks").delete().eq("id",+b.dataset.td)}
+ else return;if(r.error)alert(r.error.message);loadTasksList()};
+async function loadT(){loadTasksList();const {data:s}=await db.from("task_submissions").select("*,tasks(title,reward_days),profiles(full_name,email)").eq("status","pending").order("created_at").limit(40);
  const rows=await Promise.all((s||[]).map(async x=>{let u="";if(x.proof_url){const {data}=await db.storage.from("task-proofs").createSignedUrl(x.proof_url,600);u=data?.signedUrl||""}
  return `<div class="chk" style="display:block"><b>${esc(x.profiles?.full_name||"Student")}</b> <span class="muted">${esc(x.profiles?.email||"")}</span><div>${esc(x.tasks?.title)} (${x.tasks?.reward_days} days)</div><div class="muted">${esc(x.proof_text||"No text")}</div>${u?`<a href="${esc(u)}" target="_blank" rel="noopener">View screenshot</a>`:""}<div style="margin-top:8px"><button class="btn" data-r="${x.id}" data-a="1">Approve</button> <button class="btn hi" data-r="${x.id}" data-a="0">Reject</button></div></div>`}));
  $("subs").innerHTML=rows.join("")||"Nothing waiting for review.";

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0f1f4b"><title>JAMB Prep Academy</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script>(function(){function show(m){var b=document.body;if(!b)return;var d=document.getElementById("__err");if(!d){d=document.createElement("div");d.id="__err";d.style.cssText="position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#8f1d22;color:#fff;font:12px sans-serif;padding:8px 12px";b.appendChild(d)}d.textContent="Something went wrong: "+m+". Take a screenshot and send it to support."}window.addEventListener("error",function(e){if(/(sb|supabase)\.js/.test(e.filename||""))return;if(e.message)show(e.message+" ("+String(e.filename||"").split("/").pop()+":"+e.lineno+")")});window.addEventListener("unhandledrejection",function(e){show(String(e.reason&&e.reason.message||e.reason))})})();</script>
+<script>(function(){function log(m){try{var a=JSON.parse(localStorage.getItem("app_errors")||"[]");a.push({t:new Date().toISOString(),p:location.pathname.split("/").pop()||"index",m:String(m).slice(0,300)});localStorage.setItem("app_errors",JSON.stringify(a.slice(-20)))}catch(e){}}window.addEventListener("error",function(e){if(/(sb|supabase)\.js/.test(e.filename||""))return;if(e.message)log(e.message+" ("+String(e.filename||"").split("/").pop()+":"+e.lineno+")")});window.addEventListener("unhandledrejection",function(e){log(e.reason&&e.reason.message||e.reason)})})();</script>
 <script src="sb.js"></script>
 <script>window.supabase||document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>')</script>
 <script>window.supabase||document.write('<script src="https://unpkg.com/@supabase/supabase-js@2"><\/script>')</script>
@@ -57,7 +57,7 @@ button,input,select{font:inherit}button{cursor:pointer;border:0}:focus-visible{o
 .lbar{position:sticky;top:0;background:#fff;padding:12px 14px;display:flex;gap:12px;align-items:center;z-index:3;border-bottom:1px solid var(--line)}.lbar .bar{flex:1;margin:0}.lbar button{background:none;font-size:20px;color:var(--mut)}
 .lcard{padding:22px 18px 130px;font-size:17px;line-height:1.7}.lcard h2{font-size:24px;margin-bottom:12px}.lfoot{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);padding:12px 14px calc(12px + env(safe-area-inset-bottom))}
 .stats2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}.stats2 b{font:800 28px 'Bricolage Grotesque'}
-img,video,iframe{max-width:100%}.top{position:sticky;top:0;z-index:20}body.bleed .top{display:none}.rbar{position:sticky;top:0;z-index:12}input,select,textarea{min-width:0}.emo{flex-wrap:wrap;gap:5px}.emo button{padding:5px 9px}#rcomp,#rrec{flex-wrap:nowrap}
+img,video,iframe{max-width:100%}.top{position:sticky;top:0;z-index:20}.card .row{flex-wrap:wrap}body.bleed .top{display:none}.bell{position:relative;background:none;font-size:22px;padding:4px;color:#fff}.bell i{position:absolute;top:-4px;right:-6px;background:var(--bad);color:#fff;font:700 11px sans-serif;border-radius:10px;min-width:18px;height:18px;display:grid;place-items:center;padding:0 4px}.av{cursor:pointer}.timg{width:100%;border-radius:14px;margin:8px 0;display:block;max-height:420px;object-fit:contain;background:#eef0f6}.capbox{background:#fff8d6;border-radius:12px;padding:10px 12px;margin:8px 0}.steps{margin:8px 0 0;padding-left:20px;color:var(--mut);font-size:14px}.unread{border-color:var(--ink);box-shadow:0 0 0 3px var(--hi)}.rbar{position:sticky;top:0;z-index:12}input,select,textarea{min-width:0}.emo{flex-wrap:wrap;gap:5px}.emo button{padding:5px 9px}#rcomp,#rrec{flex-wrap:nowrap}
 @media(min-width:600px){.wrap{max-width:860px;padding:22px 26px 110px}.tiles{grid-template-columns:repeat(3,1fr)}.pal{grid-template-columns:repeat(auto-fill,minmax(46px,1fr))}.auth{padding-top:60px}}
 @media(min-width:900px){
  .nav{top:62px;bottom:0;right:auto;width:220px;flex-direction:column;justify-content:flex-start;gap:4px;padding:16px 10px;border-top:0;border-right:1px solid var(--line);z-index:15}
@@ -72,7 +72,7 @@ body.nonav .wrap{margin-left:0}
  .rsend{padding-left:max(12px,calc((100% - 820px)/2));padding-right:max(12px,calc((100% - 820px)/2))}}
 </style></head><body>
 <section id="auth"><div class="auth">
-<h1>JAMB Prep Academy</h1><p class="muted">Lessons, live classes and timed practice tests in one place.</p><p class="muted" style="font-size:11px">Version 13</p>
+<h1>JAMB Prep Academy</h1><p class="muted">Lessons, live classes and timed practice tests in one place.</p><p class="muted" style="font-size:11px">Version 14</p>
 <div class="card" style="margin-top:18px">
 <div id="fLogin"><h2>Sign in</h2>
 <div class="field"><label>Email</label><input id="le" type="email" autocomplete="email"></div>
@@ -87,7 +87,7 @@ body.nonav .wrap{margin-left:0}
 <div id="amsg" class="note hid"></div></div></div></section>
 
 <section id="app" class="hid">
-<div class="top" id="topbar"><b>JAMB Prep Academy</b><div class="av" id="av">S</div></div>
+<div class="top" id="topbar"><b>JAMB Prep Academy</b><span style="display:flex;gap:14px;align-items:center"><button class="bell" id="bell" aria-label="Notifications">🔔<i id="bcount" class="hid"></i></button><div class="av" id="av" role="button" aria-label="My profile">S</div></span></div>
 <main class="wrap">
 <div class="pg hid" id="p_pick"><h2 class="pt">Choose your course</h2><p class="muted">Pick the course you want to study. Your subjects are set for you.</p><div class="field"><input id="csearch" placeholder="Search for your course" style="width:100%;padding:12px;border:1.5px solid var(--line);border-radius:11px"></div><div id="courses"></div></div>
 
@@ -130,6 +130,7 @@ body.nonav .wrap{margin-left:0}
 <div class="rfl" id="rfl"></div></div>
 <div class="pg hid" id="p_lesson" style="margin:-16px -14px 0"><div class="lbar"><button id="lx" aria-label="Close lesson">✕</button><div class="bar"><i id="lprog"></i></div><span id="lcount" class="muted"></span></div>
 <div class="lcard" id="lcard"></div><div class="lfoot"><button class="btn hi w" id="lnext">Continue</button></div></div>
+<div class="pg hid" id="p_notif"><h2 class="pt">Notifications</h2><div id="nlist"></div></div>
 <div class="pg hid" id="p_me"><h2 class="pt">My profile</h2><div id="mebox"></div><button class="btn sec w" id="out">Sign out</button></div>
 
 <div class="pg hid" id="p_cbt" style="margin:-16px -14px 0">
@@ -161,7 +162,7 @@ const days=()=>Math.ceil(Math.max(0,...mine.map(c=>c.access_until?new Date(c.acc
 function go(p){document.querySelectorAll(".pg").forEach(e=>e.classList.toggle("hid",e.id!=="p_"+p));
  const full=["cbt","res","pick","room","lesson"].includes(p);$("nav").classList.toggle("hid",full);document.body.classList.toggle("nonav",full);document.body.classList.toggle("bleed",["cbt","room","lesson"].includes(p));
  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.p===p));scrollTo(0,0);
- if(p==="study")(ST.sid?openSubject(ST.sid):showSubs());if(p==="classes")loadClasses();if(p==="test")setupTest();if(p==="me")loadMe();if(p==="pay")loadPay();if(p==="earn")loadEarn()}
+ if(p==="study")(ST.sid?openSubject(ST.sid):showSubs());if(p==="classes")loadClasses();if(p==="test")setupTest();if(p==="me")loadMe();if(p==="notif")loadNotif();if(p==="pay")loadPay();if(p==="earn")loadEarn()}
 document.addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(g)go(g.dataset.go);const n=e.target.closest("#nav [data-p]");if(n){n.dataset.p==="home"?home():go(n.dataset.p)}});
 $("toSign").onclick=()=>{$("fLogin").classList.add("hid");$("fSign").classList.remove("hid")};
 $("toLog").onclick=()=>{$("fSign").classList.add("hid");$("fLogin").classList.remove("hid")};
@@ -177,7 +178,7 @@ async function loadMine(){const {data}=await db.from("student_courses").select("
 async function enter(u){me=u;
  const {data:p}=await db.from("profiles").select("*").eq("id",u.id).maybeSingle();prof=p||{full_name:u.user_metadata?.full_name||"Student"};
  $("auth").classList.add("hid");$("app").classList.remove("hid");$("av").textContent=(prof.full_name||"S")[0].toUpperCase();
- await loadMine();await loadCfg();if(!mine.length)return pick();
+ await loadMine();await loadCfg();refreshBell();clearInterval(window.__bt);window.__bt=setInterval(refreshBell,60000);if(!mine.length)return pick();
  const sv=ls.get();if(sv){const {data:d,error}=await db.rpc("get_exam",{p_attempt:Number(sv)});if(!error&&d)return startCbt(d);ls.del()}
  home()}
 async function home(){const d=days(),{data:fe}=await db.rpc("my_free_events"),f=(fe||[])[0];
@@ -247,7 +248,7 @@ async function loadClasses(){$("clist").innerHTML='<div class="empty">Loading...
 async function loadMe(){const [a,p]=await Promise.all([
  db.from("exam_attempts").select("exam_title,score,total_questions,mode,submitted_at").eq("student_id",me.id).eq("status","submitted").order("submitted_at",{ascending:false}).limit(8),
  db.from("lesson_progress").select("id").eq("student_id",me.id).eq("completed",true)]);
- $("mebox").innerHTML=profH()+`<div class="card"><div class="score">${(p.data||[]).length}</div><div class="muted">lessons completed</div></div><h3 style="margin:14px 0 8px">Recent tests</h3>`+((a.data||[]).map(x=>`<div class="card row"><span><b>${esc(x.exam_title)}</b><div class="muted">${esc(new Date(x.submitted_at).toLocaleDateString())}</div></span><b>${x.score}/${x.mode==="jamb"?400:x.total_questions}</b></div>`).join("")||'<div class="empty">You have not written a test yet.</div>')}
+ $("mebox").innerHTML=profH()+`<div class="card"><div class="score">${(p.data||[]).length}</div><div class="muted">lessons completed</div></div><h3 style="margin:14px 0 8px">Recent tests</h3>`+((a.data||[]).map(x=>`<div class="card row"><span><b>${esc(x.exam_title)}</b><div class="muted">${esc(new Date(x.submitted_at).toLocaleDateString())}</div></span><b>${x.score}/${x.mode==="jamb"?400:x.total_questions}</b></div>`).join("")||'<div class="empty">You have not written a test yet.</div>');$("mebox").insertAdjacentHTML("beforeend",problemsH())}
 /* test setup */
 async function setupTest(){if(!subs.length){const {data}=await db.from("subjects").select("*").eq("is_published",true).order("sort_order");subs=data||[]}
  const eng=subs.find(s=>s.slug==="use-of-english"),oth=subs.filter(s=>s!==eng);
@@ -302,14 +303,29 @@ async function confirmPay(ref){note("pmsg","Confirming your payment...");
  if(!j.ok)throw new Error(j.message);await loadMine();note("pmsg","Payment confirmed. Your access is active.","ok");loadPay()}
  catch(e){note("pmsg",(e.message||"We could not confirm the payment yet.")+" If you were charged, your access will activate within a few minutes.","err")}}
 /* free days: referrals + tasks */
-let curTask=0;
+let curTask=0,TK={};
 async function loadEarn(){const [p,t,s,r]=await Promise.all([db.from("profiles").select("referral_code").eq("id",me.id).maybeSingle(),db.from("tasks").select("*").eq("is_active",true).order("id"),db.from("task_submissions").select("task_id,status").eq("student_id",me.id).order("id"),db.from("referrals").select("reward_days").eq("referrer_id",me.id)]);
  const code=p.data?.referral_code||"",link=APP_LINK?APP_LINK+code:location.origin+location.pathname+"?ref="+code,rf=r.data||[];
  $("refbox").innerHTML=`<h3>Invite friends</h3><p class="muted">When a friend signs up with your link and picks a course, you earn free days.</p><input id="rl" readonly value="${esc(link)}" style="width:100%;padding:11px;border:1.5px solid var(--line);border-radius:10px"><div class="row" style="margin-top:10px"><button class="btn hi" id="rcopy">Copy link</button><span class="muted">${rf.length} joined, ${rf.reduce((a,x)=>a+x.reward_days,0)} days earned</span></div>`;
  $("rcopy").onclick=()=>{$("rl").select();try{navigator.clipboard.writeText(link)}catch(e){}note("emsg","Link copied.","ok")};
  const st={};(s.data||[]).forEach(x=>st[x.task_id]=x.status);
- $("tasks").innerHTML=(t.data||[]).map(k=>`<div class="card"><span class="tag">${esc(k.platform||"Task")}</span> <span class="tag g">${k.reward_days} free days</span><h3 style="margin-top:6px">${esc(k.title)}</h3><p class="muted" style="white-space:pre-wrap">${esc(k.instructions||"")}</p>${st[k.id]?`<span class="tag ${st[k.id]==="approved"?"g":st[k.id]==="rejected"?"r":""}">${st[k.id]==="pending"?"Waiting for review":st[k.id]}</span>`:""}${!st[k.id]||st[k.id]==="rejected"?`<button class="btn w" data-task="${k.id}" style="margin-top:8px">Submit proof</button>`:""}</div>`).join("")||'<div class="empty">No tasks right now. Check back soon.</div>'}
-$("tasks").onclick=e=>{const b=e.target.closest("[data-task]");if(!b)return;curTask=+b.dataset.task;$("ttext").value="";$("tfile").value="";$("tform").classList.remove("hid");$("tform").scrollIntoView({behavior:"smooth"})};
+ TK={};(t.data||[]).forEach(k=>TK[k.id]=k);
+ $("tasks").innerHTML=(t.data||[]).map(k=>{const s=st[k.id],can=!s||s==="rejected",img=https(k.image_url);
+ return `<div class="card"><div class="row"><span><span class="tag">${esc(k.platform||"Task")}</span> <span class="tag g">${k.reward_days} free days</span></span>${s?`<span class="tag ${s==="approved"?"g":s==="rejected"?"r":""}">${s==="pending"?"Waiting for review":s==="approved"?"Approved":"Rejected, try again"}</span>`:""}</div>
+ <h3 style="margin-top:8px">${esc(k.title)}</h3>${img?`<img class="timg" src="${esc(img)}" alt="Image to post">`:""}
+ ${k.caption?`<div class="capbox"><div class="muted" style="font-weight:700;margin-bottom:4px">Caption to post with it</div><div style="white-space:pre-wrap">${esc(k.caption)}</div></div>`:""}
+ ${k.instructions?`<p class="muted" style="white-space:pre-wrap">${esc(k.instructions)}</p>`:""}
+ <ol class="steps"><li>${img?"Save the image":"Read the instructions"}${k.caption?" and copy the caption":""}.</li><li>Post it as asked${k.platform?" on "+esc(k.platform):""}.</li><li>Take a screenshot of your post and send it below.</li></ol>
+ <div class="row" style="justify-content:flex-start;margin-top:10px">${img?`<button class="btn" data-dl="${k.id}">Save image</button><button class="btn" data-share="${k.id}">Share</button>`:""}${k.caption?`<button class="btn sec" data-copy="${k.id}">Copy caption</button>`:""}${https(k.link_url)?`<a class="btn sec" style="text-decoration:none" href="${esc(https(k.link_url))}" target="_blank" rel="noopener">Open link</a>`:""}</div>
+ ${can?`<button class="btn hi w" data-task="${k.id}" style="margin-top:10px">Send my screenshot</button>`:""}</div>`}).join("")||'<div class="empty">No tasks right now. Check back soon.</div>'}
+const tmsg=(m,k)=>{note("emsg",m,k);$("emsg").scrollIntoView({block:"center"})};
+const taskFile=async k=>{const r=await fetch(https(k.image_url));if(!r.ok)throw new Error("bad");const b=await r.blob();return new File([b],"post-image."+((b.type.split("/")[1]||"png").replace("jpeg","jpg")),{type:b.type||"image/png"})};
+$("tasks").onclick=async e=>{const b=e.target.closest("button");if(!b)return;const d=b.dataset;
+ if(d.task){curTask=+d.task;$("ttext").value="";$("tfile").value="";$("tform").classList.remove("hid");$("tform").scrollIntoView({behavior:"smooth"});return}
+ const k=TK[d.dl||d.share||d.copy];if(!k)return;
+ if(d.copy){try{await navigator.clipboard.writeText(k.caption)}catch(x){const ta=document.createElement("textarea");ta.value=k.caption;document.body.appendChild(ta);ta.select();try{document.execCommand("copy")}catch(y){}ta.remove()}tmsg("Caption copied.","ok");return}
+ if(d.dl){try{const f=await taskFile(k),a=document.createElement("a");a.href=URL.createObjectURL(f);a.download=f.name;document.body.appendChild(a);a.click();a.remove();tmsg("Image saved. Look in your Downloads or Gallery.","ok")}catch(x){window.open(https(k.image_url),"_blank");tmsg("Press and hold the image, then choose Save image.","")}return}
+ if(d.share){try{const f=await taskFile(k);if(navigator.canShare&&navigator.canShare({files:[f]}))await navigator.share({files:[f],text:k.caption||k.title});else throw new Error("no share")}catch(x){if(x&&x.name==="AbortError")return;tmsg("Sharing is not available here. Use Save image and Copy caption instead.","err")}}};
 $("tsend").onclick=async()=>{const f=$("tfile").files[0];let path=null;$("tsend").disabled=true;
  if(f){if(f.size>5e6){$("tsend").disabled=false;return note("emsg","That image is too large. Use one under 5 MB.","err")}
  path=me.id+"/"+Date.now()+"-"+f.name.replace(/[^\w.-]/g,"_");const {error}=await db.storage.from("task-proofs").upload(path,f);if(error){$("tsend").disabled=false;return note("emsg",error.message,"err")}}
@@ -377,8 +393,20 @@ $("rrs").onclick=async()=>{$("rrs").disabled=true;
  $("rrs").disabled=false;recUI(false);refresh()};
 function profH(){const cl=mine.map(m=>{const on=m.access_until&&new Date(m.access_until)>new Date();return `<div class="row" style="margin-top:6px"><span>${esc(m.courses?.name)}</span><span class="tag ${on?"g":"r"}">${on?"Active until "+esc(new Date(m.access_until).toLocaleDateString()):"Not active"}</span></div>`}).join("");
  return `<div class="card"><h3>My details</h3><div class="field"><label>Full name</label><input id="pf_n" value="${esc(prof.full_name||"")}"></div><div class="field"><label>Phone</label><input id="pf_p" value="${esc(prof.phone||"")}"></div><p class="muted">${esc(prof.email||me.email||"")}</p>${cl}<button class="btn w" id="pf_s" style="margin-top:10px">Save details</button><div id="pf_m"></div></div>`}
-$("mebox").onclick=async e=>{if(e.target.id!=="pf_s")return;const r={full_name:$("pf_n").value.trim(),phone:$("pf_p").value.trim()};const {error}=await db.from("profiles").update(r).eq("id",me.id);
+$("mebox").onclick=async e=>{const pa=problemsAct(e.target.id);if(pa==="clear")return loadMe();if(pa)return;if(e.target.id!=="pf_s")return;const r={full_name:$("pf_n").value.trim(),phone:$("pf_p").value.trim()};const {error}=await db.from("profiles").update(r).eq("id",me.id);
  $("pf_m").innerHTML=`<div class="note ${error?"err":"ok"}">${esc(error?error.message:"Saved.")}</div>`;if(!error){Object.assign(prof,r);$("av").textContent=(r.full_name||"S")[0].toUpperCase()}};
+function problemsH(){let a=[];try{a=JSON.parse(localStorage.getItem("app_errors")||"[]")}catch(e){}
+ return `<div class="card"><h3>Problem report</h3><p class="muted">${a.length?a.length+" problem(s) were recorded on this device. If something is not working, copy this and send it to support.":"No problems recorded on this device."}</p>${a.length?`<textarea readonly id="pr_t" style="width:100%;min-height:90px;font-size:12px">${esc(a.map(x=>x.t.slice(0,19).replace("T"," ")+"  "+x.p+"  "+x.m).join("\n"))}</textarea><div class="row" style="justify-content:flex-start;margin-top:8px"><button class="btn sec" id="pr_c">Copy</button><button class="btn sec" id="pr_x">Clear</button></div>`:""}</div>`}
+function problemsAct(id){if(id==="pr_c"){const t=$("pr_t");t.select();try{navigator.clipboard.writeText(t.value)}catch(e){try{document.execCommand("copy")}catch(x){}}return true}if(id==="pr_x"){try{localStorage.removeItem("app_errors")}catch(e){}return "clear"}return false}
+/* notifications */
+const ago=d=>{const s=(Date.now()-new Date(d))/1000;return s<60?"just now":s<3600?Math.floor(s/60)+" min ago":s<86400?Math.floor(s/3600)+" h ago":new Date(d).toLocaleDateString()};
+async function refreshBell(){if(!me)return;const {data}=await db.rpc("unread_count"),n=+data||0;$("bcount").textContent=n>9?"9+":n;$("bcount").classList.toggle("hid",!n)}
+async function loadNotif(){$("nlist").innerHTML='<div class="empty">Loading...</div>';const {data,error}=await db.rpc("my_notifications");
+ if(error)return $("nlist").innerHTML=`<div class="note err">${esc(error.message)}</div>`;
+ $("nlist").innerHTML=(data||[]).map(n=>`<div class="card ${n.read?"":"unread"}"><div class="row"><b>${esc(n.title)}</b><span class="muted">${ago(n.created_at)}</span></div>${https(n.image_url)?`<img class="timg" src="${esc(https(n.image_url))}" alt="">`:""}${n.body?`<p style="white-space:pre-wrap;margin:6px 0 0">${esc(n.body)}</p>`:""}${https(n.link_url)?`<a class="btn sec" style="display:inline-block;margin-top:10px;text-decoration:none" href="${esc(https(n.link_url))}" target="_blank" rel="noopener">Open</a>`:""}</div>`).join("")||'<div class="empty">No notifications yet.</div>';
+ if((data||[]).some(n=>!n.read)){await db.rpc("mark_notifications_read");refreshBell()}}
+$("bell").onclick=()=>go("notif");$("av").onclick=()=>go("me");
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshBell()});
 let cfg={};
 async function loadCfg(){const {data}=await db.from("settings").select("*");cfg={};(data||[]).forEach(x=>cfg[x.key]=x.value)}
 $("redeem").onclick=async()=>{const c=$("codein").value.trim();if(!c)return note("emsg","Enter your code first.","err");
