@@ -2,6 +2,8 @@
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0f1f4b"><title>Academy dashboard</title>
 <script>(function(){function log(m){try{var a=JSON.parse(localStorage.getItem("app_errors")||"[]");a.push({t:new Date().toISOString(),p:location.pathname.split("/").pop()||"index",m:String(m).slice(0,300)});localStorage.setItem("app_errors",JSON.stringify(a.slice(-20)))}catch(e){}}window.addEventListener("error",function(e){if(/(sb|supabase)\.js/.test(e.filename||""))return;if(e.message)log(e.message+" ("+String(e.filename||"").split("/").pop()+":"+e.lineno+")")});window.addEventListener("unhandledrejection",function(e){log(e.reason&&e.reason.message||e.reason)})})();</script>
 <script src="sb.js"></script>
+<script src="mod-content.js"></script>
+<script src="mod-classes.js"></script>
 <script>window.supabase||document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>')</script>
 <script>window.supabase||document.write('<script src="https://unpkg.com/@supabase/supabase-js@2"><\/script>')</script>
 <script>window.supabase||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.45.4/umd/supabase.min.js"><\/script>')</script>
@@ -31,7 +33,7 @@ iframe{width:100%;height:calc(100vh - 118px);border:0;display:block;background:#
 .chk{display:flex;gap:9px;align-items:center;padding:8px 11px;border:1.5px solid var(--line);border-radius:10px;margin:6px 0;background:#fff}.chk input{width:18px;height:18px;flex:none}
 .cat{margin:18px 0 8px;font:800 15px 'Bricolage Grotesque';color:var(--mut)}
 </style></head><body>
-<section id="login" style="max-width:420px;margin:60px auto;padding:0 16px"><div class="card"><h2>Academy dashboard</h2><p class="muted">Sign in once. Everything you are allowed to manage opens from here.</p><p class="muted" style="font-size:11px">Version 14</p>
+<section id="login" style="max-width:420px;margin:60px auto;padding:0 16px"><div class="card"><h2>Academy dashboard</h2><p class="muted">Sign in once. Everything you are allowed to manage opens from here.</p><p class="muted" style="font-size:11px">Version 15</p>
 <div class="field"><label>Email</label><input id="em" type="email" autocomplete="email"></div><div class="field"><label>Password</label><input id="pw" type="password" autocomplete="current-password"></div>
 <button class="btn w" id="go" style="width:100%">Sign in</button><div id="lm"></div></div></section>
 <div id="app" class="hid"><div class="top"><span class="br" id="ttl">Dashboard</span><span><span id="who" class="muted" style="color:#c9d3f5;margin-right:8px"></span><button id="out">Sign out</button></span></div>
@@ -45,6 +47,7 @@ const msg=(id,t,k="")=>{const e=$(id);if(e)e.innerHTML=t?`<div class="note ${k}"
 let me,prof,view="";
 const can=p=>prof.role==="admin"||(prof.role==="teacher"&&(prof.permissions||[]).includes(p));
 const NAV=[["home","🏠","Home",()=>true],["teaching","🎓","Teaching",()=>true],["content","📚","Content",()=>true],["classes","🎥","Classes",()=>true],["courses","💳","Courses",()=>can("courses")],["promos","🎁","Promos",()=>can("promos")],["notify","🔔","Notify",()=>can("notify")],["tasks","✅","Tasks",()=>can("tasks")||can("payments")],["team","👥","Team",()=>can("staff")],["payroll","💰","Payroll",()=>can("payments")],["me","👤","Me",()=>true]];
+let curMod=null;const MODS={content:"content",classes:"classes"};
 const FRAMES={content:"admin.html?embed=1",classes:"teach.html?embed=1",promos:"admin-exams.html?embed=1#promos",tasks:"admin-exams.html?embed=1#tasks"};
 async function enter(u){me=u;const {data}=await db.from("profiles").select("*").eq("id",u.id).maybeSingle();
  if(!data||!["admin","teacher"].includes(data.role)){await db.auth.signOut();return msg("lm","This account does not have staff access. Ask an admin to give you a role.","err")}
@@ -56,7 +59,10 @@ $("out").onclick=async()=>{await db.auth.signOut();location.reload()};
 $("nav").onclick=e=>{const b=e.target.closest("[data-v]");if(b)go(b.dataset.v)};
 function go(v){if(!NAV.some(n=>n[0]===v&&n[3]()))v="home";view=v;history.replaceState(null,"","#"+v);
  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
- const n=NAV.find(x=>x[0]===v);$("ttl").textContent=n[2];const el=$("view");el.classList.toggle("full",!!FRAMES[v]);
+ if(curMod){try{curMod.unmount&&curMod.unmount()}catch(e){}curMod=null}
+ const n=NAV.find(x=>x[0]===v);$("ttl").textContent=n[2];const el=$("view"),mk=MODS[v]&&window.Mods&&Mods[MODS[v]];
+ el.classList.toggle("full",!mk&&!!FRAMES[v]);
+ if(mk){el.innerHTML='<div class="mod mod-'+MODS[v]+'">'+mk.html+'</div>';curMod=mk.mount(db,me);return}
  if(FRAMES[v]){el.innerHTML=`<iframe src="${FRAMES[v]}" title="${n[2]}"></iframe>`;return}
  el.innerHTML='<p class="muted">Loading...</p>';({home,teaching,courses,team,payroll,notify,me:meView})[v]()}
 /* home */
