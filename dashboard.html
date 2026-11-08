@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0f1f4b"><title>Academy dashboard</title>
-<script>(function(){function log(m){try{var a=JSON.parse(localStorage.getItem("app_errors")||"[]");a.push({t:new Date().toISOString(),p:location.pathname.split("/").pop()||"index",m:String(m).slice(0,300)});localStorage.setItem("app_errors",JSON.stringify(a.slice(-20)))}catch(e){}}window.addEventListener("error",function(e){if(/(sb|supabase)\.js/.test(e.filename||""))return;if(e.message)log(e.message+" ("+String(e.filename||"").split("/").pop()+":"+e.lineno+")")});window.addEventListener("unhandledrejection",function(e){log(e.reason&&e.reason.message||e.reason)})})();</script>
+<script>(function(){function log(m){try{var a=JSON.parse(localStorage.getItem("app_errors")||"[]");a.push({t:new Date().toISOString(),p:location.pathname.split("/").pop()||"index",m:String(m).slice(0,300)});localStorage.setItem("app_errors",JSON.stringify(a.slice(-20)))}catch(e){}try{window.dispatchEvent(new Event("app-error"))}catch(e){}}window.addEventListener("error",function(e){if(/(sb|supabase)\.js/.test(e.filename||""))return;if(e.message)log(e.message+" ("+String(e.filename||"").split("/").pop()+":"+e.lineno+")")});window.addEventListener("unhandledrejection",function(e){log(e.reason&&e.reason.message||e.reason)})})();</script>
 <script src="sb.js"></script>
 <script src="mod-content.js"></script>
 <script src="mod-classes.js"></script>
@@ -33,7 +33,7 @@ iframe{width:100%;height:calc(100vh - 118px);border:0;display:block;background:#
 .chk{display:flex;gap:9px;align-items:center;padding:8px 11px;border:1.5px solid var(--line);border-radius:10px;margin:6px 0;background:#fff}.chk input{width:18px;height:18px;flex:none}
 .cat{margin:18px 0 8px;font:800 15px 'Bricolage Grotesque';color:var(--mut)}
 </style></head><body>
-<section id="login" style="max-width:420px;margin:60px auto;padding:0 16px"><div class="card"><h2>Academy dashboard</h2><p class="muted">Sign in once. Everything you are allowed to manage opens from here.</p><p class="muted" style="font-size:11px">Version 15</p>
+<section id="login" style="max-width:420px;margin:60px auto;padding:0 16px"><div class="card"><h2>Academy dashboard</h2><p class="muted">Sign in once. Everything you are allowed to manage opens from here.</p><p class="muted" style="font-size:11px">Version 16</p>
 <div class="field"><label>Email</label><input id="em" type="email" autocomplete="email"></div><div class="field"><label>Password</label><input id="pw" type="password" autocomplete="current-password"></div>
 <button class="btn w" id="go" style="width:100%">Sign in</button><div id="lm"></div></div></section>
 <div id="app" class="hid"><div class="top"><span class="br" id="ttl">Dashboard</span><span><span id="who" class="muted" style="color:#c9d3f5;margin-right:8px"></span><button id="out">Sign out</button></span></div>
@@ -53,7 +53,7 @@ async function enter(u){me=u;const {data}=await db.from("profiles").select("*").
  if(!data||!["admin","teacher"].includes(data.role)){await db.auth.signOut();return msg("lm","This account does not have staff access. Ask an admin to give you a role.","err")}
  prof=data;$("login").classList.add("hid");$("app").classList.remove("hid");$("who").textContent=(prof.full_name||"")+" ("+prof.role+")";
  $("nav").innerHTML=NAV.filter(n=>n[3]()).map(n=>`<button data-v="${n[0]}"><i>${n[1]}</i>${n[2]}</button>`).join("");
- go(location.hash.slice(1)||"home")}
+ flushErrors();go(location.hash.slice(1)||"home")}
 $("go").onclick=async()=>{const {data,error}=await db.auth.signInWithPassword({email:$("em").value.trim(),password:$("pw").value});if(error)return msg("lm",error.message,"err");enter(data.user)};
 $("out").onclick=async()=>{await db.auth.signOut();location.reload()};
 $("nav").onclick=e=>{const b=e.target.closest("[data-v]");if(b)go(b.dataset.v)};
@@ -121,10 +121,20 @@ async function payroll(){const d=new Date(),per=d.getFullYear()+"-"+String(d.get
  $("pp_m").onchange=load;
  $("pp_g").onclick=async()=>{const {data,error}=await db.rpc("generate_payroll",{p_period:$("pp_m").value});if(error)return msg("pp_msg",error.message,"err");msg("pp_msg",data?"Calculated for "+data+" teacher(s).":"No teacher has pay set yet. Set it on the Team page.","ok");load()};
  $("pp_l").onclick=async e=>{const b=e.target.closest("[data-pay]");if(!b)return;const {error}=await db.rpc("mark_payroll",{p_id:+b.dataset.pay,p_paid:b.dataset.to==="1",p_note:null});if(error)alert(error.message);load()};load()}
+/* errors are sent quietly to the admins */
+async function flushErrors(){if(!me)return;let a=[];try{a=JSON.parse(localStorage.getItem("app_errors")||"[]")}catch(e){return}
+ const todo=a.filter(x=>!x.s).slice(-5);if(!todo.length)return;
+ for(const x of todo){const {error}=await db.rpc("log_error",{p_page:x.p,p_message:x.m,p_ua:navigator.userAgent});if(!error)x.s=1}
+ try{localStorage.setItem("app_errors",JSON.stringify(a))}catch(e){}}
+window.addEventListener("app-error",()=>{clearTimeout(window.__ft);window.__ft=setTimeout(flushErrors,3000)});
+/* admins: problem reports from every phone */
+async function adminErrors(){const {data,error}=await db.rpc("list_errors");if(view!=="me")return;const rows=error?[]:data||[];
+ $("view").insertAdjacentHTML("beforeend",`<div class="card"><h3>Problem reports from the app</h3><p class="muted">Errors that happened on students' and staff phones. Only admins can see this.</p>${error?`<div class="note err">${esc(error.message)}</div>`:rows.length?rows.map(r=>`<div class="item"><b>${esc(r.page)}</b> <span class="muted">${esc(new Date(r.created_at).toLocaleString())}, ${esc(r.who||"unknown")}</span><div style="font-size:13px;overflow-wrap:anywhere">${esc(r.message)}</div><div class="muted" style="font-size:11px;overflow-wrap:anywhere">${esc((r.ua||"").slice(0,90))}</div></div>`).join("")+`<button class="btn sec" id="er_x">Clear all</button>`:'<p class="muted">No problems reported.</p>'}</div>`)}
 function problemsH(){let a=[];try{a=JSON.parse(localStorage.getItem("app_errors")||"[]")}catch(e){}
  return `<div class="card"><h3>Problem report</h3><p class="muted">${a.length?a.length+" problem(s) were recorded on this device. If something is not working, copy this and send it to support.":"No problems recorded on this device."}</p>${a.length?`<textarea readonly id="pr_t" style="width:100%;min-height:90px;font-size:12px">${esc(a.map(x=>x.t.slice(0,19).replace("T"," ")+"  "+x.p+"  "+x.m).join("\n"))}</textarea><div class="row" style="margin-top:8px"><button class="btn sec" id="pr_c">Copy</button><button class="btn sec" id="pr_x">Clear</button></div>`:""}</div>`}
 $("view").addEventListener("click",e=>{const id=e.target.id;if(id==="pr_c"){const t=$("pr_t");t.select();try{navigator.clipboard.writeText(t.value)}catch(x){try{document.execCommand("copy")}catch(y){}}}
  else if(id==="pr_x"){try{localStorage.removeItem("app_errors")}catch(x){}meView()}
+ else if(id==="er_x"){db.rpc("clear_errors").then(()=>{if(view==="me")meView()})}
  else if(e.target.dataset&&e.target.dataset.nd){db.from("notifications").delete().eq("id",+e.target.dataset.nd).then(()=>{if(view==="notify")notify()})}});
 /* notifications */
 async function notify(){const [cr,ls]=await Promise.all([db.from("courses").select("id,name").order("name"),db.from("notifications").select("*, notification_reads(count)").order("created_at",{ascending:false}).limit(30)]);
@@ -144,7 +154,7 @@ async function notify(){const [cr,ls]=await Promise.all([db.from("courses").sele
   const {error}=await db.rpc("send_notification",{p_title:$("nt").value,p_body:$("nb").value,p_image:img,p_link:link||null,p_audience:$("na").value,p_course:+$("nc").value||null,p_email:$("ne").value,p_expires:$("nx").value?new Date($("nx").value).toISOString():null});
   if(error)throw error;msg("nm","Sent. Students will see it under the bell.","ok");setTimeout(()=>{if(view==="notify")notify()},900)}catch(e){msg("nm",e.message,"err");$("ns").disabled=false}}}
 /* my profile */
-function meView(){setTimeout(()=>{$("view").insertAdjacentHTML("beforeend",problemsH())},0);$("view").innerHTML=`<h2>My profile</h2><div class="card"><div class="field"><label>Full name</label><input id="pn" value="${esc(prof.full_name||"")}"></div><div class="field"><label>Phone</label><input id="pp" value="${esc(prof.phone||"")}"></div>
+function meView(){if(can("staff"))adminErrors();$("view").innerHTML=`<h2>My profile</h2><div class="card"><div class="field"><label>Full name</label><input id="pn" value="${esc(prof.full_name||"")}"></div><div class="field"><label>Phone</label><input id="pp" value="${esc(prof.phone||"")}"></div>
  <div class="field"><label>About me</label><textarea id="pb">${esc(prof.bio||"")}</textarea></div><div class="field"><label>Email</label><input value="${esc(prof.email||"")}" disabled></div>
  <p class="muted">Role: <b>${esc(prof.role)}</b>${prof.role==="teacher"?". Extra access: "+((prof.permissions||[]).join(", ")||"none"):""}</p><button class="btn hi" id="ps">Save profile</button><div id="pm"></div></div>`;
  $("ps").onclick=async()=>{const r={full_name:$("pn").value.trim(),phone:$("pp").value.trim(),bio:$("pb").value.trim()};const {error}=await db.from("profiles").update(r).eq("id",me.id);

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0f1f4b"><title>JAMB Prep Academy</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script>(function(){function log(m){try{var a=JSON.parse(localStorage.getItem("app_errors")||"[]");a.push({t:new Date().toISOString(),p:location.pathname.split("/").pop()||"index",m:String(m).slice(0,300)});localStorage.setItem("app_errors",JSON.stringify(a.slice(-20)))}catch(e){}}window.addEventListener("error",function(e){if(/(sb|supabase)\.js/.test(e.filename||""))return;if(e.message)log(e.message+" ("+String(e.filename||"").split("/").pop()+":"+e.lineno+")")});window.addEventListener("unhandledrejection",function(e){log(e.reason&&e.reason.message||e.reason)})})();</script>
+<script>(function(){function log(m){try{var a=JSON.parse(localStorage.getItem("app_errors")||"[]");a.push({t:new Date().toISOString(),p:location.pathname.split("/").pop()||"index",m:String(m).slice(0,300)});localStorage.setItem("app_errors",JSON.stringify(a.slice(-20)))}catch(e){}try{window.dispatchEvent(new Event("app-error"))}catch(e){}}window.addEventListener("error",function(e){if(/(sb|supabase)\.js/.test(e.filename||""))return;if(e.message)log(e.message+" ("+String(e.filename||"").split("/").pop()+":"+e.lineno+")")});window.addEventListener("unhandledrejection",function(e){log(e.reason&&e.reason.message||e.reason)})})();</script>
 <script src="sb.js"></script>
 <script>window.supabase||document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>')</script>
 <script>window.supabase||document.write('<script src="https://unpkg.com/@supabase/supabase-js@2"><\/script>')</script>
@@ -72,7 +72,7 @@ body.nonav .wrap{margin-left:0}
  .rsend{padding-left:max(12px,calc((100% - 820px)/2));padding-right:max(12px,calc((100% - 820px)/2))}}
 </style></head><body>
 <section id="auth"><div class="auth">
-<h1>JAMB Prep Academy</h1><p class="muted">Lessons, live classes and timed practice tests in one place.</p><p class="muted" style="font-size:11px">Version 14</p>
+<h1>JAMB Prep Academy</h1><p class="muted">Lessons, live classes and timed practice tests in one place.</p><p class="muted" style="font-size:11px">Version 16</p>
 <div class="card" style="margin-top:18px">
 <div id="fLogin"><h2>Sign in</h2>
 <div class="field"><label>Email</label><input id="le" type="email" autocomplete="email"></div>
@@ -99,13 +99,13 @@ body.nonav .wrap{margin-left:0}
 <button class="tile" data-go="test"><span>⏱️</span><b>Write test</b><div class="muted">JAMB mock or one subject</div></button>
 <button class="tile" data-go="classes"><span>🎥</span><b>Classes</b><div class="muted">Live and recorded</div></button>
 <button class="tile" data-go="me"><span>📈</span><b>Profile</b><div class="muted">Details, scores, progress</div></button>
-<button class="tile" data-go="pay"><span>💳</span><b>Subscribe</b><div class="muted">Pay or add a course</div></button>
+<button class="tile" data-go="pay"><span>💳</span><b>My courses</b><div class="muted">Status, pay, add a course</div></button>
 <button class="tile" data-go="earn"><span>🎁</span><b>Free days</b><div class="muted">Invite friends, do tasks</div></button></div></div>
-<div class="pg hid" id="p_pay"><h2 class="pt">Subscribe</h2><p class="muted">Your courses and subscription.</p>
-<div id="paylist" style="margin-top:12px"></div>
-<div id="paysoon" class="note hid">Subscriptions are not open yet. Enjoy your free access for now.</div><div id="payarea"><div class="field"><label>Months</label><select id="pmonths"><option value="1">1 month</option><option value="2">2 months</option><option value="3">3 months</option><option value="6">6 months</option></select></div>
-<div class="card row"><span>Total</span><b class="big" id="ptotal" style="font-size:22px">₦0</b></div>
-<button class="btn hi w" id="payGo">Pay with Paystack</button></div><div id="pmsg" class="note hid"></div></div>
+<div class="pg hid" id="p_pay"><h2 class="pt">My courses</h2><div id="mycourses"></div>
+<div id="addbox" class="hid"><button class="btn sec w" id="addtoggle">+ Register another course</button>
+<div id="addform" class="card hid" style="margin-top:10px"><div class="field"><label>Choose a course</label><select id="addsel"></select></div><button class="btn hi w" id="addgo">Register this course</button></div></div>
+<div id="pmsg" class="note hid"></div>
+<h3 id="payhist_h" class="hid" style="margin:20px 0 8px">My payments</h3><div id="payhist"></div></div>
 <div class="pg hid" id="p_earn"><h2 class="pt">Free days</h2><div id="emsg" class="note hid"></div>
 <div class="card"><h3>Have a code?</h3><div class="row" style="margin-top:8px"><input id="codein" placeholder="Enter code" autocapitalize="characters" style="flex:1;padding:11px;border:1.5px solid var(--line);border-radius:10px"><button class="btn hi" id="redeem">Redeem</button></div></div>
 <div class="card" id="refbox"></div>
@@ -174,11 +174,11 @@ $("bSign").onclick=async()=>{const n=$("sn").value.trim(),em=$("se").value.trim(
 $("bLogin").onclick=async()=>{const {data,error}=await db.auth.signInWithPassword({email:$("le").value.trim(),password:$("lp").value});
  if(error)return note("amsg",error.message,"err");enter(data.user)};
 $("out").onclick=async()=>{await db.auth.signOut();location.reload()};
-async function loadMine(){const {data}=await db.from("student_courses").select("*,courses(name)").eq("student_id",me.id);mine=data||[]}
+async function loadMine(){const {data}=await db.from("student_courses").select("*,courses(name)").eq("student_id",me.id).order("created_at");mine=data||[]}
 async function enter(u){me=u;
  const {data:p}=await db.from("profiles").select("*").eq("id",u.id).maybeSingle();prof=p||{full_name:u.user_metadata?.full_name||"Student"};
  $("auth").classList.add("hid");$("app").classList.remove("hid");$("av").textContent=(prof.full_name||"S")[0].toUpperCase();
- await loadMine();await loadCfg();refreshBell();clearInterval(window.__bt);window.__bt=setInterval(refreshBell,60000);if(!mine.length)return pick();
+ await loadMine();await loadCfg();refreshBell();clearInterval(window.__bt);window.__bt=setInterval(()=>{refreshBell();flushErrors()},60000);flushErrors();if(!mine.length)return pick();
  const sv=ls.get();if(sv){const {data:d,error}=await db.rpc("get_exam",{p_attempt:Number(sv)});if(!error&&d)return startCbt(d);ls.del()}
  home()}
 async function home(){const d=days(),{data:fe}=await db.rpc("my_free_events"),f=(fe||[])[0];
@@ -248,7 +248,7 @@ async function loadClasses(){$("clist").innerHTML='<div class="empty">Loading...
 async function loadMe(){const [a,p]=await Promise.all([
  db.from("exam_attempts").select("exam_title,score,total_questions,mode,submitted_at").eq("student_id",me.id).eq("status","submitted").order("submitted_at",{ascending:false}).limit(8),
  db.from("lesson_progress").select("id").eq("student_id",me.id).eq("completed",true)]);
- $("mebox").innerHTML=profH()+`<div class="card"><div class="score">${(p.data||[]).length}</div><div class="muted">lessons completed</div></div><h3 style="margin:14px 0 8px">Recent tests</h3>`+((a.data||[]).map(x=>`<div class="card row"><span><b>${esc(x.exam_title)}</b><div class="muted">${esc(new Date(x.submitted_at).toLocaleDateString())}</div></span><b>${x.score}/${x.mode==="jamb"?400:x.total_questions}</b></div>`).join("")||'<div class="empty">You have not written a test yet.</div>');$("mebox").insertAdjacentHTML("beforeend",problemsH())}
+ $("mebox").innerHTML=profH()+`<div class="card"><div class="score">${(p.data||[]).length}</div><div class="muted">lessons completed</div></div><h3 style="margin:14px 0 8px">Recent tests</h3>`+((a.data||[]).map(x=>`<div class="card row"><span><b>${esc(x.exam_title)}</b><div class="muted">${esc(new Date(x.submitted_at).toLocaleDateString())}</div></span><b>${x.score}/${x.mode==="jamb"?400:x.total_questions}</b></div>`).join("")||'<div class="empty">You have not written a test yet.</div>')}
 /* test setup */
 async function setupTest(){if(!subs.length){const {data}=await db.from("subjects").select("*").eq("is_published",true).order("sort_order");subs=data||[]}
  const eng=subs.find(s=>s.slug==="use-of-english"),oth=subs.filter(s=>s!==eng);
@@ -282,26 +282,37 @@ function result(r){go("res");const j=r.mode==="jamb";$("rtitle").textContent=r.t
  $("rrev").innerHTML=r.review.map((q,i)=>`<div class="card"><span class="tag">${esc(q.subject)}</span><p><b>${i+1}.</b> ${esc(q.text)}</p>${q.options.map(o=>`<div class="opt ${o.id===q.correct_option_id?"right":o.id===q.selected_option_id?"wrong":""}"><b>${esc(o.label)}</b><span>${esc(o.text)}</span></div>`).join("")}${q.selected_option_id?"":'<p class="muted">You did not answer this one.</p>'}${q.explanation?`<p class="why">${esc(q.explanation)}</p>`:""}</div>`).join("")}
 $("rhome").onclick=home;
 /* ---- SETTINGS: fill these in ---- */
-const PAYSTACK_PK="pk_live_03dfbc17400911457d7ef1aedd5a18982925b91d";            // your Paystack PUBLIC key (starts pk_)
-const APP_LINK="https://t.me/JA_MB_bot/app?startapp";                                  // e.g. "https://t.me/YourBot/app?startapp=" (leave "" to share the web link)
+const PAYSTACK_PK="pk_test_REPLACE_ME";            // your Paystack PUBLIC key (starts pk_)
+const APP_LINK="";                                  // e.g. "https://t.me/YourBot/app?startapp=" (leave "" to share the web link)
 function getRef(){try{return tg?.initDataUnsafe?.start_param||new URLSearchParams(location.search).get("ref")||""}catch(e){return ""}}
-/* payments */
-let pc=[];
-async function loadPay(){const pay=cfg.payments_enabled==="true";$("payarea").classList.toggle("hid",!pay);$("paysoon").classList.toggle("hid",pay);$("paylist").classList.toggle("nochk",!pay);const {data}=await db.from("courses").select("*").eq("is_published",true).order("sort_order");pc=data||[];const own=new Set(mine.map(m=>m.course_id));
- $("paylist").innerHTML=pc.map(c=>{const m=mine.find(x=>x.course_id===c.id),on=m&&m.access_until&&new Date(m.access_until)>new Date();
- return `<label class="chk"><input type="checkbox" value="${c.id}" ${own.has(c.id)?"checked":""}><span style="flex:1">${esc(c.name)}<div class="muted">${m?(on?"Active until "+esc(new Date(m.access_until).toLocaleDateString()):"Your course, not active"):"Extra course"}</div></span>${pay?`<b>₦${Number(c.monthly_price).toLocaleString()}</b>`:(own.has(c.id)||cfg.allow_multi_course!=="true"?"":`<button class="btn" data-add="${c.id}">Add</button>`)}</label>`}).join("")||'<div class="empty">No courses yet.</div>';sumPay()}
-function sumPay(){const ids=[...document.querySelectorAll("#paylist input:checked")].map(i=>+i.value),m=+$("pmonths").value,t=pc.filter(c=>ids.includes(c.id)).reduce((a,c)=>a+c.monthly_price,0)*m;$("ptotal").textContent="₦"+t.toLocaleString();return {ids,m,t}}
-$("paylist").onchange=sumPay;$("pmonths").onchange=sumPay;
-$("payGo").onclick=async()=>{const {ids,m,t}=sumPay();if(!ids.length||!t)return note("pmsg","Choose at least one course that has a price.","err");
+/* my courses and payments */
+let pc=[];const PAYSEEN=new Set(),NAIRA=n=>"₦"+Number(n||0).toLocaleString();
+async function loadPay(){const [c,p]=await Promise.all([db.from("courses").select("*").eq("is_published",true).order("sort_order"),db.from("payments").select("*").eq("student_id",me.id).order("created_at",{ascending:false}).limit(10)]);
+ pc=c.data||[];const pay=cfg.payments_enabled==="true",multi=cfg.allow_multi_course==="true",hist=p.data||[],shown=multi?mine:mine.slice(0,1);
+ $("mycourses").innerHTML=shown.map(m=>{const c=pc.find(x=>x.id===m.course_id)||{id:m.course_id,name:m.courses?.name,monthly_price:0},on=m.access_until&&new Date(m.access_until)>new Date();
+  return `<div class="card"><div class="row"><span><h3>${esc(c.name)}</h3><span class="muted">${on?"Active until "+esc(new Date(m.access_until).toLocaleDateString()):"Not active yet"}</span></span><span class="tag ${on?"g":"r"}">${on?"Active":"Not active"}</span></div>${pay?`<div class="row" style="margin-top:12px;justify-content:flex-start"><select data-mo="${c.id}" style="width:auto;padding:10px;border:1.5px solid var(--line);border-radius:10px"><option value="1">1 month</option><option value="2">2 months</option><option value="3">3 months</option><option value="6">6 months</option></select><button class="btn hi" data-pay="${c.id}">Pay ${NAIRA(c.monthly_price)}</button></div>`:`<p class="muted" style="margin:8px 0 0">Subscriptions are not open yet. Enjoy your free access.</p>`}</div>`}).join("")||'<div class="empty">You have not registered a course yet.</div>';
+ const have=new Set(mine.map(m=>m.course_id)),others=pc.filter(c=>!have.has(c.id)),by={};others.forEach(c=>(by[c.category||"Other"]??=[]).push(c));
+ $("addbox").classList.toggle("hid",!(multi&&others.length));$("addform").classList.add("hid");
+ $("addsel").innerHTML=Object.entries(by).map(([k,l])=>`<optgroup label="${esc(k)}">${l.map(c=>`<option value="${c.id}">${esc(c.name)}${pay?" ("+NAIRA(c.monthly_price)+" a month)":""}</option>`).join("")}</optgroup>`).join("");
+ $("payhist_h").classList.toggle("hid",!hist.length);
+ $("payhist").innerHTML=hist.map(x=>`<div class="card row"><span><b>${NAIRA(x.amount_kobo/100)}</b><div class="muted">${esc(new Date(x.created_at).toLocaleString())}</div></span><span class="tag ${x.status==="success"?"g":x.status==="failed"?"r":""}">${x.status==="success"?"Paid":x.status==="failed"?"Failed":"Pending"}</span>${x.status==="pending"?`<button class="btn sec" data-chk="${esc(x.reference)}">Check payment</button>`:""}</div>`).join("");
+ hist.filter(x=>x.status==="pending"&&Date.now()-new Date(x.created_at)<2592e5&&!PAYSEEN.has(x.reference)).forEach(x=>{PAYSEEN.add(x.reference);confirmPay(x.reference,true)})}
+$("mycourses").onchange=e=>{const s=e.target.closest("[data-mo]");if(!s)return;const c=pc.find(x=>x.id===+s.dataset.mo),b=document.querySelector(`[data-pay="${s.dataset.mo}"]`);if(c&&b)b.textContent="Pay "+NAIRA(c.monthly_price*+s.value)};
+$("mycourses").onclick=async e=>{const b=e.target.closest("[data-pay]");if(!b)return;const id=+b.dataset.pay,mo=+document.querySelector(`[data-mo="${id}"]`).value,c=pc.find(x=>x.id===id);
  if(PAYSTACK_PK.includes("REPLACE"))return note("pmsg","Payments are not switched on yet.","err");
+ if(!c||!c.monthly_price)return note("pmsg","This course has no price yet.","err");
+ b.disabled=true;const {data,error}=await db.rpc("create_payment",{p_course_ids:[id],p_months:mo});b.disabled=false;if(error)return note("pmsg",error.message,"err");
  if(!window.PaystackPop){await new Promise(r=>{const s=document.createElement("script");s.src="https://js.paystack.co/v1/inline.js";s.onload=s.onerror=r;document.head.appendChild(s)})}
  if(!window.PaystackPop)return note("pmsg","Could not load the payment window. Check your connection and try again.","err");
- const {data,error}=await db.rpc("create_payment",{p_course_ids:ids,p_months:m});if(error)return note("pmsg",error.message,"err");
- PaystackPop.setup({key:PAYSTACK_PK,email:data.email||me.email,amount:data.amount_kobo,currency:"NGN",ref:data.reference,callback:r=>{confirmPay(r.reference)},onClose:()=>note("pmsg","Payment window closed.")}).openIframe()};
-async function confirmPay(ref){note("pmsg","Confirming your payment...");
- try{const r=await fetch("https://hsjaopfkyltvjpsxhdii.supabase.co/functions/v1/paystack",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({reference:ref})});const j=await r.json();
- if(!j.ok)throw new Error(j.message);await loadMine();note("pmsg","Payment confirmed. Your access is active.","ok");loadPay()}
- catch(e){note("pmsg",(e.message||"We could not confirm the payment yet.")+" If you were charged, your access will activate within a few minutes.","err")}}
+ PaystackPop.setup({key:PAYSTACK_PK,email:data.email||me.email,amount:data.amount_kobo,currency:"NGN",ref:data.reference,callback:r=>{confirmPay(r.reference)},onClose:()=>{note("pmsg","Payment window closed. If you already paid, tap Check payment below.");loadPay()}}).openIframe()};
+$("addtoggle").onclick=()=>$("addform").classList.toggle("hid");
+$("addgo").onclick=async()=>{const id=+$("addsel").value;if(!id||!confirm("Register this course?"))return;$("addgo").disabled=true;const {error}=await db.rpc("enroll_course",{p_course_id:id});$("addgo").disabled=false;
+ if(error)return note("pmsg",error.message,"err");await loadMine();note("pmsg","Course registered.","ok");loadPay()};
+$("payhist").onclick=e=>{const b=e.target.closest("[data-chk]");if(b)confirmPay(b.dataset.chk)};
+async function confirmPay(ref,quiet){if(!quiet)note("pmsg","Checking your payment...");
+ try{const r=await fetch("https://hsjaopfkyltvjpsxhdii.supabase.co/functions/v1/paystack",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({reference:ref})}),j=await r.json();
+  if(!j.ok)throw new Error(j.message||"The payment could not be confirmed.");await loadMine();note("pmsg","Payment confirmed. Your access is active.","ok");loadPay()}
+ catch(e){if(!quiet)note("pmsg",(e.message||"We could not confirm the payment.")+" If you were charged, contact support with this payment reference: "+ref,"err")}}
 /* free days: referrals + tasks */
 let curTask=0,TK={};
 async function loadEarn(){const [p,t,s,r]=await Promise.all([db.from("profiles").select("referral_code").eq("id",me.id).maybeSingle(),db.from("tasks").select("*").eq("is_active",true).order("id"),db.from("task_submissions").select("task_id,status").eq("student_id",me.id).order("id"),db.from("referrals").select("reward_days").eq("referrer_id",me.id)]);
@@ -398,6 +409,12 @@ $("mebox").onclick=async e=>{const pa=problemsAct(e.target.id);if(pa==="clear")r
 function problemsH(){let a=[];try{a=JSON.parse(localStorage.getItem("app_errors")||"[]")}catch(e){}
  return `<div class="card"><h3>Problem report</h3><p class="muted">${a.length?a.length+" problem(s) were recorded on this device. If something is not working, copy this and send it to support.":"No problems recorded on this device."}</p>${a.length?`<textarea readonly id="pr_t" style="width:100%;min-height:90px;font-size:12px">${esc(a.map(x=>x.t.slice(0,19).replace("T"," ")+"  "+x.p+"  "+x.m).join("\n"))}</textarea><div class="row" style="justify-content:flex-start;margin-top:8px"><button class="btn sec" id="pr_c">Copy</button><button class="btn sec" id="pr_x">Clear</button></div>`:""}</div>`}
 function problemsAct(id){if(id==="pr_c"){const t=$("pr_t");t.select();try{navigator.clipboard.writeText(t.value)}catch(e){try{document.execCommand("copy")}catch(x){}}return true}if(id==="pr_x"){try{localStorage.removeItem("app_errors")}catch(e){}return "clear"}return false}
+/* errors are sent quietly to the admins (students never see them) */
+async function flushErrors(){if(!me)return;let a=[];try{a=JSON.parse(localStorage.getItem("app_errors")||"[]")}catch(e){return}
+ const todo=a.filter(x=>!x.s).slice(-5);if(!todo.length)return;
+ for(const x of todo){const {error}=await db.rpc("log_error",{p_page:x.p,p_message:x.m,p_ua:navigator.userAgent});if(!error)x.s=1}
+ try{localStorage.setItem("app_errors",JSON.stringify(a))}catch(e){}}
+window.addEventListener("app-error",()=>{clearTimeout(window.__ft);window.__ft=setTimeout(flushErrors,3000)});
 /* notifications */
 const ago=d=>{const s=(Date.now()-new Date(d))/1000;return s<60?"just now":s<3600?Math.floor(s/60)+" min ago":s<86400?Math.floor(s/3600)+" h ago":new Date(d).toLocaleDateString()};
 async function refreshBell(){if(!me)return;const {data}=await db.rpc("unread_count"),n=+data||0;$("bcount").textContent=n>9?"9+":n;$("bcount").classList.toggle("hid",!n)}
@@ -412,8 +429,7 @@ async function loadCfg(){const {data}=await db.from("settings").select("*");cfg=
 $("redeem").onclick=async()=>{const c=$("codein").value.trim();if(!c)return note("emsg","Enter your code first.","err");
  const {data,error}=await db.rpc("redeem_code",{p_code:c});if(error)return note("emsg",error.message,"err");if(!data.ok)return note("emsg",data.message,"err");
  $("codein").value="";await loadMine();note("emsg",data.days+" days added to your access.","ok")};
-$("paylist").onclick=async e=>{const b=e.target.closest("[data-add]");if(!b)return;e.preventDefault();
- const {error}=await db.rpc("enroll_course",{p_course_id:+b.dataset.add});if(error)return alert(error.message);await loadMine();loadPay()};
+
 db.auth.getSession().then(({data})=>{if(data.session)enter(data.session.user)});
 })();
 </script></body></html>
