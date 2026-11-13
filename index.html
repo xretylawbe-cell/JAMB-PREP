@@ -72,7 +72,7 @@ body.nonav .wrap{margin-left:0}
  .rsend{padding-left:max(12px,calc((100% - 820px)/2));padding-right:max(12px,calc((100% - 820px)/2))}}
 </style></head><body>
 <section id="auth"><div class="auth">
-<h1>JAMB Prep Academy</h1><p class="muted">Lessons, live classes and timed practice tests in one place.</p><p class="muted" style="font-size:11px">Version 16</p>
+<h1>JAMB Prep Academy</h1><p class="muted">Lessons, live classes and timed practice tests in one place.</p><p class="muted" style="font-size:11px">Version 17</p>
 <div class="card" style="margin-top:18px">
 <div id="fLogin"><h2>Sign in</h2>
 <div class="field"><label>Email</label><input id="le" type="email" autocomplete="email"></div>
@@ -94,6 +94,7 @@ body.nonav .wrap{margin-left:0}
 <div class="pg hid" id="p_home">
 <div class="slip" id="slip"></div>
 <div class="note err hid" id="lockmsg">Your course is locked. <button class="link" data-go="pay">Subscribe now</button> or earn free days.</div>
+<div class="card" id="daily" style="margin-top:12px"></div>
 <div class="grid tiles" style="margin-top:12px">
 <button class="tile" data-go="study"><span>📚</span><b>Learn</b><div class="muted">Subjects and lessons</div></button>
 <button class="tile" data-go="test"><span>⏱️</span><b>Write test</b><div class="muted">JAMB mock or one subject</div></button>
@@ -118,7 +119,7 @@ body.nonav .wrap{margin-left:0}
 
 <div class="pg hid" id="p_test"><h2 class="pt">Write test</h2>
 <div class="card"><h3>JAMB mock</h3><p class="muted">Use of English (60 questions) plus 3 subjects (40 each). 2 hours. Scored out of 400.</p><div id="jambsubs" style="margin-top:10px"></div><button class="btn hi w" id="jambGo">Start JAMB mock</button></div>
-<div class="card"><h3>One subject</h3><div class="field"><label>Subject</label><select id="onesub"></select></div>
+<div class="card"><h3>One subject</h3><div class="field"><label>Subject</label><select id="onesub"></select></div><div class="field"><label>Year (past questions)</label><select id="oneyear"><option value="">All years</option></select></div>
 <div class="grid"><div class="field"><label>Questions</label><input id="cnt" type="number" value="20" min="5" max="60"></div><div class="field"><label>Minutes</label><input id="mins" type="number" value="20" min="5" max="120"></div></div>
 <button class="btn w" id="oneGo">Start test</button></div><div id="tmsg" class="note hid"></div></div>
 
@@ -130,13 +131,15 @@ body.nonav .wrap{margin-left:0}
 <div class="rfl" id="rfl"></div></div>
 <div class="pg hid" id="p_lesson" style="margin:-16px -14px 0"><div class="lbar"><button id="lx" aria-label="Close lesson">✕</button><div class="bar"><i id="lprog"></i></div><span id="lcount" class="muted"></span></div>
 <div class="lcard" id="lcard"></div><div class="lfoot"><button class="btn hi w" id="lnext">Continue</button></div></div>
+<div class="pg hid" id="p_board"><h2 class="pt">Leaderboard</h2><div id="blist"></div></div>
+<div class="pg hid" id="p_saved"><h2 class="pt">Saved questions</h2><div id="savedlist"></div></div>
 <div class="pg hid" id="p_notif"><h2 class="pt">Notifications</h2><div id="nlist"></div></div>
 <div class="pg hid" id="p_me"><h2 class="pt">My profile</h2><div id="mebox"></div><button class="btn sec w" id="out">Sign out</button></div>
 
 <div class="pg hid" id="p_cbt" style="margin:-16px -14px 0">
 <div class="cbt"><div><b id="ctitle"></b><div class="muted" style="color:#c9d3f5" id="qlab"></div></div><div class="tm" id="tm">00:00</div></div>
 <div style="padding:14px"><div class="tabs" id="ctabs"></div>
-<div class="card"><span class="tag" id="qsub"></span><p id="qtext" style="font-size:17px;margin:10px 0 0"></p></div>
+<div class="card"><button class="lk" id="qsave" style="float:right"></button><span class="tag" id="qsub"></span><p id="qtext" style="font-size:17px;margin:10px 0 0"></p></div>
 <div id="opts"></div>
 <div class="row" style="margin:6px 0 14px"><button class="btn sec" id="prev">Previous</button><button class="btn" id="next">Next</button></div>
 <div class="card"><div class="muted" style="margin-bottom:8px">Jump to a question</div><div class="pal" id="pal"></div></div>
@@ -144,7 +147,7 @@ body.nonav .wrap{margin-left:0}
 
 <div class="pg hid" id="p_res"><h2 class="pt">Your result</h2>
 <div class="card"><div class="muted" id="rtitle"></div><div class="score" id="rscore"></div><div style="margin-top:16px" id="rsub"></div></div>
-<h3 style="margin:16px 0 10px">Review your answers</h3><div id="rrev"></div><button class="btn w" id="rhome">Back to home</button></div>
+<h3 style="margin:16px 0 10px">Review your answers</h3><div id="rrev"></div><button class="btn sec w" id="rimprove" style="margin-bottom:8px">See where to improve</button><button class="btn w" id="rhome">Back to home</button></div>
 </main>
 <nav class="nav" id="nav"><button data-p="home"><i>⌂</i>Home</button><button data-p="study"><i>📚</i>Learn</button><button data-p="test"><i>⏱️</i>Test</button><button data-p="classes"><i>🎥</i>Classes</button><button data-p="me"><i>◉</i>Me</button></nav>
 </section>
@@ -162,7 +165,7 @@ const days=()=>Math.ceil(Math.max(0,...mine.map(c=>c.access_until?new Date(c.acc
 function go(p){document.querySelectorAll(".pg").forEach(e=>e.classList.toggle("hid",e.id!=="p_"+p));
  const full=["cbt","res","pick","room","lesson"].includes(p);$("nav").classList.toggle("hid",full);document.body.classList.toggle("nonav",full);document.body.classList.toggle("bleed",["cbt","room","lesson"].includes(p));
  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.p===p));scrollTo(0,0);
- if(p==="study")(ST.sid?openSubject(ST.sid):showSubs());if(p==="classes")loadClasses();if(p==="test")setupTest();if(p==="me")loadMe();if(p==="notif")loadNotif();if(p==="pay")loadPay();if(p==="earn")loadEarn()}
+ if(p==="study")(ST.sid?openSubject(ST.sid):showSubs());if(p==="classes")loadClasses();if(p==="test")setupTest();if(p==="me")loadMe();if(p==="notif")loadNotif();if(p==="board")loadBoard();if(p==="saved")loadSaved();if(p==="pay")loadPay();if(p==="earn")loadEarn()}
 document.addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(g)go(g.dataset.go);const n=e.target.closest("#nav [data-p]");if(n){n.dataset.p==="home"?home():go(n.dataset.p)}});
 $("toSign").onclick=()=>{$("fLogin").classList.add("hid");$("fSign").classList.remove("hid")};
 $("toLog").onclick=()=>{$("fSign").classList.add("hid");$("fLogin").classList.remove("hid")};
@@ -184,7 +187,7 @@ async function enter(u){me=u;
 async function home(){const d=days(),{data:fe}=await db.rpc("my_free_events"),f=(fe||[])[0];
  $("slip").innerHTML=`<div class="muted">Student pass</div><h2>${esc(prof.full_name||"Student")}</h2><p style="margin:0 0 10px">${mine.map(m=>esc(m.courses?.name)).join(" + ")}</p><span class="tag ${d||f?"g":"r"}">${d?d+" days of access left":f?"Free until "+esc(new Date(f.ends_at).toLocaleDateString()):"Access ended"}</span>${f?` <span class="tag">${esc(f.name)}</span>`:""}`;
  $("lockmsg").innerHTML=cfg.payments_enabled==="true"?'Your access has ended. <button class="link" data-go="pay">Subscribe</button> or earn free days.':'Your access has ended. <button class="link" data-go="earn">Earn free days</button> or enter a code.';
- $("lockmsg").classList.toggle("hid",d>0||!!f);go("home")}
+ $("lockmsg").classList.toggle("hid",d>0||!!f);go("home");loadDaily()}
 let allC=[];
 async function pick(){go("pick");const {data}=await db.from("courses").select("*").eq("is_published",true).order("sort_order");allC=data||[];$("csearch").value="";drawPick()}
 function drawPick(){const q=($("csearch").value||"").toLowerCase(),by={};allC.filter(c=>!q||c.name.toLowerCase().includes(q)).forEach(c=>(by[c.category||"Other"]??=[]).push(c));
@@ -238,7 +241,7 @@ $("lnext").onclick=()=>{const p=LP.pages[LP.i];if(p.kind==="quiz"&&!LP.checked){
  if(LP.i>=LP.pages.length-1)return finishLP();LP.i++;LP.checked=false;LP.pick=-1;savePos();drawLP();scrollTo(0,0)};
 $("lcard").onclick=e=>{const b=e.target.closest("button");if(!b)return;if(b.dataset.q!==undefined&&!LP.checked){LP.pick=+b.dataset.q;drawLP()}else if(b.dataset.lesson)openLesson(+b.dataset.lesson);else if(b.id==="lback")closeLP()};
 $("study").onclick=e=>{const b=e.target.closest("button");if(!b)return;const d=b.dataset;
- if(d.s)openSubject(+d.s);else if(d.lesson)openLesson(+d.lesson);else if(d.back)showSubs();else if(d.practice){go("test");setupTest().then(()=>{$("onesub").value=ST.sid})}};
+ if(d.s)openSubject(+d.s);else if(d.lesson)openLesson(+d.lesson);else if(d.back)showSubs();else if(d.practice){go("test");setupTest().then(()=>{$("onesub").value=ST.sid;loadYears()})}};
 /* classes */
 async function loadClasses(){$("clist").innerHTML='<div class="empty">Loading...</div>';
  const {data}=await db.from("class_sessions").select("*").eq("is_published",true).order("starts_at");
@@ -248,15 +251,17 @@ async function loadClasses(){$("clist").innerHTML='<div class="empty">Loading...
 async function loadMe(){const [a,p]=await Promise.all([
  db.from("exam_attempts").select("exam_title,score,total_questions,mode,submitted_at").eq("student_id",me.id).eq("status","submitted").order("submitted_at",{ascending:false}).limit(8),
  db.from("lesson_progress").select("id").eq("student_id",me.id).eq("completed",true)]);
- $("mebox").innerHTML=profH()+`<div class="card"><div class="score">${(p.data||[]).length}</div><div class="muted">lessons completed</div></div><h3 style="margin:14px 0 8px">Recent tests</h3>`+((a.data||[]).map(x=>`<div class="card row"><span><b>${esc(x.exam_title)}</b><div class="muted">${esc(new Date(x.submitted_at).toLocaleDateString())}</div></span><b>${x.score}/${x.mode==="jamb"?400:x.total_questions}</b></div>`).join("")||'<div class="empty">You have not written a test yet.</div>')}
+ $("mebox").innerHTML=profH()+'<div id="improve"></div>'+`<div class="card"><div class="score">${(p.data||[]).length}</div><div class="muted">lessons completed</div></div><h3 style="margin:14px 0 8px">Recent tests</h3>`+((a.data||[]).map(x=>`<div class="card row"><span><b>${esc(x.exam_title)}</b><div class="muted">${esc(new Date(x.submitted_at).toLocaleDateString())}</div></span><b>${x.score}/${x.mode==="jamb"?400:x.total_questions}</b></div>`).join("")||'<div class="empty">You have not written a test yet.</div>');loadImprove()}
 /* test setup */
 async function setupTest(){if(!subs.length){const {data}=await db.from("subjects").select("*").eq("is_published",true).order("sort_order");subs=data||[]}
  const eng=subs.find(s=>s.slug==="use-of-english"),oth=subs.filter(s=>s!==eng);
  $("jambsubs").innerHTML=(eng?`<label class="chk"><input type="checkbox" checked disabled>${esc(eng.name)} (compulsory)</label>`:'<div class="note err">Use of English is not in your course yet.</div>')+oth.map(s=>`<label class="chk"><input type="checkbox" value="${s.id}">${esc(s.name)}</label>`).join("");
- $("onesub").innerHTML=subs.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join("")}
+ $("onesub").innerHTML=subs.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join("");loadYears()}
 async function run(fn,args){note("tmsg","Preparing your questions...");const {data,error}=await db.rpc(fn,args);if(error)return note("tmsg",error.message,"err");note("tmsg","");ls.set(data.attempt_id);startCbt(data)}
 $("jambGo").onclick=()=>{const ids=[...document.querySelectorAll("#jambsubs input:checked:not(:disabled)")].map(i=>+i.value);if(ids.length!==3)return note("tmsg","Pick exactly 3 subjects besides Use of English.","err");run("start_jamb_exam",{p_subject_ids:ids})};
-$("oneGo").onclick=()=>run("start_exam",{p_subject_id:+$("onesub").value,p_count:+$("cnt").value||20,p_minutes:+$("mins").value||20});
+$("oneGo").onclick=()=>run("start_custom",{p_subject_id:+$("onesub").value,p_year:+$("oneyear").value||null,p_topic_ids:null,p_count:+$("cnt").value||20,p_minutes:+$("mins").value||20,p_title:null});
+$("onesub").onchange=()=>loadYears();
+async function loadYears(){const sid=+$("onesub").value;if(!sid)return;const {data}=await db.rpc("question_years",{p_subject_id:sid});$("oneyear").innerHTML='<option value="">All years</option>'+(data||[]).map(y=>`<option value="${y}">${y}</option>`).join("")}
 /* CBT */
 function startCbt(d){ex=d;ans={};d.questions.forEach(q=>{if(q.selected_option_id)ans[q.id]=q.selected_option_id});cur=0;endAt=Date.now()+d.seconds_left*1000;
  $("ctitle").textContent=d.title;const sj=[...new Map(d.questions.map(q=>[q.subject_id,q.subject]))];
@@ -264,7 +269,7 @@ function startCbt(d){ex=d;ans={};d.questions.forEach(q=>{if(q.selected_option_id
  go("cbt");render();clearInterval(tmr);tmr=setInterval(tick,1000);tick()}
 function tick(){const s=Math.max(0,Math.round((endAt-Date.now())/1000)),h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;
  $("tm").textContent=(h?h+":":"")+String(m).padStart(2,"0")+":"+String(x).padStart(2,"0");$("tm").classList.toggle("low",s<300);if(s<=0){clearInterval(tmr);submit(true)}}
-function render(){const qs=ex.questions,q=qs[cur];$("qlab").textContent=`Question ${cur+1} of ${qs.length}`;$("qsub").textContent=q.subject;$("qtext").textContent=q.text;
+function render(){const qs=ex.questions,q=qs[cur];$("qlab").textContent=`Question ${cur+1} of ${qs.length}`;$("qsub").textContent=q.subject;$("qtext").textContent=q.text;$("qsave").textContent=q.bookmarked?"★ Saved":"☆ Save for later";
  $("opts").innerHTML=q.options.map(o=>`<button class="opt ${ans[q.id]===o.id?"sel":""}" data-o="${o.id}"><b>${esc(o.label)}</b><span>${esc(o.text)}</span></button>`).join("");
  $("ctabs").querySelectorAll("button").forEach(b=>b.classList.toggle("on",+b.dataset.sub===q.subject_id));
  $("pal").innerHTML=qs.map((x,i)=>`<button data-i="${i}" class="${ans[x.id]?"done":""} ${i===cur?"cur":""}">${i+1}</button>`).join("");
@@ -272,6 +277,7 @@ function render(){const qs=ex.questions,q=qs[cur];$("qlab").textContent=`Questio
 $("opts").onclick=e=>{const b=e.target.closest("[data-o]");if(!b)return;const q=ex.questions[cur],o=+b.dataset.o;ans[q.id]=o;db.rpc("save_answer",{p_attempt:ex.attempt_id,p_question:q.id,p_option:o});render()};
 $("pal").onclick=e=>{const b=e.target.closest("[data-i]");if(b){cur=+b.dataset.i;render()}};
 $("ctabs").onclick=e=>{const b=e.target.closest("[data-sub]");if(b){cur=ex.questions.findIndex(q=>q.subject_id===+b.dataset.sub);render()}};
+$("qsave").onclick=async()=>{const q=ex.questions[cur],r=await db.rpc("toggle_bookmark",{p_question:q.id});if(!r.error){q.bookmarked=r.data;render()}};
 $("prev").onclick=()=>{cur--;render()};$("next").onclick=()=>{cur++;render()};$("sub").onclick=()=>submit(false);
 async function submit(auto){const un=ex.questions.filter(q=>!ans[q.id]).length;
  if(!auto&&!confirm(un?`You have ${un} unanswered question(s). Submit now?`:"Submit your test?"))return;
@@ -279,11 +285,13 @@ async function submit(auto){const un=ex.questions.filter(q=>!ans[q.id]).length;
  if(error){alert(error.message);if(endAt>Date.now())tmr=setInterval(tick,1000);return}ls.del();result(data)}
 function result(r){go("res");const j=r.mode==="jamb";$("rtitle").textContent=r.title;$("rscore").textContent=r.score+" / "+r.max_score;
  $("rsub").innerHTML=r.by_subject.map(s=>`<div class="mb"><div class="row"><span>${esc(s.subject)}</span><b>${s.correct} of ${s.total} correct${j?", "+s.score+"/100":""}</b></div><div class="bar"><i style="width:${s.score}%"></i></div></div>`).join("");
- $("rrev").innerHTML=r.review.map((q,i)=>`<div class="card"><span class="tag">${esc(q.subject)}</span><p><b>${i+1}.</b> ${esc(q.text)}</p>${q.options.map(o=>`<div class="opt ${o.id===q.correct_option_id?"right":o.id===q.selected_option_id?"wrong":""}"><b>${esc(o.label)}</b><span>${esc(o.text)}</span></div>`).join("")}${q.selected_option_id?"":'<p class="muted">You did not answer this one.</p>'}${q.explanation?`<p class="why">${esc(q.explanation)}</p>`:""}</div>`).join("")}
+ $("rrev").innerHTML=r.review.map((q,i)=>`<div class="card"><span class="tag">${esc(q.subject)}</span><p><b>${i+1}.</b> ${esc(q.text)}</p>${q.options.map(o=>`<div class="opt ${o.id===q.correct_option_id?"right":o.id===q.selected_option_id?"wrong":""}"><b>${esc(o.label)}</b><span>${esc(o.text)}</span></div>`).join("")}${q.selected_option_id?"":'<p class="muted">You did not answer this one.</p>'}${q.explanation?`<p class="why">${esc(q.explanation)}</p>`:""}<button class="lk ${q.bookmarked?"on":""}" data-bm="${q.id}">${q.bookmarked?"★ Saved":"☆ Save for later"}</button></div>`).join("")}
+$("rrev").onclick=async e=>{const b=e.target.closest("[data-bm]");if(!b)return;const r=await db.rpc("toggle_bookmark",{p_question:+b.dataset.bm});if(!r.error){b.classList.toggle("on",r.data);b.textContent=r.data?"★ Saved":"☆ Save for later"}};
+$("rimprove").onclick=()=>go("me");
 $("rhome").onclick=home;
 /* ---- SETTINGS: fill these in ---- */
-const PAYSTACK_PK="pk_live_03dfbc17400911457d7ef1aedd5a18982925b91d";            // your Paystack PUBLIC key (starts pk_)
-const APP_LINK="https://t.me/JA_MB_bot/app?startapp=";                                  // e.g. "https://t.me/YourBot/app?startapp=" (leave "" to share the web link)
+const PAYSTACK_PK="pk_test_REPLACE_ME";            // your Paystack PUBLIC key (starts pk_)
+const APP_LINK="";                                  // e.g. "https://t.me/YourBot/app?startapp=" (leave "" to share the web link)
 function getRef(){try{return tg?.initDataUnsafe?.start_param||new URLSearchParams(location.search).get("ref")||""}catch(e){return ""}}
 /* my courses and payments */
 let pc=[];const PAYSEEN=new Set(),NAIRA=n=>"₦"+Number(n||0).toLocaleString();
@@ -409,6 +417,28 @@ $("mebox").onclick=async e=>{const pa=problemsAct(e.target.id);if(pa==="clear")r
 function problemsH(){let a=[];try{a=JSON.parse(localStorage.getItem("app_errors")||"[]")}catch(e){}
  return `<div class="card"><h3>Problem report</h3><p class="muted">${a.length?a.length+" problem(s) were recorded on this device. If something is not working, copy this and send it to support.":"No problems recorded on this device."}</p>${a.length?`<textarea readonly id="pr_t" style="width:100%;min-height:90px;font-size:12px">${esc(a.map(x=>x.t.slice(0,19).replace("T"," ")+"  "+x.p+"  "+x.m).join("\n"))}</textarea><div class="row" style="justify-content:flex-start;margin-top:8px"><button class="btn sec" id="pr_c">Copy</button><button class="btn sec" id="pr_x">Clear</button></div>`:""}</div>`}
 function problemsAct(id){if(id==="pr_c"){const t=$("pr_t");t.select();try{navigator.clipboard.writeText(t.value)}catch(e){try{document.execCommand("copy")}catch(x){}}return true}if(id==="pr_x"){try{localStorage.removeItem("app_errors")}catch(e){}return "clear"}return false}
+/* daily challenge, streaks, leaderboard, weak topics, saved questions */
+async function loadDaily(){const el=$("daily");const {data:d}=await db.rpc("daily_status");if(!d){el.classList.add("hid");return}el.classList.remove("hid");const s=d.streak||0;
+ el.innerHTML=`<div class="row"><span><h3>${s>0?"🔥 "+s+"-day streak":"Start your streak"}</h3><span class="muted">Best: ${d.best||0} days, ${d.week_xp||0} XP this week</span></span><button class="btn sec" id="lbbtn">🏆 Leaderboard</button></div>
+ <button class="btn ${d.done?"sec":"hi"} w" id="dailybtn" style="margin-top:10px" ${d.done?"disabled":""}>${d.done?"✓ Daily challenge done. Back tomorrow!":d.in_progress?"Continue today's challenge":"Daily challenge: 5 quick questions"}</button>`}
+$("daily").onclick=e=>{const b=e.target.closest("button");if(!b)return;if(b.id==="lbbtn")go("board");else if(b.id==="dailybtn")startDaily()};
+async function startDaily(){const {data,error}=await db.rpc("start_daily");if(error)return alert(error.message);ls.set(data.attempt_id);startCbt(data)}
+async function loadBoard(){$("blist").innerHTML='<div class="empty">Loading...</div>';const {data,error}=await db.rpc("leaderboard");if(error)return $("blist").innerHTML=`<div class="note err">${esc(error.message)}</div>`;
+ const top=data?.top||[],m=data?.me;
+ $("blist").innerHTML=(m?`<div class="card"><div class="muted">Your place this week</div><div class="score">#${m.rank}</div><div class="muted">${m.xp} XP</div></div>`:'<div class="card"><b>You are not on the board yet.</b><p class="muted" style="margin:4px 0 0">Answer questions, finish lessons or do the daily challenge to earn XP.</p></div>')
+  +(top.map(x=>`<div class="card row ${x.me?"unread":""}"><span><b>#${x.rank}</b> &nbsp;${esc(x.name)}</span><b>${x.xp} XP</b></div>`).join("")||'<div class="empty">No one has scored yet this week.</div>')
+  +`<p class="muted">2 XP for each correct answer, 10 for each finished lesson and each daily challenge. The board restarts every Monday.</p><label class="chk"><input type="checkbox" id="lbhide" ${prof.leaderboard_opt_out?"checked":""}>Hide my name from the leaderboard</label>`}
+$("blist").onchange=async e=>{if(e.target.id!=="lbhide")return;const v=e.target.checked,{error}=await db.from("profiles").update({leaderboard_opt_out:v}).eq("id",me.id);if(!error)prof.leaderboard_opt_out=v;loadBoard()};
+async function loadImprove(){const el=$("improve");if(!el)return;const [w,bk]=await Promise.all([db.rpc("my_weak_topics"),db.from("bookmarks").select("question_id",{count:"exact",head:true})]);const rows=w.data||[],n=bk.count||0;
+ el.innerHTML=`<div class="card"><h3>Where to improve</h3>${rows.length?rows.map(r=>`<div style="margin:12px 0"><div class="row"><span><b>${esc(r.topic)}</b><div class="muted">${esc(r.subject)}, ${r.correct} of ${r.total} right</div></span><button class="btn sec" data-prac="${r.topic_id}" data-sub="${r.subject_id}" data-name="${esc(r.topic==="General"?r.subject:r.topic)}">Practice</button></div><div class="bar"><i style="width:${r.accuracy}%;background:${r.accuracy<50?"var(--bad)":r.accuracy<75?"var(--hi)":"var(--ok)"}"></i></div></div>`).join("")+(rows.filter(r=>r.topic_id>0).length>1?'<button class="btn hi w" data-pracall="1">Practice my weakest topics</button>':""):'<p class="muted">Write a few tests and your hardest topics will show here. A topic needs at least 3 answers to appear.</p>'}</div>
+ <div class="card row"><span><b>Saved questions</b><div class="muted">${n} saved</div></span><button class="btn sec" data-go="saved">Open</button></div>`}
+$("mebox").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+ if(b.dataset.prac!==undefined){const tid=+b.dataset.prac;practice(tid>0?null:+b.dataset.sub,tid>0?[tid]:null,b.dataset.name+" practice")}
+ else if(b.dataset.pracall){const ids=[...document.querySelectorAll("#improve [data-prac]")].map(x=>+x.dataset.prac).filter(x=>x>0).slice(0,3);practice(null,ids,"Weak topics practice")}});
+async function practice(sub,topics,title){const {data,error}=await db.rpc("start_custom",{p_subject_id:sub,p_year:null,p_topic_ids:topics,p_count:15,p_minutes:15,p_title:title});if(error)return alert(error.message);ls.set(data.attempt_id);startCbt(data)}
+async function loadSaved(){$("savedlist").innerHTML='<div class="empty">Loading...</div>';const {data,error}=await db.rpc("my_bookmarks");if(error)return $("savedlist").innerHTML=`<div class="note err">${esc(error.message)}</div>`;
+ $("savedlist").innerHTML=(data||[]).map(q=>`<div class="card"><div class="row"><span class="tag">${esc(q.subject)}</span><button class="lk on" data-unsave="${q.id}">★ Remove</button></div><p>${esc(q.text)}</p>${q.options.map(o=>`<div class="opt ${q.seen&&o.id===q.correct_option_id?"right":""}"><b>${esc(o.label)}</b><span>${esc(o.text)}</span></div>`).join("")}${q.seen?(q.explanation?`<p class="why">${esc(q.explanation)}</p>`:""):'<p class="muted">The answer shows after you finish a test that has this question.</p>'}</div>`).join("")||'<div class="empty">You have not saved any questions yet. Tap Save for later during a test or in your results.</div>'}
+$("savedlist").onclick=async e=>{const b=e.target.closest("[data-unsave]");if(!b)return;await db.rpc("toggle_bookmark",{p_question:+b.dataset.unsave});loadSaved()};
 /* errors are sent quietly to the admins (students never see them) */
 async function flushErrors(){if(!me)return;let a=[];try{a=JSON.parse(localStorage.getItem("app_errors")||"[]")}catch(e){return}
  const todo=a.filter(x=>!x.s).slice(-5);if(!todo.length)return;

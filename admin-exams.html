@@ -41,7 +41,7 @@ input,select,textarea,button{font:inherit}input,select,textarea{width:100%;paddi
 <div class="field"><label>Days</label><input id="gd" type="number" value="30" min="1"></div><button class="btn hi" id="grant">Grant access</button><div id="m3"></div></div></div>
 
 <div id="t_q" class="hid"><div class="card"><h3>Import questions</h3>
-<p class="muted">Paste rows from Excel or Google Sheets (or CSV). Columns in this order: question, a, b, c, d, correct, explanation, year. The first row can be the headings. <b>correct</b> is A, B, C or D. If one row has a problem, nothing is imported.</p>
+<p class="muted">Paste rows from Excel or Google Sheets (or CSV). Columns in this order: question, a, b, c, d, correct, explanation, year, topic (topic is optional and must match a topic name in that subject). The first row can be the headings. <b>correct</b> is A, B, C or D. If one row has a problem, nothing is imported.</p>
 <div class="field"><label>Subject</label><select id="qs"></select></div>
 <div class="field"><label>Questions</label><textarea id="qt" placeholder="question,a,b,c,d,correct,explanation,year&#10;What is 2+2?,3,4,5,6,B,Two plus two is four,2019"></textarea></div>
 <button class="btn hi" id="imp">Import questions</button><div id="m4"></div></div></div>
@@ -160,7 +160,7 @@ function csv(t){const d=(t.split("\n")[0]||"").includes("\t")?"\t":",";const row
  r.push(f);if(r.some(x=>x.trim()))rows.push(r);return rows}
 $("imp").onclick=async()=>{let rows=csv($("qt").value);if(!rows.length)return msg("m4","Paste your questions first.","err");
  if(/^question$/i.test(rows[0][0].trim()))rows=rows.slice(1);
- const k=["question","a","b","c","d","correct","explanation","year"];const objs=rows.map(r=>Object.fromEntries(k.map((n,i)=>[n,(r[i]||"").trim()])));
+ const k=["question","a","b","c","d","correct","explanation","year","topic"];const objs=rows.map(r=>Object.fromEntries(k.map((n,i)=>[n,(r[i]||"").trim()])));
  $("imp").disabled=true;let n=0;msg("m4","Importing...");
  for(let i=0;i<objs.length;i+=50){const {data,error}=await db.rpc("import_questions",{p_subject_id:+$("qs").value,p_rows:objs.slice(i,i+50)});
  if(error){$("imp").disabled=false;return msg("m4",`${n} imported before an error: ${error.message}`,"err")}n+=data}

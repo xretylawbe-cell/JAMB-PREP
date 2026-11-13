@@ -128,7 +128,7 @@ async function openQ(r){let o=[],a=null;
  qe={r,opts:Object.fromEntries(o.map(z=>[z.option_label,z]))};
  const cor=a?o.find(z=>z.id===a.correct_option_id)?.option_label:"";
  $("form").classList.remove("hid");
- $("form").innerHTML=`<h3>${r?"Edit":"New"} question</h3>`+fld("subject_id","Subject","sel:subjects",r?.subject_id||$("flt").value||L.subjects[0]?.id)+fld("question_text","Question","area",r?.question_text||"")+
+ $("form").innerHTML=`<h3>${r?"Edit":"New"} question</h3>`+fld("subject_id","Subject","sel:subjects",r?.subject_id||$("flt").value||L.subjects[0]?.id)+`<div class="field"><label>Topic (optional, powers the weak-topic report)</label><select id="x_topic_id"><option value="">None</option>${L.topics.map(tp=>`<option value="${tp.id}" ${tp.id===r?.topic_id?"selected":""}>${esc(tp.name)}</option>`).join("")}</select></div>`+fld("question_text","Question","area",r?.question_text||"")+
  `<label style="font-size:13px;font-weight:700">Options (tick the correct one)</label>`+["A","B","C","D"].map(l=>`<label class="chk"><input type="radio" name="corr" value="${l}" ${cor===l?"checked":""}><b>${l}</b><input type="text" id="o_${l}" value="${esc(qe.opts[l]?.option_text||"")}" placeholder="Option ${l}"></label>`).join("")+
  fld("explanation","Explanation shown after the test","area",a?.explanation||"")+fld("question_year","Year","num",r?.question_year||"")+fld("difficulty","Difficulty","opt:easy,medium,hard",r?.difficulty||"medium")+fld("is_published","Visible in tests","chk",r?r.is_published:true)+
  `<div class="grid"><button class="btn hi" id="save">Save question</button> <button class="btn sec" id="cancel">Cancel</button></div><div id="fm"></div>`;
@@ -137,7 +137,7 @@ async function saveQ(){const g=k=>$("x_"+k).value.trim(),lab=["A","B","C","D"],t
  if(!g("question_text"))return msg("Write the question first.","err");
  if(lab.filter(l=>tx[l]).length<2)return msg("Add at least two options.","err");
  if(!cor||!tx[cor])return msg("Tick the correct option, and fill it in.","err");
- const q={subject_id:+g("subject_id"),question_text:g("question_text"),question_year:g("question_year")?+g("question_year"):null,difficulty:g("difficulty"),is_published:$("x_is_published").checked};
+ const q={subject_id:+g("subject_id"),topic_id:+g("topic_id")||null,question_text:g("question_text"),question_year:g("question_year")?+g("question_year"):null,difficulty:g("difficulty"),is_published:$("x_is_published").checked};
  let id=qe.r?.id,e;if(id)e=(await db.from("questions").update(q).eq("id",id)).error;else{const r=await db.from("questions").insert(q).select("id").single();e=r.error;id=r.data?.id}
  if(e)return msg(e.message,"err");
  const ids={};
